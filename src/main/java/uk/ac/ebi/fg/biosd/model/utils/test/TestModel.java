@@ -1,0 +1,180 @@
+/*
+ * 
+ */
+package uk.ac.ebi.fg.biosd.model.utils.test;
+
+import java.lang.reflect.Field;
+import java.util.HashSet;
+
+import javax.persistence.EntityManager;
+
+import uk.ac.ebi.fg.biosd.model.expgraph.BioSample;
+import uk.ac.ebi.fg.biosd.model.organizational.BioSampleGroup;
+import uk.ac.ebi.fg.biosd.model.organizational.MSI;
+import uk.ac.ebi.fg.core_model.dao.hibernate.toplevel.AccessibleDAO;
+import uk.ac.ebi.fg.core_model.expgraph.Product;
+import uk.ac.ebi.fg.core_model.expgraph.properties.BioCharacteristicType;
+import uk.ac.ebi.fg.core_model.expgraph.properties.BioCharacteristicValue;
+import uk.ac.ebi.fg.core_model.expgraph.properties.Unit;
+import uk.ac.ebi.fg.core_model.expgraph.properties.UnitDimension;
+import uk.ac.ebi.fg.core_model.terms.OntologyEntry;
+import uk.ac.ebi.fg.core_model.xref.ReferenceSource;
+
+/**
+ * TODO: Comment me!
+ *
+ * <dl><dt>date</dt><dd>Sep 3, 2012</dd></dl>
+ * @author Marco Brandizi
+ *
+ */
+public class TestModel
+{	
+	
+	private BioSample smp1;
+	private BioSample smp2;
+	private BioSample smp3;
+	private BioSample smp4;
+	private BioSample smp5;
+	private BioSample smp6;
+	
+	private BioCharacteristicType ch1;
+	private BioCharacteristicValue cv1;
+	private BioCharacteristicType ch2;
+	private BioCharacteristicValue cv2;
+	private UnitDimension timeDim;
+	private Unit monthsUnit;
+	private BioCharacteristicValue cv3;
+	private BioCharacteristicValue cv4;
+	private BioCharacteristicType ch3;
+	private BioCharacteristicValue cv5;
+	private UnitDimension concentrationUnit;
+	private Unit percent;
+	private BioSampleGroup sg1;
+	private BioSampleGroup sg2;
+
+	/**
+	 * Calls {@link #TestModel(String)} with "".
+	 */
+	public TestModel () {
+		this ( "" );
+	}
+
+	/**
+	 * 	<pre>
+	 *  smp1 -----> smp3 ----> smp4 ---> smp6
+	 *  smp2 ----/       \---> smp5 --/     
+	 *  </pre>        
+	 */
+	public TestModel ( String prefix )
+	{
+		smp1 = new BioSample ( prefix + "smp1" );
+		smp2 = new BioSample ( prefix + "smp2" );
+		smp3 = new BioSample ( prefix + "smp3" );
+		smp4 = new BioSample ( prefix + "smp4" );
+		smp5 = new BioSample ( prefix + "smp5" );
+		smp6 = new BioSample ( prefix + "smp6" );
+		
+		
+		// These relations are symmetric
+		smp3.addDerivedFrom ( smp1 );
+		smp2.addDerivedInto ( smp3 );
+
+		smp4.addDerivedFrom ( smp3 );
+		smp5.addDerivedFrom ( smp3 );
+
+		smp6.addDerivedFrom ( smp4 );
+		smp5.addDerivedInto ( smp6 );
+		
+		
+		ch1 = new BioCharacteristicType ( "Organism" );
+		ch1.addOntologyTerm ( new OntologyEntry ( "123", new ReferenceSource ( "EFO", null ) ) );
+		ch1.addOntologyTerm ( new OntologyEntry ( "456", new ReferenceSource ( "MA", null ) ) );
+		cv1 = new BioCharacteristicValue ( "mus-mus", ch1 );
+		smp1.addPropertyValue ( cv1 );
+		
+		ch2 = new BioCharacteristicType ();
+		ch2.setTermText ( "Age" );
+		cv2 = new BioCharacteristicValue ();
+		cv2.setTermText ( "10" );
+		cv2.setType ( ch2 );
+		timeDim = new UnitDimension ( "time" );
+		monthsUnit = new Unit ( "months", timeDim );
+		cv2.setUnit ( monthsUnit );
+		smp1.addPropertyValue ( cv2 );
+
+		// Cannot be re-used, you need to create a new one, even if it is the same
+		cv3 = new BioCharacteristicValue ( "mus-mus", ch1 );
+		smp2.addPropertyValue ( cv3 );
+		
+		cv4 = new BioCharacteristicValue ( "8", ch2 );
+		// Units can be recycled instead
+		cv4.setUnit ( monthsUnit );
+		smp2.addPropertyValue ( cv4 ); 
+		
+		
+		ch3 = new BioCharacteristicType ();
+		ch3.setTermText ( "concentration" );
+		cv5 = new BioCharacteristicValue ( "2%", ch3 );
+		concentrationUnit = new UnitDimension ( "Concentration" );
+		percent = new Unit ( "Percentage", concentrationUnit );
+		cv5.setUnit ( percent );
+		
+		smp4.addPropertyValue ( cv5 );
+		
+		
+		sg1 = new BioSampleGroup ( prefix + "sg1" );
+		sg2 = new BioSampleGroup ( prefix + "sg2" );
+		
+		sg1.addSample ( smp1 );
+		smp2.addGroup ( sg1 );
+		sg1.addSample ( smp3 );
+		
+		sg2.addSample ( smp4 );
+		sg2.addSample ( smp5 );
+		sg2.addSample ( smp6 );
+		smp3.addGroup ( sg2 ); // same sample in two groups
+		
+		MSI msi = new MSI ( prefix + "msi1" );
+		msi.addSample ( smp1 );
+		msi.addSample ( smp2 );
+		msi.addSample ( smp3 );
+		msi.addSample ( smp4 );
+		msi.addSample ( smp5 );
+		msi.addSample ( smp6 );
+
+		msi.addSampleGroup ( sg1 );
+		msi.addSampleGroup ( sg2 );
+	}
+	
+	public void delete ( EntityManager em )
+	{
+		try
+		{
+			AccessibleDAO<Product> productDao = new AccessibleDAO<Product> ( Product.class, em );
+			
+			for ( Field f: this.getClass ().getFields () ) 
+			{
+				Object o = f.get ( this );
+				if ( ! ( o instanceof Product ) ) continue;
+				
+				Product prod = (Product) o;
+				
+				Product prodDB = productDao.find ( prod.getAcc () );
+				if ( prodDB == null ) continue;
+				
+				for ( Product up: new HashSet<Product> ( prodDB.getDerivedFrom () ) )
+					prodDB.removeDerivedFrom ( up );
+				for ( Product down: new HashSet<Product> ( prodDB.getDerivedInto () ) )
+					prodDB.removeDerivedInto ( down );
+				
+				productDao.delete ( (Product) prodDB ); 
+			}
+		}
+		catch (  IllegalArgumentException ex ) {
+			throw new RuntimeException ( "Error while deleting the direct-approach test model" );
+		}
+		catch (  IllegalAccessException ex ) {
+			throw new RuntimeException ( "Error while deleting the direct-approach test model" );
+		}
+	}	
+}

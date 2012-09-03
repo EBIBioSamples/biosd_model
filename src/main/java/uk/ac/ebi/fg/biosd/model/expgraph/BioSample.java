@@ -3,18 +3,15 @@
  */
 package uk.ac.ebi.fg.biosd.model.expgraph;
 
+import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.AssociationOverride;
-import javax.persistence.AssociationOverrides;
+import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.JoinTable;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import javax.persistence.ManyToMany;
 import javax.persistence.Transient;
 
+import uk.ac.ebi.fg.biosd.model.organizational.BioSampleGroup;
 import uk.ac.ebi.fg.core_model.expgraph.BioMaterial;
 import uk.ac.ebi.fg.core_model.expgraph.Node;
 import uk.ac.ebi.fg.core_model.expgraph.Process;
@@ -31,15 +28,12 @@ import uk.ac.ebi.fg.core_model.expgraph.properties.ExperimentalPropertyValue;
  *
  */
 @Entity
-@Table ( name = "bio_sample" )
-@SequenceGenerator ( name = "hibernate_seq", sequenceName = "bio_sample_seq" )
-@AssociationOverrides({ 
-	@AssociationOverride ( name = "derivedFrom", joinTable = @JoinTable ( name = "biosample_derivation" ) ), 
-	@AssociationOverride ( name = "annotations", joinTable = @JoinTable( name = "biosample_annotation" ) )
-})
+@DiscriminatorValue ( "bio_sample" )
 @SuppressWarnings ( "rawtypes" )
 public class BioSample extends BioMaterial<ExperimentalPropertyValue>
 {
+	private Set<BioSampleGroup> groups = new HashSet<BioSampleGroup> (); 
+	
 	private void throwComplexModelNotSupported() 
 	{
 		throw new UnsupportedOperationException ( 
@@ -48,6 +42,43 @@ public class BioSample extends BioMaterial<ExperimentalPropertyValue>
 		);
 	}
 	
+	
+	
+	public BioSample () {
+		super ();
+	}
+
+	public BioSample ( String acc ) {
+		super ( acc );
+	}
+	
+
+	@ManyToMany ( mappedBy = "samples" )
+	public Set<BioSampleGroup> getGroups ()
+	{
+		return groups;
+	}
+
+	protected void setGroups ( Set<BioSampleGroup> groups )
+	{
+		this.groups = groups;
+	}
+
+	public boolean addGroup ( BioSampleGroup sg ) 
+	{
+		if ( !this.groups.add ( sg ) ) return false;
+		sg.addSample ( this );
+		return true;
+	}
+
+	public boolean deleteGroup ( BioSampleGroup sg ) 
+	{
+		if ( !this.groups.remove ( sg ) ) return false;
+		sg.deleteSample ( this );
+		return true;
+	}
+	
+
 	/**
 	 * The upstream model is not supported by BioSD, which uses the simpler model based on {@link #getDerivedFrom() straight derivation}. 
 	 */
@@ -219,5 +250,5 @@ public class BioSample extends BioMaterial<ExperimentalPropertyValue>
 		throwComplexModelNotSupported ();
 		return false;
 	}
-	
+
 }

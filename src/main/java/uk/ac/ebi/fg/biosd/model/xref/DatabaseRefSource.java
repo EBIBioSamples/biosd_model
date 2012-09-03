@@ -3,6 +3,9 @@
  */
 package uk.ac.ebi.fg.biosd.model.xref;
 
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
 import uk.ac.ebi.fg.core_model.xref.ReferenceSource;
 
 /**
@@ -13,6 +16,16 @@ import uk.ac.ebi.fg.core_model.xref.ReferenceSource;
  * @author Marco Brandizi
  *
  */
+@Entity
+@Table ( name = "database_ref_source" )
 public class DatabaseRefSource extends ReferenceSource
 {
+	protected DatabaseRefSource () {
+		super ();
+	}
+
+	public DatabaseRefSource ( String acc, String version ) {
+		super ( acc, version );
+	}
+	
 }
