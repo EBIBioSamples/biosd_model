@@ -149,4 +149,91 @@
 	
   </distributionManagement>	
   
+  <!--
+    Examples of profile-configurable parameters. Probably you'll want to put these in your project, or in settings.xml
+    Note that the test.* profiles set up properties like test.*, these are used in test configuration files, (e.g.,
+    src/test/resources/hibernate.properties). These is done to allow you to define similar files in your Maven project, 
+    but without the test.* prefix. In other word, you can play with profiles and keep separated certain properties 
+    depending on a real environment (e.g., production, staging) from test properties like the ones defined here. 
+  -->
+  <profiles>
+  
+  	<profile>
+  		<id>test.hsql</id>
+  		<activation><activeByDefault>true</activeByDefault></activation>
+  		<properties>
+				<test.jdbc.username>sa</test.jdbc.username>
+				<test.jdbc.password></test.jdbc.password>
+				<test.jdbc.url>jdbc:hsqldb:mem:testdb</test.jdbc.url>
+				<test.jdbc.driverClassName>org.hsqldb.jdbcDriver</test.jdbc.driverClassName>
+				<test.hibernate.dialect>org.hibernate.dialect.HSQLDialect</test.hibernate.dialect>
+				<test.hibernate.hbm2ddl.auto>create</test.hibernate.hbm2ddl.auto>
+  		</properties>
+  		<dependencies>
+				<dependency>
+	        <groupId>org.hsqldb</groupId>
+	        <artifactId>hsqldb</artifactId>
+	        <version>2.2.4</version>
+				</dependency>  		
+  		</dependencies>
+  	</profile>
+  	
+  	<profile>
+  		<id>test.hsql_file</id>
+  		<properties>
+				<test.jdbc.username>sa</test.jdbc.username>
+				<test.jdbc.password></test.jdbc.password>
+				<test.jdbc.url>jdbc:hsqldb:file:target/database/testdb;shutdown=true;hsqldb.write_delay=false</test.jdbc.url>
+				<test.jdbc.driverClassName>org.hsqldb.jdbcDriver</test.jdbc.driverClassName>
+				<test.hibernate.dialect>org.hibernate.dialect.HSQLDialect</test.hibernate.dialect>
+				<test.hibernate.hbm2ddl.auto>update</test.hibernate.hbm2ddl.auto>
+  		</properties>
+  		<dependencies>
+				<dependency>
+	        <groupId>org.hsqldb</groupId>
+	        <artifactId>hsqldb</artifactId>
+	        <version>2.2.4</version>
+				</dependency>  		
+  		</dependencies>
+  	</profile>  
+  	
+  	<profile>
+  		<id>test.h2_file</id>
+  		<properties>
+				<test.jdbc.username>sa</test.jdbc.username>
+				<test.jdbc.password></test.jdbc.password>
+				<test.jdbc.url>jdbc:h2:target/database/testdb</test.jdbc.url>
+				<test.jdbc.driverClassName>org.h2.Driver</test.jdbc.driverClassName>
+        <test.hibernate.dialect>org.hibernate.dialect.H2Dialect</test.hibernate.dialect>
+				<test.hibernate.hbm2ddl.auto>update</test.hibernate.hbm2ddl.auto>
+  		</properties>
+  		<dependencies>
+				<dependency>
+					<groupId>com.h2database</groupId>
+					<artifactId>h2</artifactId>
+					<version>1.3.168</version>
+				</dependency>
+      </dependencies>
+  	</profile>    	  	
+  	
+  	<profile>
+  		<id>test.mysql</id>
+  		<properties>
+				<test.jdbc.username>test</test.jdbc.username>
+				<test.jdbc.password>test</test.jdbc.password>
+				<test.jdbc.url>jdbc:mysql://localhost/myequivalents_test</test.jdbc.url>
+				<test.jdbc.driverClassName>com.mysql.jdbc.Driver</test.jdbc.driverClassName>
+				<test.hibernate.dialect>org.hibernate.dialect.MySQLDialect</test.hibernate.dialect>
+				<test.hibernate.hbm2ddl.auto>update</test.hibernate.hbm2ddl.auto>
+  		</properties>
+  		<dependencies>
+				<dependency>
+						<groupId>mysql</groupId>
+						<artifactId>mysql-connector-java</artifactId>
+						<version>5.1.20</version>
+				</dependency>  		
+  		</dependencies>
+  	</profile>
+  		
+  </profiles>  
 </project>

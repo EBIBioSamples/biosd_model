@@ -3,16 +3,12 @@
  */
 package uk.ac.ebi.fg.biosd.model.utils.test;
 
-import java.lang.reflect.Field;
-import java.util.HashSet;
-
 import javax.persistence.EntityManager;
 
 import uk.ac.ebi.fg.biosd.model.expgraph.BioSample;
 import uk.ac.ebi.fg.biosd.model.organizational.BioSampleGroup;
 import uk.ac.ebi.fg.biosd.model.organizational.MSI;
 import uk.ac.ebi.fg.core_model.dao.hibernate.toplevel.AccessibleDAO;
-import uk.ac.ebi.fg.core_model.expgraph.Product;
 import uk.ac.ebi.fg.core_model.expgraph.properties.BioCharacteristicType;
 import uk.ac.ebi.fg.core_model.expgraph.properties.BioCharacteristicValue;
 import uk.ac.ebi.fg.core_model.expgraph.properties.Unit;
@@ -30,27 +26,28 @@ import uk.ac.ebi.fg.core_model.xref.ReferenceSource;
 public class TestModel
 {	
 	
-	private BioSample smp1;
-	private BioSample smp2;
-	private BioSample smp3;
-	private BioSample smp4;
-	private BioSample smp5;
-	private BioSample smp6;
+	public BioSample smp1;
+	public BioSample smp2;
+	public BioSample smp3;
+	public BioSample smp4;
+	public BioSample smp5;
+	public BioSample smp6;
 	
-	private BioCharacteristicType ch1;
-	private BioCharacteristicValue cv1;
-	private BioCharacteristicType ch2;
-	private BioCharacteristicValue cv2;
-	private UnitDimension timeDim;
-	private Unit monthsUnit;
-	private BioCharacteristicValue cv3;
-	private BioCharacteristicValue cv4;
-	private BioCharacteristicType ch3;
-	private BioCharacteristicValue cv5;
-	private UnitDimension concentrationUnit;
-	private Unit percent;
-	private BioSampleGroup sg1;
-	private BioSampleGroup sg2;
+	public BioCharacteristicType ch1;
+	public BioCharacteristicValue cv1;
+	public BioCharacteristicType ch2;
+	public BioCharacteristicValue cv2;
+	public UnitDimension timeDim;
+	public Unit monthsUnit;
+	public BioCharacteristicValue cv3;
+	public BioCharacteristicValue cv4;
+	public BioCharacteristicType ch3;
+	public BioCharacteristicValue cv5;
+	public UnitDimension concentrationUnit;
+	public Unit percent;
+	public BioSampleGroup sg1;
+	public BioSampleGroup sg2;
+	public MSI msi;
 
 	/**
 	 * Calls {@link #TestModel(String)} with "".
@@ -134,7 +131,7 @@ public class TestModel
 		sg2.addSample ( smp6 );
 		smp3.addGroup ( sg2 ); // same sample in two groups
 		
-		MSI msi = new MSI ( prefix + "msi1" );
+		msi = new MSI ( prefix + "msi1" );
 		msi.addSample ( smp1 );
 		msi.addSample ( smp2 );
 		msi.addSample ( smp3 );
@@ -148,7 +145,10 @@ public class TestModel
 	
 	public void delete ( EntityManager em )
 	{
-		try
+		AccessibleDAO<MSI> dao = new AccessibleDAO<MSI> ( MSI.class, em );
+		dao.delete ( msi );
+		
+/*		try
 		{
 			AccessibleDAO<Product> productDao = new AccessibleDAO<Product> ( Product.class, em );
 			
@@ -176,5 +176,6 @@ public class TestModel
 		catch (  IllegalAccessException ex ) {
 			throw new RuntimeException ( "Error while deleting the direct-approach test model" );
 		}
-	}	
+*/	
+		}	
 }
