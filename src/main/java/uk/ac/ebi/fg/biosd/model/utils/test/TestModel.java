@@ -84,9 +84,9 @@ public class TestModel
 		
 		
 		ch1 = new BioCharacteristicType ( "Organism" );
-		ch1.addOntologyTerm ( new OntologyEntry ( "123", new ReferenceSource ( "EFO", null ) ) );
-		ch1.addOntologyTerm ( new OntologyEntry ( "456", new ReferenceSource ( "MA", null ) ) );
 		cv1 = new BioCharacteristicValue ( "mus-mus", ch1 );
+        cv1.addOntologyTerm ( new OntologyEntry ( "123", new ReferenceSource ( "EFO", null ) ) );
+        cv1.addOntologyTerm ( new OntologyEntry ( "456", new ReferenceSource ( "MA", null ) ) );
 		smp1.addPropertyValue ( cv1 );
 		
 		ch2 = new BioCharacteristicType ();
