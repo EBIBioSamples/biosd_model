@@ -121,6 +121,8 @@ public class TestModel
 		
 		sg1 = new BioSampleGroup ( prefix + "sg1" );
 		sg2 = new BioSampleGroup ( prefix + "sg2" );
+		// Likely you won't share property values over multiple owners, but it is possible
+		sg2.addPropertyValue ( cv5 );
 		
 		sg1.addSample ( smp1 );
 		smp2.addGroup ( sg1 );
