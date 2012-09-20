@@ -17,7 +17,7 @@ import uk.ac.ebi.fg.core_model.terms.OntologyEntry;
 import uk.ac.ebi.fg.core_model.xref.ReferenceSource;
 
 /**
- * TODO: Comment me!
+ * A mock-up model to be used for testing purposes.
  *
  * <dl><dt>date</dt><dd>Sep 3, 2012</dd></dl>
  * @author Marco Brandizi
