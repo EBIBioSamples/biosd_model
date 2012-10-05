@@ -3,6 +3,8 @@
  */
 package uk.ac.ebi.fg.biosd.model.organizational;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -11,9 +13,12 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import uk.ac.ebi.fg.biosd.model.expgraph.BioSample;
+import uk.ac.ebi.fg.core_model.expgraph.properties.BioCharacteristicValue;
+import uk.ac.ebi.fg.core_model.expgraph.properties.ExperimentalPropertyValue;
 import uk.ac.ebi.fg.core_model.toplevel.DefaultAccessibleAnnotatable;
 
 /**
@@ -28,6 +33,9 @@ import uk.ac.ebi.fg.core_model.toplevel.DefaultAccessibleAnnotatable;
 @Table( name = "bio_sample_group" )
 public class BioSampleGroup extends DefaultAccessibleAnnotatable
 {
+	private Set<BioSample> samples = new HashSet<BioSample> ();
+	private Collection<BioCharacteristicValue> propertyValues = new ArrayList<BioCharacteristicValue> ();
+
 	protected BioSampleGroup () {
 		super ();
 	}
@@ -35,8 +43,6 @@ public class BioSampleGroup extends DefaultAccessibleAnnotatable
 	public BioSampleGroup ( String acc ) {
 		super ( acc );
 	}
-
-	private Set<BioSample> samples = new HashSet<BioSample> ();
 
 	@ManyToMany ( cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH} )
 	@JoinTable ( name = "bio_sample_sample_group", 
@@ -65,4 +71,33 @@ public class BioSampleGroup extends DefaultAccessibleAnnotatable
 		return true;
 	}
 	
+	/**
+	 * A sample group can have {@link BioCharacteristicValue characteristic values} attached in certain case, e.g., when
+	 * you have a cohort without any description of the single samples in it, in such a case you want to list common properties
+	 * by means of this relationship.  
+	 *
+	 */
+	@OneToMany ( targetEntity = ExperimentalPropertyValue.class, cascade = CascadeType.ALL, orphanRemoval = true )
+	@JoinTable ( name = "biosample_group_pv", 
+		joinColumns = @JoinColumn ( name = "owner_id" ), inverseJoinColumns = @JoinColumn ( name = "pv_id" ) )
+	public Collection<BioCharacteristicValue> getPropertyValues ()
+	{
+		return propertyValues;
+	}
+
+	/**
+	 * @see #getPropertyValues().
+	 */
+	public void setPropertyValues ( Collection<BioCharacteristicValue> propertyValues )
+	{
+		this.propertyValues = propertyValues;
+	}
+
+	/**
+	 * @see #getPropertyValues().
+	 */
+	public boolean addPropertyValue ( BioCharacteristicValue pval ) {
+		return this.propertyValues.add ( pval );
+	}
+
 }

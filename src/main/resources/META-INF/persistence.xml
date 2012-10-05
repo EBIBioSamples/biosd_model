@@ -6,9 +6,11 @@
   version="2.0">
    <persistence-unit name="defaultPersistenceUnit" transaction-type="RESOURCE_LOCAL">
       <provider>org.hibernate.ejb.HibernatePersistence</provider>
-      <!-- TODO: unfortunately I cannot find a way to make JPA detect entities coming from another package. It seems
-           this is not supported, but maybe can be done nonetheless, via some Maven plugin. For the moment I'm using this
-           ugly manual way -->
+      <!-- 
+      	TODO: unfortunately I cannot find a way to make JPA detect entities coming from another package. It seems
+        this is not supported, but maybe can be done nonetheless, via some Maven plugin 
+        (http://github.com/ljnelson/jpa-maven-plugin/issues/2). For the moment I'm using this ugly manual way.
+      -->
 			<class>uk.ac.ebi.fg.core_model.expgraph.BioMaterial</class>
 			<class>uk.ac.ebi.fg.core_model.expgraph.BioMaterialProcessing</class>
 			<class>uk.ac.ebi.fg.core_model.expgraph.Data</class>
