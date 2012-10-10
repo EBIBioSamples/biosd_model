@@ -4,10 +4,10 @@
 package uk.ac.ebi.fg.biosd.dao.hibernate;
 
 import static java.lang.System.out;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.lang.reflect.Field;
+import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -17,11 +17,14 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import uk.ac.ebi.fg.biosd.model.expgraph.BioSample;
 import uk.ac.ebi.fg.biosd.model.organizational.MSI;
 import uk.ac.ebi.fg.biosd.model.utils.test.TestModel;
 import uk.ac.ebi.fg.core_model.dao.hibernate.toplevel.AccessibleDAO;
 import uk.ac.ebi.fg.core_model.expgraph.BioMaterial;
 import uk.ac.ebi.fg.core_model.expgraph.Node;
+import uk.ac.ebi.fg.core_model.expgraph.properties.BioCharacteristicType;
+import uk.ac.ebi.fg.core_model.expgraph.properties.BioCharacteristicValue;
 import uk.ac.ebi.fg.core_model.resources.Resources;
 import uk.ac.ebi.fg.core_model.toplevel.Accessible;
 import uk.ac.ebi.fg.core_model.utils.expgraph.DirectDerivationGraphDumper;
@@ -42,6 +45,8 @@ public class SubmissionPersistenceTest
 
 	private EntityManager em;
 	private TestModel model; 
+	
+	private static final String DATA_ACC_PREFIX = "biosd.tests.dao.";
 
 	
 	/**
@@ -80,14 +85,20 @@ public class SubmissionPersistenceTest
 		}		
 	}
 	
+	/**
+	 * Initialises the DB and test data
+	 */
 	@Before
 	public void init() throws Exception
 	{
 		em = emProvider.getEntityManager ();
-		model = new TestModel ( "biosd.tests.dao." );
+		model = new TestModel ( DATA_ACC_PREFIX );
 	}
 
 	
+	/**
+	 * Deletes test data
+	 */
 	@After
 	public void cleanUpDB () throws Exception
 	{
@@ -125,4 +136,65 @@ public class SubmissionPersistenceTest
 
 		verifyTestModel ( model, true );
 	}
+
+	@Test
+	public void testReuse () throws Exception
+	{
+		AccessibleDAO<BioMaterial> biomaterialDao = new AccessibleDAO<BioMaterial> ( BioMaterial.class, em );
+		AccessibleDAO<MSI> msiDao = new AccessibleDAO<MSI> ( MSI.class, em );
+
+		// Save
+		// 
+		EntityTransaction tns = em.getTransaction ();
+		tns.begin ();
+		biomaterialDao.create ( model.smp1 );
+		biomaterialDao.getOrCreate ( model.smp2 );
+		msiDao.getOrCreate ( model.msi );
+		tns.commit ();
+		
+		// Add new nodes and try to persist
+		//
+		BioSample smpNew1 = new BioSample ( DATA_ACC_PREFIX + "smpNew1" );
+		BioCharacteristicType ctNew1 = new BioCharacteristicType ( "foo" );
+		BioCharacteristicValue cvNew1 = new BioCharacteristicValue ( "foo value", ctNew1 );
+		smpNew1.addPropertyValue ( cvNew1 );
+		
+		model.smp6.addDerivedInto ( smpNew1 );
+		
+		MSI msiNew = new MSI ( DATA_ACC_PREFIX + "msiNew1" );
+		msiNew.addSample ( smpNew1 );
+		
+		tns = em.getTransaction ();
+		tns.begin ();
+		msiDao.getOrCreate ( msiNew );
+		tns.commit ();
+		
+		out.println ( "Saved model:" );
+		DirectDerivationGraphDumper.dump ( out, model.smp1 );
+
+		Node smp1DB = biomaterialDao.findById ( model.smp1.getId () );
+		assertNotNull ( "Could not fetch smp1!", smp1DB  );
+		
+		out.println ( "\n\nReloaded model:" );
+		DirectDerivationGraphDumper.dump ( out, model.smp1 );
+
+		List<MSI> msisNewDB = msiDao.findByExample ( new MSI ( msiNew.getAcc () ) );
+		assertNotNull ( "Could not load the new saved submission!", msisNewDB );
+		assertEquals ( "Could not load the new saved submission (wrong size)!", 1, msisNewDB.size () );
+		MSI msiNewDB = msisNewDB.get ( 0 );
+		
+		assertNotNull ( "Could not load the new saved submission!", msiNewDB );
+		assertNotNull ( "New saved submission has null ID!", msiNewDB.getId () );
+		
+		out.println ( "\n\nNew Submission saved: \n" +  msiNewDB );
+		
+		verifyTestModel ( model, true );
+		
+		// Delete
+		tns.begin ();
+		msiDao.delete ( msiNewDB );
+		biomaterialDao.delete ( smpNew1 );
+		tns.commit ();
+	}
+
 }
