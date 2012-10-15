@@ -31,10 +31,11 @@ import uk.ac.ebi.fg.core_model.toplevel.DefaultAccessibleAnnotatable;
  */
 @Entity
 @Table( name = "bio_sample_group" )
+@SuppressWarnings ( "rawtypes" )
 public class BioSampleGroup extends DefaultAccessibleAnnotatable
 {
 	private Set<BioSample> samples = new HashSet<BioSample> ();
-	private Collection<BioCharacteristicValue> propertyValues = new ArrayList<BioCharacteristicValue> ();
+	private Collection<ExperimentalPropertyValue> propertyValues = new ArrayList<ExperimentalPropertyValue> ();
 
 	protected BioSampleGroup () {
 		super ();
@@ -80,7 +81,7 @@ public class BioSampleGroup extends DefaultAccessibleAnnotatable
 	@OneToMany ( targetEntity = ExperimentalPropertyValue.class, cascade = CascadeType.ALL, orphanRemoval = true )
 	@JoinTable ( name = "biosample_group_pv", 
 		joinColumns = @JoinColumn ( name = "owner_id" ), inverseJoinColumns = @JoinColumn ( name = "pv_id" ) )
-	public Collection<BioCharacteristicValue> getPropertyValues ()
+	public Collection<ExperimentalPropertyValue> getPropertyValues ()
 	{
 		return propertyValues;
 	}
@@ -88,7 +89,7 @@ public class BioSampleGroup extends DefaultAccessibleAnnotatable
 	/**
 	 * @see #getPropertyValues().
 	 */
-	public void setPropertyValues ( Collection<BioCharacteristicValue> propertyValues )
+	public void setPropertyValues ( Collection<ExperimentalPropertyValue> propertyValues )
 	{
 		this.propertyValues = propertyValues;
 	}
@@ -96,7 +97,7 @@ public class BioSampleGroup extends DefaultAccessibleAnnotatable
 	/**
 	 * @see #getPropertyValues().
 	 */
-	public boolean addPropertyValue ( BioCharacteristicValue pval ) {
+	public boolean addPropertyValue ( ExperimentalPropertyValue pval ) {
 		return this.propertyValues.add ( pval );
 	}
 
