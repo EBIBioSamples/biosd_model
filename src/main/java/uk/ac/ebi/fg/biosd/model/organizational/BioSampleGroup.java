@@ -36,6 +36,7 @@ public class BioSampleGroup extends DefaultAccessibleAnnotatable
 {
 	private Set<BioSample> samples = new HashSet<BioSample> ();
 	private Collection<ExperimentalPropertyValue> propertyValues = new ArrayList<ExperimentalPropertyValue> ();
+	private Set<MSI> msis = new HashSet<MSI> ();
 
 	protected BioSampleGroup () {
 		super ();
@@ -71,6 +72,33 @@ public class BioSampleGroup extends DefaultAccessibleAnnotatable
 		smp.deleteGroup ( this );
 		return true;
 	}
+	
+	@ManyToMany ( mappedBy = "sampleGroups" )
+	public Set<MSI> getMSIs ()
+	{
+		return msis;
+	}
+
+	protected void setMSIs ( Set<MSI> msis )
+	{
+		this.msis = msis;
+	}
+
+	public boolean addMSI ( MSI msi ) 
+	{
+		if ( !this.msis.add ( msi ) ) return false;
+		msi.addSampleGroup ( this );
+		return true;
+	}
+	
+	public boolean deleteMSI ( MSI msi ) 
+	{
+		if ( !this.msis.remove ( msi ) ) return false;
+		msi.deleteSampleGroup ( this );
+		return true;
+	}
+
+	
 	
 	/**
 	 * A sample group can have {@link BioCharacteristicValue characteristic values} attached in certain case, e.g., when

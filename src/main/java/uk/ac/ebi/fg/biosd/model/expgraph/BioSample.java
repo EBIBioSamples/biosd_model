@@ -11,6 +11,7 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
 
 import uk.ac.ebi.fg.biosd.model.organizational.BioSampleGroup;
+import uk.ac.ebi.fg.biosd.model.organizational.MSI;
 import uk.ac.ebi.fg.core_model.expgraph.BioMaterial;
 import uk.ac.ebi.fg.core_model.expgraph.Node;
 import uk.ac.ebi.fg.core_model.expgraph.properties.ExperimentalPropertyValue;
@@ -29,7 +30,8 @@ import uk.ac.ebi.fg.core_model.expgraph.properties.ExperimentalPropertyValue;
 public class BioSample extends BioMaterial<ExperimentalPropertyValue>
 {
 	private Set<BioSampleGroup> groups = new HashSet<BioSampleGroup> (); 
-	
+	private Set<MSI> msis = new HashSet<MSI> ();
+
 	public BioSample () {
 		super ();
 	}
@@ -63,4 +65,32 @@ public class BioSample extends BioMaterial<ExperimentalPropertyValue>
 		sg.deleteSample ( this );
 		return true;
 	}
+	
+	
+	
+	@ManyToMany ( mappedBy = "samples" )
+	public Set<MSI> getMSIs ()
+	{
+		return msis;
+	}
+
+	protected void setMSIs ( Set<MSI> msis )
+	{
+		this.msis = msis;
+	}
+
+	public boolean addMSI ( MSI msi ) 
+	{
+		if ( !this.msis.add ( msi ) ) return false;
+		msi.addSample ( this );
+		return true;
+	}
+	
+	public boolean deleteMSI ( MSI msi ) 
+	{
+		if ( !this.msis.remove ( msi ) ) return false;
+		msi.deleteSample ( this );
+		return true;
+	}
+	
 }

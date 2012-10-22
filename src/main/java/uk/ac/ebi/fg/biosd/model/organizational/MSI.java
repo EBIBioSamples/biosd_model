@@ -12,6 +12,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -57,19 +58,16 @@ public class MSI extends Submission
 	}
 
 	/**
-	 * TODO: Do we need many-2-many instead?!
-	 * @return
+	 * TODO: Do we need many-2-many instead?! Do we need this for other entities related to submissions?
 	 */
 	@OneToMany ( cascade = {CascadeType.ALL}, orphanRemoval = true )
 	@JoinTable ( name = "msi_database", 
     joinColumns = @JoinColumn ( name = "msi_id" ), inverseJoinColumns = @JoinColumn ( name = "database_id" ) )
-	public Set<DatabaseRefSource> getDatabases ()
-	{
+	public Set<DatabaseRefSource> getDatabases () {
 		return databases;
 	}
 
-	public void setDatabases ( Set<DatabaseRefSource> databases )
-	{
+	public void setDatabases ( Set<DatabaseRefSource> databases ) {
 		this.databases = databases;
 	}
 	
@@ -78,49 +76,59 @@ public class MSI extends Submission
 	}
 
 	
-	/**
-	 * TODO: not sure at all the relation and cascading should be this 
-	 * @return
-	 */
-	@OneToMany ( cascade = {CascadeType.ALL}, orphanRemoval = true )
+	@ManyToMany ( cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH} )
 	@JoinTable ( name = "msi_sample_group", 
     joinColumns = @JoinColumn ( name = "msi_id" ), inverseJoinColumns = @JoinColumn ( name = "group_id" ) )
-	public Set<BioSampleGroup> getSampleGroups ()
-	{
+	public Set<BioSampleGroup> getSampleGroups () {
 		return sampleGroups;
 	}
 
-	public void setSampleGroups ( Set<BioSampleGroup> sampleGroups )
-	{
+	protected void setSampleGroups ( Set<BioSampleGroup> sampleGroups ) {
 		this.sampleGroups = sampleGroups;
 	}
 
-	public boolean addSampleGroup ( BioSampleGroup sg ) {
-		return this.sampleGroups.add ( sg );
+	public boolean addSampleGroup ( BioSampleGroup sg )
+	{
+		if ( !this.sampleGroups.add ( sg ) ) return false;
+		sg.addMSI ( this );
+		return true;
 	}
 
+	public boolean deleteSampleGroup ( BioSampleGroup sg )
+	{
+		if ( !this.sampleGroups.remove ( sg ) ) return false;
+		sg.deleteMSI ( this );
+		return true;
+	}
 	
 	
-	/**
-	 * TODO: not sure at all the relation and cascading should be this 
-	 * @return
-	 */
-	@OneToMany ( cascade = {CascadeType.ALL}, orphanRemoval = true )
+	
+	
+	@ManyToMany ( cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH} )
 	@JoinTable ( name = "msi_sample", 
     joinColumns = @JoinColumn ( name = "msi_id" ), inverseJoinColumns = @JoinColumn ( name = "sample_id" ) )
-	public Set<BioSample> getSamples ()
-	{
+	public Set<BioSample> getSamples () {
 		return samples;
 	}
 
-	public void setSamples ( Set<BioSample> samples )
-	{
+	protected void setSamples ( Set<BioSample> samples ) {
 		this.samples = samples;
 	}
 
-	public boolean addSample ( BioSample smp ) {
-		return this.samples.add ( smp );
+	public boolean addSample ( BioSample smp ) 
+	{
+		if ( !this.samples.add ( smp ) ) return false;
+		smp.addMSI ( this );
+		return true;
 	}
+	
+	public boolean deleteSample ( BioSample smp )
+	{
+		if ( !this.samples.remove ( smp ) ) return false;
+		smp.deleteMSI ( this );
+		return true;
+	}
+	
 	
 	
 	@Override

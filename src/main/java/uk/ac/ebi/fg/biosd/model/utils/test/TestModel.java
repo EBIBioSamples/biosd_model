@@ -147,37 +147,19 @@ public class TestModel
 	
 	public void delete ( EntityManager em )
 	{
-		AccessibleDAO<MSI> dao = new AccessibleDAO<MSI> ( MSI.class, em );
-		dao.delete ( msi );
+		AccessibleDAO<MSI> msidao = new AccessibleDAO<MSI> ( MSI.class, em );
+		msidao.delete ( msi );
 		
-/*		try
-		{
-			AccessibleDAO<Product> productDao = new AccessibleDAO<Product> ( Product.class, em );
-			
-			for ( Field f: this.getClass ().getFields () ) 
-			{
-				Object o = f.get ( this );
-				if ( ! ( o instanceof Product ) ) continue;
-				
-				Product prod = (Product) o;
-				
-				Product prodDB = productDao.find ( prod.getAcc () );
-				if ( prodDB == null ) continue;
-				
-				for ( Product up: new HashSet<Product> ( prodDB.getDerivedFrom () ) )
-					prodDB.removeDerivedFrom ( up );
-				for ( Product down: new HashSet<Product> ( prodDB.getDerivedInto () ) )
-					prodDB.removeDerivedInto ( down );
-				
-				productDao.delete ( (Product) prodDB ); 
-			}
-		}
-		catch (  IllegalArgumentException ex ) {
-			throw new RuntimeException ( "Error while deleting the direct-approach test model" );
-		}
-		catch (  IllegalAccessException ex ) {
-			throw new RuntimeException ( "Error while deleting the direct-approach test model" );
-		}
-*/	
-		}	
+		AccessibleDAO<BioSampleGroup> sgdao = new AccessibleDAO<BioSampleGroup> ( BioSampleGroup.class, em );
+		sgdao.delete ( sg1 );
+		sgdao.delete ( sg2 );
+		
+		AccessibleDAO<BioSample> smpDao = new AccessibleDAO<BioSample> ( BioSample.class, em );
+		smpDao.delete ( smp1 );
+		smpDao.delete ( smp2 );
+		smpDao.delete ( smp3 );
+		smpDao.delete ( smp4 );
+		smpDao.delete ( smp5 );
+		smpDao.delete ( smp6 );
+	}	
 }
