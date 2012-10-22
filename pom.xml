@@ -37,7 +37,6 @@
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		
-		
 		<!-- TEST -->
 
 	  <dependency>
@@ -94,6 +93,62 @@
 		       </properties>
 		    </configuration>
 		  </plugin>
+
+      <!-- 
+         This generates a .properties file, containing a list of all the JPA classes. This is then used by the 
+         resources plug-in, to replace a placeholder in persistence.xml 
+         
+         TODO: this file goes in generated-test-sources by default, here it should be generated-sources instead
+       -->
+			<plugin>
+			  <groupId>com.edugility</groupId>
+			  <artifactId>jpa-maven-plugin</artifactId>
+			  <version>3-SNAPSHOT</version>
+			  <configuration>
+			  	<outputFile>${project.build.directory}/generated-sources/jpa-maven-plugin/entityClassnames.properties</outputFile>
+			  </configuration>
+			  <executions>
+			    <execution>
+			      <id>Generate entityClassnames.properties</id>
+              <phase>process-classes</phase>
+			      	<goals>
+			        <goal>list-entity-classnames</goal>
+			      </goals>
+			    </execution>
+			  </executions>
+			</plugin>
+		
+      <!-- 
+         See above.
+       -->
+			<plugin>
+			  <artifactId>maven-resources-plugin</artifactId>
+			  <version>2.5</version>
+			  <executions>
+			    <execution>
+			      <id>Copy persistence.xml filtered with generated entityClassnames.properties file</id>
+            <phase>process-classes</phase>
+			      <goals>
+			      	<goal>copy-resources</goal>
+			      </goals>
+			      <configuration>
+			        <filters>
+			        	<filter>${project.build.directory}/generated-sources/jpa-maven-plugin/entityClassnames.properties</filter>
+			        </filters>
+			        <outputDirectory>${project.build.testOutputDirectory}/META-INF</outputDirectory>
+			        <resources>
+			          <resource>
+			            <filtering>true</filtering>
+			            <directory>src/main/resources/META-INF</directory>
+			            <includes>
+			              <include>persistence.xml</include>
+			            </includes>
+			          </resource>
+			        </resources>
+			      </configuration>
+			    </execution>
+			  </executions>
+			</plugin>		
 		
     </plugins>
 	
@@ -107,6 +162,9 @@
     <resources>
 	    <resource>
 	      <directory>src/main/resources</directory>
+        <excludes>
+        	<exclude>META-INF/persistence.xml</exclude>
+    		</excludes>	      
 	      <filtering>true</filtering>
 	    </resource>
     </resources>
@@ -129,8 +187,55 @@
 			<url>http://www.ebi.ac.uk/~maven/m2repo</url>
 		</repository>
 
+        <repository>
+            <!-- Used by the JPA plugin -->
+            <id>sonatype-public</id>
+            <url>https://oss.sonatype.org/content/groups/public/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+
+        <repository>
+          <id>eclipselink</id>
+          <url>http://download.eclipse.org/rt/eclipselink/maven.repo</url>
+          <releases>
+              <enabled>true</enabled>
+          </releases>
+          <snapshots>
+              <enabled>true</enabled>
+          </snapshots>
+        </repository>
+      
   </repositories>
-	
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>sonatype-public</id>
+            <url>https://oss.sonatype.org/content/groups/public/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+        
+        <pluginRepository>
+            <id>eclipselink</id>
+            <url>http://download.eclipse.org/rt/eclipselink/maven.repo</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+        
+    </pluginRepositories>  
 	
   <distributionManagement>
 
