@@ -17,7 +17,7 @@ import uk.ac.ebi.fg.core_model.xref.ReferenceSource;
  *
  */
 @Entity
-@Table ( name = "database_ref_source" )
+@Table ( name = "db_ref_src" )
 public class DatabaseRefSource extends ReferenceSource
 {
 	protected DatabaseRefSource () {
