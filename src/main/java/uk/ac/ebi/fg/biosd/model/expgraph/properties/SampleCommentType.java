@@ -3,6 +3,9 @@
  */
 package uk.ac.ebi.fg.biosd.model.expgraph.properties;
 
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+
 import uk.ac.ebi.fg.biosd.model.expgraph.BioSample;
 import uk.ac.ebi.fg.biosd.model.organizational.BioSampleGroup;
 import uk.ac.ebi.fg.core_model.expgraph.properties.ExperimentalPropertyType;
@@ -15,6 +18,8 @@ import uk.ac.ebi.fg.core_model.expgraph.properties.ExperimentalPropertyType;
  * @author Marco Brandizi
  *
  */
+@Entity
+@DiscriminatorValue ( "sample_comment_type" )
 public class SampleCommentType extends ExperimentalPropertyType
 {
 	public SampleCommentType ()
