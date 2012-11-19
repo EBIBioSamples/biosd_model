@@ -135,7 +135,7 @@
 			        <filters>
 			        	<filter>${project.build.directory}/generated-sources/jpa-maven-plugin/entityClassnames.properties</filter>
 			        </filters>
-			        <outputDirectory>${project.build.testOutputDirectory}/META-INF</outputDirectory>
+			        <outputDirectory>${project.build.outputDirectory}/META-INF</outputDirectory>
 			        <resources>
 			          <resource>
 			            <filtering>true</filtering>
