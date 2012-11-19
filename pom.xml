@@ -98,7 +98,7 @@
          This generates a .properties file, containing a list of all the JPA classes. This is then used by the 
          resources plug-in, to replace a placeholder in persistence.xml 
          
-         TODO: this file goes in generated-test-sources by default, here it should be generated-sources instead
+         See http://github.com/ljnelson/jpa-maven-plugin for details
        -->
 			<plugin>
 			  <groupId>com.edugility</groupId>
