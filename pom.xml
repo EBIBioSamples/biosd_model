@@ -187,6 +187,15 @@
 			<url>http://www.ebi.ac.uk/~maven/m2repo</url>
 		</repository>
 
+		<repository>
+			<id>ebi-repo-snapshots</id>
+			<name>EBI Repo Snapshots</name>
+			<url>http://www.ebi.ac.uk/~maven/m2repo_snapshots</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+
     <!-- Used by the JPA plugin -->
     <repository>
         <id>sonatype-public</id>
