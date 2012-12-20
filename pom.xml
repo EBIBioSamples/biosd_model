@@ -179,6 +179,10 @@
 
 	</build>
 	
+	<scm>
+		<developerConnection>scm:git:git@github.com:EBIBioSamples/biosd_model.git</developerConnection>
+	</scm>	
+	
   <repositories>
 
 		<repository>
