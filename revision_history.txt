@@ -1,5 +1,6 @@
 1.0.1 
   - (To be confirmed and deployed)
+  - Some bug-fixing.
 
 1.0
   - First non-snapshot release deployed to the EBI repository.
