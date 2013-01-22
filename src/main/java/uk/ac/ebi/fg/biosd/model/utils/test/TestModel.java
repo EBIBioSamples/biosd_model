@@ -8,7 +8,7 @@ import javax.persistence.EntityManager;
 import uk.ac.ebi.fg.biosd.model.expgraph.BioSample;
 import uk.ac.ebi.fg.biosd.model.organizational.BioSampleGroup;
 import uk.ac.ebi.fg.biosd.model.organizational.MSI;
-import uk.ac.ebi.fg.core_model.dao.hibernate.toplevel.AccessibleDAO;
+import uk.ac.ebi.fg.core_model.persistence.dao.hibernate.toplevel.AccessibleDAO;
 import uk.ac.ebi.fg.core_model.expgraph.properties.BioCharacteristicType;
 import uk.ac.ebi.fg.core_model.expgraph.properties.BioCharacteristicValue;
 import uk.ac.ebi.fg.core_model.expgraph.properties.Unit;
@@ -60,6 +60,9 @@ public class TestModel
 	 * 	<pre>
 	 *  smp1 -----> smp3 ----> smp4 ---> smp6
 	 *  smp2 ----/       \---> smp5 --/     
+	 *  
+	 *  sg1 contains (1,2,3)
+	 *  sg2 contains (3,4,5,6) 
 	 *  </pre>        
 	 */
 	public TestModel ( String prefix )

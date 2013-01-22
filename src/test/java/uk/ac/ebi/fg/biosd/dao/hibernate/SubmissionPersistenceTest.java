@@ -20,7 +20,7 @@ import org.junit.Test;
 import uk.ac.ebi.fg.biosd.model.expgraph.BioSample;
 import uk.ac.ebi.fg.biosd.model.organizational.MSI;
 import uk.ac.ebi.fg.biosd.model.utils.test.TestModel;
-import uk.ac.ebi.fg.core_model.dao.hibernate.toplevel.AccessibleDAO;
+import uk.ac.ebi.fg.core_model.persistence.dao.hibernate.toplevel.AccessibleDAO;
 import uk.ac.ebi.fg.core_model.expgraph.BioMaterial;
 import uk.ac.ebi.fg.core_model.expgraph.Node;
 import uk.ac.ebi.fg.core_model.expgraph.properties.BioCharacteristicType;
@@ -126,13 +126,13 @@ public class SubmissionPersistenceTest
 		tns.commit ();
 
 		out.println ( "Saved model:" );
-		DirectDerivationGraphDumper.dump ( out, model.smp1 );
+		new DirectDerivationGraphDumper ().dump ( out, model.smp1 );
 
 		Node smp1DB = biomaterialDao.findById ( model.smp1.getId () );
 		assertNotNull ( "Could not fetch smp1!", smp1DB  );
 		
 		out.println ( "\n\nReloaded model:" );
-		DirectDerivationGraphDumper.dump ( out, model.smp1 );
+		new DirectDerivationGraphDumper ().dump ( out, model.smp1 );
 
 		verifyTestModel ( model, true );
 	}
@@ -170,13 +170,13 @@ public class SubmissionPersistenceTest
 		tns.commit ();
 		
 		out.println ( "Saved model:" );
-		DirectDerivationGraphDumper.dump ( out, model.smp1 );
+		new DirectDerivationGraphDumper ().dump ( out, model.smp1 );
 
 		Node smp1DB = biomaterialDao.findById ( model.smp1.getId () );
 		assertNotNull ( "Could not fetch smp1!", smp1DB  );
 		
 		out.println ( "\n\nReloaded model:" );
-		DirectDerivationGraphDumper.dump ( out, model.smp1 );
+		new DirectDerivationGraphDumper ().dump ( out, model.smp1 );
 
 		List<MSI> msisNewDB = msiDao.findByExample ( new MSI ( msiNew.getAcc () ) );
 		assertNotNull ( "Could not load the new saved submission!", msisNewDB );

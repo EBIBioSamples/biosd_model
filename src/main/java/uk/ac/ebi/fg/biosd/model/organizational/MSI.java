@@ -57,10 +57,7 @@ public class MSI extends Submission
 		super ( acc );
 	}
 
-	/**
-	 * TODO: Do we need many-2-many instead?! Do we need this for other entities related to submissions?
-	 */
-	@OneToMany ( cascade = {CascadeType.ALL}, orphanRemoval = true )
+	@ManyToMany ( cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH} )
 	@JoinTable ( name = "msi_database", 
     joinColumns = @JoinColumn ( name = "msi_id" ), inverseJoinColumns = @JoinColumn ( name = "database_id" ) )
 	public Set<DatabaseRefSource> getDatabases () {
