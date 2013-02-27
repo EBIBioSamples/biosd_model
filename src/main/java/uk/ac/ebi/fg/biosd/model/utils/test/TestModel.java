@@ -3,11 +3,15 @@
  */
 package uk.ac.ebi.fg.biosd.model.utils.test;
 
+import java.util.Collections;
+
 import javax.persistence.EntityManager;
 
 import uk.ac.ebi.fg.biosd.model.expgraph.BioSample;
 import uk.ac.ebi.fg.biosd.model.organizational.BioSampleGroup;
 import uk.ac.ebi.fg.biosd.model.organizational.MSI;
+import uk.ac.ebi.fg.core_model.organizational.Contact;
+import uk.ac.ebi.fg.core_model.organizational.ContactRole;
 import uk.ac.ebi.fg.core_model.persistence.dao.hibernate.toplevel.AccessibleDAO;
 import uk.ac.ebi.fg.core_model.expgraph.properties.BioCharacteristicType;
 import uk.ac.ebi.fg.core_model.expgraph.properties.BioCharacteristicValue;
@@ -47,7 +51,9 @@ public class TestModel
 	public Unit percent;
 	public BioSampleGroup sg1;
 	public BioSampleGroup sg2;
+	
 	public MSI msi;
+	public Contact cnt;
 
 	/**
 	 * Calls {@link #TestModel(String)} with "".
@@ -88,8 +94,8 @@ public class TestModel
 		
 		ch1 = new BioCharacteristicType ( "Organism" );
 		cv1 = new BioCharacteristicValue ( "mus-mus", ch1 );
-        cv1.addOntologyTerm ( new OntologyEntry ( "123", new ReferenceSource ( "EFO", null ) ) );
-        cv1.addOntologyTerm ( new OntologyEntry ( "456", new ReferenceSource ( "MA", null ) ) );
+        cv1.addOntologyTerm ( new OntologyEntry ( prefix + "123", new ReferenceSource ( "EFO", null ) ) );
+        cv1.addOntologyTerm ( new OntologyEntry ( prefix + "456", new ReferenceSource ( "MA", null ) ) );
 		smp1.addPropertyValue ( cv1 );
 		
 		ch2 = new BioCharacteristicType ();
@@ -137,6 +143,12 @@ public class TestModel
 		smp3.addGroup ( sg2 ); // same sample in two groups
 		
 		msi = new MSI ( prefix + "msi1" );
+		
+		cnt = new Contact ();
+		cnt.setFirstName ( prefix + "Mister" );
+		cnt.setLastName ( prefix + "Test" );
+		cnt.setContactRoles ( Collections.singleton ( new ContactRole ( prefix + "test-submitter" ) ) );
+		
 		msi.addSample ( smp1 );
 		msi.addSample ( smp2 );
 		msi.addSample ( smp3 );
