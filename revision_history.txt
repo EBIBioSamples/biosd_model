@@ -1,7 +1,8 @@
 1.1 
   - (To be confirmed and deployed)
-  - Some work to allow linkage of already existing objects upon creation of new ones.
   - MSI.databases made many-to-many.
+  - TestModel enriched with new entities  
+  - Some work to allow linkage of already existing objects upon creation of new ones.
   - Some bug-fixing.
 
 1.0
