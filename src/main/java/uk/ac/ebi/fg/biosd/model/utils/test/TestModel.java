@@ -12,7 +12,10 @@ import uk.ac.ebi.fg.biosd.model.organizational.BioSampleGroup;
 import uk.ac.ebi.fg.biosd.model.organizational.MSI;
 import uk.ac.ebi.fg.core_model.organizational.Contact;
 import uk.ac.ebi.fg.core_model.organizational.ContactRole;
+import uk.ac.ebi.fg.core_model.persistence.dao.hibernate.terms.CVTermDAO;
+import uk.ac.ebi.fg.core_model.persistence.dao.hibernate.terms.OntologyEntryDAO;
 import uk.ac.ebi.fg.core_model.persistence.dao.hibernate.toplevel.AccessibleDAO;
+import uk.ac.ebi.fg.core_model.persistence.dao.hibernate.xref.ReferenceSourceDAO;
 import uk.ac.ebi.fg.core_model.expgraph.properties.BioCharacteristicType;
 import uk.ac.ebi.fg.core_model.expgraph.properties.BioCharacteristicValue;
 import uk.ac.ebi.fg.core_model.expgraph.properties.Unit;
@@ -49,11 +52,18 @@ public class TestModel
 	public BioCharacteristicValue cv5;
 	public UnitDimension concentrationUnit;
 	public Unit percent;
+	
+	public OntologyEntry oe1, oe2;
+	private ReferenceSource src1, src2;
+	
+	public ContactRole cntRole1;
+
 	public BioSampleGroup sg1;
 	public BioSampleGroup sg2;
 	
 	public MSI msi;
 	public Contact cnt;
+	
 
 	/**
 	 * Calls {@link #TestModel(String)} with "".
@@ -94,8 +104,8 @@ public class TestModel
 		
 		ch1 = new BioCharacteristicType ( "Organism" );
 		cv1 = new BioCharacteristicValue ( "mus-mus", ch1 );
-        cv1.addOntologyTerm ( new OntologyEntry ( prefix + "123", new ReferenceSource ( "EFO", null ) ) );
-        cv1.addOntologyTerm ( new OntologyEntry ( prefix + "456", new ReferenceSource ( "MA", null ) ) );
+      cv1.addOntologyTerm ( oe1 = new OntologyEntry ( prefix + "123", src1 = new ReferenceSource ( "EFO", null ) ) );
+      cv1.addOntologyTerm ( oe2 = new OntologyEntry ( prefix + "456", src2 = new ReferenceSource ( "MA", null ) ) );
 		smp1.addPropertyValue ( cv1 );
 		
 		ch2 = new BioCharacteristicType ();
@@ -147,7 +157,8 @@ public class TestModel
 		cnt = new Contact ();
 		cnt.setFirstName ( prefix + "Mister" );
 		cnt.setLastName ( prefix + "Test" );
-		cnt.setContactRoles ( Collections.singleton ( new ContactRole ( prefix + "test-submitter" ) ) );
+		Collections.addAll ( cnt.getContactRoles (), cntRole1 = new ContactRole ( prefix + "test-submitter" ) );
+		msi.addContact ( cnt );
 		
 		msi.addSample ( smp1 );
 		msi.addSample ( smp2 );
@@ -176,5 +187,16 @@ public class TestModel
 		smpDao.delete ( smp4 );
 		smpDao.delete ( smp5 );
 		smpDao.delete ( smp6 );
+		
+		CVTermDAO<ContactRole> roleDao = new CVTermDAO<ContactRole> ( ContactRole.class, em );
+		roleDao.delete ( cntRole1 );
+		
+		OntologyEntryDAO<OntologyEntry> oeDao = new OntologyEntryDAO<OntologyEntry> ( OntologyEntry.class, em );
+		oeDao.delete ( oe1 );
+		oeDao.delete ( oe2 );
+		
+		ReferenceSourceDAO<ReferenceSource> srcDao = new ReferenceSourceDAO<ReferenceSource> ( ReferenceSource.class, em );
+		srcDao.delete ( src1 );
+		srcDao.delete ( src2 );
 	}	
 }
