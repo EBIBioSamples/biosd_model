@@ -5,17 +5,22 @@ package uk.ac.ebi.fg.biosd.model.organizational;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
+import uk.ac.ebi.fg.biosd.model.access_control.SecureEntityDelegate;
+import uk.ac.ebi.fg.biosd.model.access_control.User;
 import uk.ac.ebi.fg.biosd.model.expgraph.BioSample;
 import uk.ac.ebi.fg.core_model.expgraph.properties.BioCharacteristicValue;
 import uk.ac.ebi.fg.core_model.expgraph.properties.ExperimentalPropertyValue;
@@ -37,7 +42,9 @@ public class BioSampleGroup extends DefaultAccessibleAnnotatable
 	private Set<BioSample> samples = new HashSet<BioSample> ();
 	private Collection<ExperimentalPropertyValue> propertyValues = new ArrayList<ExperimentalPropertyValue> ();
 	private Set<MSI> msis = new HashSet<MSI> ();
-
+	
+	private final SecureEntityDelegate securedDelegate = new SecureEntityDelegate ();
+	
 	protected BioSampleGroup () {
 		super ();
 	}
@@ -46,7 +53,7 @@ public class BioSampleGroup extends DefaultAccessibleAnnotatable
 		super ( acc );
 	}
 
-	@ManyToMany ( cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH} )
+	@ManyToMany ( cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH } )
 	@JoinTable ( name = "bio_sample_sample_group", 
 		joinColumns = @JoinColumn ( name = "group_id" ), inverseJoinColumns = @JoinColumn ( name = "sample_id" ) )
 	public Set<BioSample> getSamples ()
@@ -127,6 +134,58 @@ public class BioSampleGroup extends DefaultAccessibleAnnotatable
 	 */
 	public boolean addPropertyValue ( ExperimentalPropertyValue pval ) {
 		return this.propertyValues.add ( pval );
+	}
+	
+
+	/** It's symmetric, {@link User#getBioSampleGroups()} will be updated. @see {@link SecureEntityDelegate}. */
+	@ManyToMany ( mappedBy = "bioSampleGroups" )
+	public Set<User> getUsers ()
+	{
+		return securedDelegate.getUsers ();
+	}
+
+	protected void setUsers ( Set<User> users ) {
+		securedDelegate.setUsers ( users );
+	}
+	
+	public boolean addUser ( User user )
+	{
+		return securedDelegate.addUser ( user );
+	}
+
+	public boolean deleteUser ( User user )
+	{
+		return securedDelegate.deleteUser ( user );
+	}
+
+	/** @see SecureEntityDelegate. */
+	@Column ( name = "public_flag", nullable = true )
+	public Boolean getPublicFlag ()
+	{
+		return securedDelegate.getPublicFlag ();
+	}
+
+	public void setPublicFlag ( Boolean publicFlag )
+	{
+		securedDelegate.setPublicFlag ( publicFlag );
+	}
+
+	/** @see SecureEntityDelegate. */
+	@Column ( name = "release_date", nullable = true )
+	public Date getReleaseDate ()
+	{
+		return securedDelegate.getReleaseDate ();
+	}
+
+	public void setReleaseDate ( Date releaseDate )
+	{
+		securedDelegate.setReleaseDate ( releaseDate );
+	}
+
+	@Transient
+	public boolean isPublic ()
+	{
+		return securedDelegate.isPublic ();
 	}
 
 }
