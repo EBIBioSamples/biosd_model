@@ -48,7 +48,10 @@ public class SecureEntityDelegate
 		return Many2ManyUtils.deleteMany2Many ( this, user, "deleteBioSampleGroup", this.getUsers () );
 	}
 
-	/** Add this to the delegating's method: @Column ( name = "public_flag", nullable = true ) */
+	/**
+	 * @see #isPublic().
+	 * 
+	 * Add this to the delegating's method: @Column ( name = "public_flag", nullable = true ) */
 	public Boolean getPublicFlag () {
 		return this.publicFlag;
 	}
@@ -57,7 +60,10 @@ public class SecureEntityDelegate
 		this.publicFlag = publicFlag;
 	}
 	
-  /** Add this to the delegating's method: @Column ( name = "release_date", nullable = true ) */ 
+  /** 
+   * @see #isPublic().
+   * 
+   * Add this to the delegating's method: @Column ( name = "release_date", nullable = true ) */ 
 	public Date getReleaseDate ()
 	{
 		return releaseDate;
@@ -69,7 +75,10 @@ public class SecureEntityDelegate
 		this.releaseDate = releaseDate;
 	}
 
-	/** Add this to the delegating's method: @Transient */
+	/** 
+	 * An entity is public if {@link #getPublicFlag()} is non-null and true or {@link #getReleaseDate()} <= now().
+	 * 
+	 * Add this to the delegating's method: @Transient */
 	public boolean isPublic ()
 	{
 		Date now = new Date ();
