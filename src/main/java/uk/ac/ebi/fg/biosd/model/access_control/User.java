@@ -8,6 +8,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.AttributeOverride;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -19,13 +20,12 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.xml.bind.DatatypeConverter;
 
-import org.apache.commons.lang.StringUtils;
 import org.hibernate.annotations.Index;
 
 import uk.ac.ebi.fg.biosd.model.expgraph.BioSample;
 import uk.ac.ebi.fg.biosd.model.organizational.BioSampleGroup;
+import uk.ac.ebi.fg.core_model.resources.Const;
 import uk.ac.ebi.fg.core_model.toplevel.Accessible;
-import uk.ac.ebi.fg.core_model.toplevel.Identifiable;
 import uk.ac.ebi.utils.orm.Many2ManyUtils;
 
 import com.google.common.collect.Sets;
@@ -39,11 +39,11 @@ import com.google.common.collect.Sets;
  */
 @Entity
 @Table( name = "acc_ctrl_user" )
-public class User extends Identifiable
+@AttributeOverride ( name = "acc", column = @Column( unique = true, nullable = false, length = Const.COL_LENGTH_M ) )
+public class User extends Accessible
 {
 	private String name;
 	private String surname;
-	private String email;
 	private String passwordHash;
 	private String notes;
 	
@@ -59,21 +59,14 @@ public class User extends Identifiable
 
 	public User ( String email )
 	{
-		super ();
-		email = StringUtils.trimToNull ( email );
-		
-		if ( email == null )
-			// TODO: proper exception
-			throw new NullPointerException ( "Name cannot be empty" );
-		this.setEmail ( email );
+		super ( email );
 	}
 	
 	public User ( String email, String name, String surname, String passwordHash, String notes )
 	{
-		super ();
+		this ( email );
 		this.name = name;
 		this.surname = surname;
-		this.email = email;
 		this.passwordHash = passwordHash;
 		this.notes = notes;
 	}
@@ -104,12 +97,12 @@ public class User extends Identifiable
 	@Column ( nullable = false, unique = true )
 	public String getEmail ()
 	{
-		return email;
+		return this.getAcc ();
 	}
 
 	protected void setEmail ( String email )
 	{
-		this.email = email;
+		this.setAcc ( email );
 	}
 
 	/**
@@ -137,7 +130,8 @@ public class User extends Identifiable
 	{
 		this.notes = notes;
 	}
-	
+
+	// TODO: constraint that disallows to delete a user still owning something
 	@ManyToMany ( cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH } )
 	@JoinTable ( name = "user_sample_group", 
 		joinColumns = @JoinColumn ( name = "user_id" ), inverseJoinColumns = @JoinColumn ( name = "sg_id" ) )
@@ -202,14 +196,11 @@ public class User extends Identifiable
 	{
 		if ( messageDigest == null )
 		{
-			synchronized ( messageDigest )
-			{
-				try {
-					messageDigest = MessageDigest.getInstance ( "SHA1" );
-				} 
-				catch ( NoSuchAlgorithmException ex ) {
-					throw new RuntimeException ( "Internal error, cannot get the SHA1 digester from the JVM", ex );
-				}
+			try {
+				messageDigest = MessageDigest.getInstance ( "SHA1" );
+			} 
+			catch ( NoSuchAlgorithmException ex ) {
+				throw new RuntimeException ( "Internal error, cannot get the SHA1 digester from the JVM", ex );
 			}
 		}
 		

@@ -138,7 +138,7 @@ public class BioSampleGroup extends DefaultAccessibleAnnotatable
 	
 
 	/** It's symmetric, {@link User#getBioSampleGroups()} will be updated. @see {@link SecureEntityDelegate}. */
-	@ManyToMany ( mappedBy = "bioSampleGroups" )
+	@ManyToMany ( mappedBy = "bioSampleGroups", cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH } )
 	public Set<User> getUsers ()
 	{
 		return securedDelegate.getUsers ();
@@ -150,12 +150,12 @@ public class BioSampleGroup extends DefaultAccessibleAnnotatable
 	
 	public boolean addUser ( User user )
 	{
-		return securedDelegate.addUser ( user );
+		return securedDelegate.addUser ( this, user, "addBioSampleGroup" );
 	}
 
 	public boolean deleteUser ( User user )
 	{
-		return securedDelegate.deleteUser ( user );
+		return securedDelegate.deleteUser ( this, user, "deleteBioSampleGroup" );
 	}
 
 	/** @see SecureEntityDelegate. */

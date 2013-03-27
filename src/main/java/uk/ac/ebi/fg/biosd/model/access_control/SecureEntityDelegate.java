@@ -15,7 +15,7 @@ import uk.ac.ebi.utils.orm.Many2ManyUtils;
  * <p>This is a delegate used inside objects like {@link BioSample} and {@link BioSampleGroup}. We put a few fields in here
  * and corresponding accessors, in order to factorise implementations. Delegating classes have to define an instance
  * of this class and use it in accessors wrapping this class's accessors (i.e., delegator pattern). Additionally, 
- * you have to work out Hibernate templates, as specified in the comments below.</p>
+ * you have to work out JPA/Hibernate annotations, as specified in the comments below.</p>
  * 
  * <dl><dt>date</dt><dd>Mar 26, 2013</dd></dl>
  * @author Marco Brandizi
@@ -25,7 +25,7 @@ public class SecureEntityDelegate
 {
 	private Set<User> users = new HashSet<User> (); 
 
-	private Boolean publicFlag = true;
+	private Boolean publicFlag = null;
 	private Date releaseDate = null;
 
 	public void setUsers ( Set<User> users ) {
@@ -33,19 +33,28 @@ public class SecureEntityDelegate
 	}
 
 	/**
-	 * You've to re-map this in the delegator, typically with @ManyToMany ( mappedBy = "..." )
+	 * You've to re-map this in the delegator, typically with 
+	 * @ManyToMany ( mappedBy = "..." cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH } )
+	 * 
 	 */
 	public Set<User> getUsers ()
 	{
 		return users;
 	}
 
-	public boolean addUser ( User user ) {
-		return Many2ManyUtils.addMany2Many ( this, user, "addBioSampleGroup", this.getUsers () );
+	/**
+	 * You need to tell me the delegator and the method it uses to add itself to the other end of the relation, 
+	 * eg, for BioSample: addUser ( this, user, "addBioSample" )    
+	 */
+	public <D> boolean addUser ( D delegator, User user, String inverseRelationAddMethod ) {
+		return Many2ManyUtils.addMany2Many ( delegator, user, inverseRelationAddMethod, this.getUsers () );
 	}
-	
-	public boolean deleteUser ( User user ) {
-		return Many2ManyUtils.deleteMany2Many ( this, user, "deleteBioSampleGroup", this.getUsers () );
+
+	/**
+	 * @see #addUser(Object, User, String), I use an analogous approach here.
+	 */
+	public <D> boolean deleteUser ( D delegator, User user, String inverseRelationDeleteMethod ) {
+		return Many2ManyUtils.deleteMany2Many ( delegator, user, inverseRelationDeleteMethod, this.getUsers () );
 	}
 
 	/**

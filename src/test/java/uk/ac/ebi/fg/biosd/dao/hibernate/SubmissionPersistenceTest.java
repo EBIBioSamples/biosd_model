@@ -14,6 +14,7 @@ import javax.persistence.EntityTransaction;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -53,15 +54,15 @@ public class SubmissionPersistenceTest
 	 * Checks that the {@link Node nodes} in model are loaded/unloaded (depending on checkIsLoaded), issues warnings
 	 * and triggers a test failure in case not. 
 	 */
-	private void verifyTestModel ( Object model, boolean checkIsLoaded ) throws Exception
+	static void verifyTestModel ( Object model, boolean checkIsLoaded, EntityManager em ) throws Exception
 	{
 		AccessibleDAO<Accessible> accDao = new AccessibleDAO<Accessible> ( Accessible.class, em );
 		
 		boolean isOK = true;
 		
-		for ( Field f: this.getClass ().getFields () ) 
+		for ( Field f: model.getClass ().getFields () ) 
 		{
-			Object o = f.get ( this );
+			Object o = f.get ( model );
 			if ( ! ( o instanceof Accessible ) ) continue;
 			
 			Accessible acc = (Accessible) o;
@@ -81,8 +82,8 @@ public class SubmissionPersistenceTest
 					isOK = false;
 				}
 			}
-			assertTrue ( (checkIsLoaded ? "Some test objects not in the DB!": "Some objects still in the DB!" ), isOK );
-		}		
+		} // for()
+		assertTrue ( "Some test objects " + (checkIsLoaded ? "not": "still" ) + " in the DB!", isOK );
 	}
 	
 	/**
@@ -107,7 +108,7 @@ public class SubmissionPersistenceTest
 		model.delete ( em );
 		tns.commit ();
 
-		verifyTestModel ( model, false );
+		verifyTestModel ( model, false, em );
 	}
 	
 	@Test
@@ -128,16 +129,16 @@ public class SubmissionPersistenceTest
 		out.println ( "Saved model:" );
 		new DirectDerivationGraphDumper ().dump ( out, model.smp1 );
 
-		Node smp1DB = biomaterialDao.findById ( model.smp1.getId () );
+		BioSample smp1DB = (BioSample) biomaterialDao.findById ( model.smp1.getId () );
 		assertNotNull ( "Could not fetch smp1!", smp1DB  );
 		
 		out.println ( "\n\nReloaded model:" );
-		new DirectDerivationGraphDumper ().dump ( out, model.smp1 );
+		new DirectDerivationGraphDumper ().dump ( out, smp1DB );
 
-		verifyTestModel ( model, true );
+		verifyTestModel ( model, true, em );
 	}
 
-	@Test
+	@Test 
 	public void testReuse () throws Exception
 	{
 		AccessibleDAO<BioMaterial> biomaterialDao = new AccessibleDAO<BioMaterial> ( BioMaterial.class, em );
@@ -152,7 +153,7 @@ public class SubmissionPersistenceTest
 		msiDao.getOrCreate ( model.msi );
 		tns.commit ();
 		
-		// Add new nodes and try to persist
+		// Add new nodes and try to persist again
 		//
 		BioSample smpNew1 = new BioSample ( DATA_ACC_PREFIX + "smpNew1" );
 		BioCharacteristicType ctNew1 = new BioCharacteristicType ( "foo" );
@@ -188,13 +189,14 @@ public class SubmissionPersistenceTest
 		
 		out.println ( "\n\nNew Submission saved: \n" +  msiNewDB );
 		
-		verifyTestModel ( model, true );
+		verifyTestModel ( model, true, em );
 		
 		// Delete
 		tns.begin ();
+		// TODO: verify why Hibernate needs this in order to remove the whole upstream graph in cleanUpDB()
+		model.smp6.getDerivedInto ().remove ( smpNew1 );
 		msiDao.delete ( msiNewDB );
 		biomaterialDao.delete ( smpNew1 );
 		tns.commit ();
 	}
-
 }

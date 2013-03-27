@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
@@ -107,7 +108,7 @@ public class BioSample extends BioMaterial<ExperimentalPropertyValue>
 	
 	
 	/** @see SecureEntityDelegate */
-	@ManyToMany ( mappedBy = "bioSamples" )
+	@ManyToMany ( mappedBy = "bioSamples", cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH } )
 	public Set<User> getUsers ()
 	{
 		return securedDelegate.getUsers ();
@@ -120,13 +121,13 @@ public class BioSample extends BioMaterial<ExperimentalPropertyValue>
 	/** It's symmetric, {@link User#getBioSamples()} will be updated. @see {@link SecureEntityDelegate}. */
 	public boolean addUser ( User user )
 	{
-		return securedDelegate.addUser ( user );
+		return securedDelegate.addUser ( this, user, "addBioSample" );
 	}
 
 	/** It's symmetric, {@link User#getBioSamples()} will be updated. @see {@link SecureEntityDelegate}. */
 	public boolean deleteUser ( User user )
 	{
-		return securedDelegate.deleteUser ( user );
+		return securedDelegate.deleteUser ( this, user, "deleteBioSample" );
 	}
 
 	/** @see SecureEntityDelegate. */
