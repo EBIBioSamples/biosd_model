@@ -43,7 +43,7 @@ public class BioSampleGroup extends DefaultAccessibleAnnotatable
 	private Collection<ExperimentalPropertyValue> propertyValues = new ArrayList<ExperimentalPropertyValue> ();
 	private Set<MSI> msis = new HashSet<MSI> ();
 	
-	private final SecureEntityDelegate securedDelegate = new SecureEntityDelegate ();
+	private final SecureEntityDelegate securityDelegate = new SecureEntityDelegate ();
 	
 	protected BioSampleGroup () {
 		super ();
@@ -138,54 +138,54 @@ public class BioSampleGroup extends DefaultAccessibleAnnotatable
 	
 
 	/** It's symmetric, {@link User#getBioSampleGroups()} will be updated. @see {@link SecureEntityDelegate}. */
-	@ManyToMany ( mappedBy = "bioSampleGroups" )
+	@ManyToMany ( mappedBy = "bioSampleGroups", cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH } )
 	public Set<User> getUsers ()
 	{
-		return securedDelegate.getUsers ();
+		return securityDelegate.getUsers ();
 	}
 
 	protected void setUsers ( Set<User> users ) {
-		securedDelegate.setUsers ( users );
+		securityDelegate.setUsers ( users );
 	}
 	
 	public boolean addUser ( User user )
 	{
-		return securedDelegate.addUser ( user );
+		return securityDelegate.addUser ( this, user, "addBioSampleGroup" );
 	}
 
 	public boolean deleteUser ( User user )
 	{
-		return securedDelegate.deleteUser ( user );
+		return securityDelegate.deleteUser ( this, user, "deleteBioSampleGroup" );
 	}
 
 	/** @see SecureEntityDelegate. */
 	@Column ( name = "public_flag", nullable = true )
 	public Boolean getPublicFlag ()
 	{
-		return securedDelegate.getPublicFlag ();
+		return securityDelegate.getPublicFlag ();
 	}
 
 	public void setPublicFlag ( Boolean publicFlag )
 	{
-		securedDelegate.setPublicFlag ( publicFlag );
+		securityDelegate.setPublicFlag ( publicFlag );
 	}
 
 	/** @see SecureEntityDelegate. */
 	@Column ( name = "release_date", nullable = true )
 	public Date getReleaseDate ()
 	{
-		return securedDelegate.getReleaseDate ();
+		return securityDelegate.getReleaseDate ();
 	}
 
 	public void setReleaseDate ( Date releaseDate )
 	{
-		securedDelegate.setReleaseDate ( releaseDate );
+		securityDelegate.setReleaseDate ( releaseDate );
 	}
 
 	@Transient
 	public boolean isPublic ()
 	{
-		return securedDelegate.isPublic ();
+		return securityDelegate.isPublic ();
 	}
 
 }

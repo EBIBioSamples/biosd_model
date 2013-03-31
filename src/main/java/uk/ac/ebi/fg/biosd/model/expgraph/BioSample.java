@@ -1,12 +1,10 @@
-/*
- * 
- */
 package uk.ac.ebi.fg.biosd.model.expgraph;
 
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
@@ -42,7 +40,7 @@ public class BioSample extends BioMaterial<ExperimentalPropertyValue>
 	private Set<MSI> msis = new HashSet<MSI> ();
 
 	/** This entities have an owner and a visibility status, @see {@link SecureEntityDelegate} */
-	private final SecureEntityDelegate securedDelegate = new SecureEntityDelegate ();
+	private final SecureEntityDelegate securityDelegate = new SecureEntityDelegate ();
 	
 	public BioSample () {
 		super ();
@@ -107,56 +105,56 @@ public class BioSample extends BioMaterial<ExperimentalPropertyValue>
 	
 	
 	/** @see SecureEntityDelegate */
-	@ManyToMany ( mappedBy = "bioSamples" )
+	@ManyToMany ( mappedBy = "bioSamples", cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH } )
 	public Set<User> getUsers ()
 	{
-		return securedDelegate.getUsers ();
+		return securityDelegate.getUsers ();
 	}
 
 	protected void setUsers ( Set<User> users ) {
-		securedDelegate.setUsers ( users );
+		securityDelegate.setUsers ( users );
 	}
 
 	/** It's symmetric, {@link User#getBioSamples()} will be updated. @see {@link SecureEntityDelegate}. */
 	public boolean addUser ( User user )
 	{
-		return securedDelegate.addUser ( user );
+		return securityDelegate.addUser ( this, user, "addBioSample" );
 	}
 
 	/** It's symmetric, {@link User#getBioSamples()} will be updated. @see {@link SecureEntityDelegate}. */
 	public boolean deleteUser ( User user )
 	{
-		return securedDelegate.deleteUser ( user );
+		return securityDelegate.deleteUser ( this, user, "deleteBioSample" );
 	}
 
 	/** @see SecureEntityDelegate. */
 	@Column ( name = "public_flag", nullable = true )
 	public Boolean getPublicFlag ()
 	{
-		return securedDelegate.getPublicFlag ();
+		return securityDelegate.getPublicFlag ();
 	}
 
 	public void setPublicFlag ( Boolean publicFlag )
 	{
-		securedDelegate.setPublicFlag ( publicFlag );
+		securityDelegate.setPublicFlag ( publicFlag );
 	}
 
 	/** @see SecureEntityDelegate. */
 	@Column ( name = "release_date", nullable = true )
 	public Date getReleaseDate ()
 	{
-		return securedDelegate.getReleaseDate ();
+		return securityDelegate.getReleaseDate ();
 	}
 
 	public void setReleaseDate ( Date releaseDate )
 	{
-		securedDelegate.setReleaseDate ( releaseDate );
+		securityDelegate.setReleaseDate ( releaseDate );
 	}
 
 	@Transient
 	public boolean isPublic ()
 	{
-		return securedDelegate.isPublic ();
+		return securityDelegate.isPublic ();
 	}
 	
 }
