@@ -147,9 +147,10 @@ public class AccessControlPersistenceTest
 		acMgr.changeBioSampleGroupReleaseDate ( model.sg1.getAcc (), relDate, true );
 		tns.commit ();
 				
-		em = emProvider.newEntityManager ();
-		sampleDao.setEntityManager ( em );
-		sgDao.setEntityManager ( em );
+		// Re-using em doesn't work and replacing it doesn't work either
+		EntityManager em1 = em.getEntityManagerFactory ().createEntityManager ();
+		sampleDao.setEntityManager ( em1 );
+		sgDao.setEntityManager ( em1 );
 		
 		smp1DB = sampleDao.find ( model.smp1.getAcc () );
 		BioSampleGroup sg1DB = sgDao.find ( model.sg1.getAcc () );
