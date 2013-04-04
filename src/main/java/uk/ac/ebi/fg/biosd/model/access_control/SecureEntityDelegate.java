@@ -89,7 +89,7 @@ public class SecureEntityDelegate
 	{
 		Date now = new Date ();
 		return this.getPublicFlag () == null 
-			? this.getReleaseDate ().before ( now ) || this.releaseDate.equals ( now ) 
+			? this.getReleaseDate () != null && ( this.releaseDate.before ( now ) || this.releaseDate.equals ( now ) ) 
 			: this.publicFlag;
 	}
 }
