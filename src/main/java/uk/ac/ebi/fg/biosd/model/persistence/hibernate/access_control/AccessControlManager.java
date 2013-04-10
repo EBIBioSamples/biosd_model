@@ -1,11 +1,8 @@
 package uk.ac.ebi.fg.biosd.model.persistence.hibernate.access_control;
 
 import java.util.Date;
-import java.util.Formatter;
 
 import javax.persistence.EntityManager;
-
-import org.hibernate.annotations.common.util.impl.Log;
 
 import uk.ac.ebi.fg.biosd.model.expgraph.BioSample;
 import uk.ac.ebi.fg.biosd.model.organizational.BioSampleGroup;
@@ -62,12 +59,13 @@ public class AccessControlManager
 		sg.setPublicFlag ( publicFlag );
 		if ( !isCascaded ) return;
 
-		// TODO: it seems complex UPDATEs are not possible in HQL, use org.hibernate.annotations.common.reflection.java.JavaReflectionManager
-		// to gather SQL mappings.
-		//
-		entityManager.createNativeQuery ( 
-			"UPDATE bio_product SET public_flag = :publicFlag WHERE product_type = 'bio_sample' AND id IN " +
-			"  (SELECT sample_id FROM bio_sample_sample_group br JOIN bio_sample_group sg ON br.group_id = sg.id WHERE sg.acc = :sgAcc)" )
+		String hql = String.format ( 
+			"UPDATE %s smp SET smp.publicFlag = :publicFlag " +
+			"WHERE smp.id IN (SELECT smp1.id FROM %1$s smp1 JOIN smp1.groups sg WHERE sg.acc = :sgAcc)", 
+			BioSample.class.getName () 
+		);
+		
+		entityManager.createQuery ( hql )
 			.setParameter ( "publicFlag", publicFlag )
 			.setParameter ( "sgAcc", sgAcc )
 			.executeUpdate ();
@@ -84,10 +82,14 @@ public class AccessControlManager
 		sg.setReleaseDate ( releaseDate );
 		if ( !isCascaded ) return;
 
-		entityManager.createNativeQuery ( 
-			"UPDATE bio_product SET release_date = :releaseDate WHERE product_type = 'bio_sample' AND id IN " +
-			"  (SELECT sample_id FROM bio_sample_sample_group br JOIN bio_sample_group sg ON br.group_id = sg.id WHERE sg.acc = :sgAcc)" )
-			.setParameter ( "releaseDate", releaseDate ) 
+		String hql = String.format ( 
+			"UPDATE %s smp SET smp.releaseDate = :releaseDate " +
+			"WHERE smp.id IN (SELECT smp1.id FROM %1$s smp1 JOIN smp1.groups sg WHERE sg.acc = :sgAcc)", 
+			BioSample.class.getName () 
+		);
+		
+		entityManager.createQuery ( hql )
+			.setParameter ( "releaseDate", releaseDate )
 			.setParameter ( "sgAcc", sgAcc )
 			.executeUpdate ();
 	}

@@ -50,6 +50,8 @@ public class TestModel
 	public BioCharacteristicValue cv4;
 	public BioCharacteristicType ch3;
 	public BioCharacteristicValue cv5;
+	public BioCharacteristicValue cv5b;
+
 	public UnitDimension concentrationUnit;
 	public Unit percent;
 	
@@ -119,6 +121,7 @@ public class TestModel
 		smp1.addPropertyValue ( cv2 );
 
 		// Cannot be re-used, you need to create a new one, even if it is the same
+		// TODO: check
 		cv3 = new BioCharacteristicValue ( "mus-mus", ch1 );
 		smp2.addPropertyValue ( cv3 );
 		
@@ -140,8 +143,12 @@ public class TestModel
 		
 		sg1 = new BioSampleGroup ( prefix + "sg1" );
 		sg2 = new BioSampleGroup ( prefix + "sg2" );
-		// Likely you won't share property values over multiple owners, but it is possible
-		sg2.addPropertyValue ( cv5 );
+		
+		// Again don't share property values among different owners, you risk integrity-constraint errors and the like.
+		// sg2.addPropertyValue ( cv5 );
+		cv5b = new BioCharacteristicValue ( "2%", ch3 );
+		cv5.setUnit ( percent );
+		sg2.addPropertyValue ( cv5b );
 		
 		sg1.addSample ( smp1 );
 		smp2.addGroup ( sg1 );
