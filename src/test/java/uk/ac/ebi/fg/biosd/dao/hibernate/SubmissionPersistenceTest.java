@@ -129,7 +129,7 @@ public class SubmissionPersistenceTest
 		out.println ( "Saved model:" );
 		new DirectDerivationGraphDumper ().dump ( out, model.smp1 );
 
-		BioSample smp1DB = (BioSample) biomaterialDao.findById ( model.smp1.getId () );
+		BioSample smp1DB = (BioSample) biomaterialDao.find ( model.smp1.getId () );
 		assertNotNull ( "Could not fetch smp1!", smp1DB  );
 		
 		out.println ( "\n\nReloaded model:" );
@@ -173,7 +173,7 @@ public class SubmissionPersistenceTest
 		out.println ( "Saved model:" );
 		new DirectDerivationGraphDumper ().dump ( out, model.smp1 );
 
-		Node smp1DB = biomaterialDao.findById ( model.smp1.getId () );
+		Node smp1DB = biomaterialDao.find ( model.smp1.getId () );
 		assertNotNull ( "Could not fetch smp1!", smp1DB  );
 		
 		out.println ( "\n\nReloaded model:" );

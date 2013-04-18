@@ -94,7 +94,7 @@ public class AccessControlPersistenceTest
 		out.println ( "Saved model:" );
 		new DirectDerivationGraphDumper ().dump ( out, model.smp1 );
 
-		BioSample smp1DB = (BioSample) biomaterialDao.findById ( model.smp1.getId () );
+		BioSample smp1DB = (BioSample) biomaterialDao.find ( model.smp1.getId () );
 		assertNotNull ( "Could not fetch smp1!", smp1DB  );
 		
 		out.println ( "\n\nReloaded model:" );
@@ -102,10 +102,10 @@ public class AccessControlPersistenceTest
 
 		SubmissionPersistenceTest.verifyTestModel ( model, true, em );
 		
-		User user1DB = userDao.findById ( model.user1.getId () );
+		User user1DB = userDao.find ( model.user1.getId () );
 		assertNotNull ( "Could not fetch user1!", user1DB  );
 
-		User user2DB = userDao.findById ( model.user2.getId () );
+		User user2DB = userDao.find ( model.user2.getId () );
 		assertNotNull ( "Could not fetch user2!", user2DB  );
 
 		assertTrue ( "smp1 not linked to user1!", user1DB.getBioSamples ().contains ( model.smp1 ));
