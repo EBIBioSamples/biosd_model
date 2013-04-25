@@ -1,7 +1,7 @@
 /*
  * 
  */
-package uk.ac.ebi.fg.biosd.dao.hibernate;
+package uk.ac.ebi.fg.biosd.persistence.hibernate;
 
 import static java.lang.System.out;
 import static org.junit.Assert.assertEquals;
