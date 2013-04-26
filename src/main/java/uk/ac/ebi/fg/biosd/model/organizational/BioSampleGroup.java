@@ -16,6 +16,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import org.hibernate.annotations.Index;
+
 import uk.ac.ebi.fg.biosd.model.access_control.SecureEntityDelegate;
 import uk.ac.ebi.fg.biosd.model.access_control.User;
 import uk.ac.ebi.fg.biosd.model.expgraph.BioSample;
@@ -39,7 +41,11 @@ public class BioSampleGroup extends DefaultAccessibleAnnotatable
 	private Set<BioSample> samples = new HashSet<BioSample> ();
 	private Collection<ExperimentalPropertyValue> propertyValues = new ArrayList<ExperimentalPropertyValue> ();
 	private Set<MSI> msis = new HashSet<MSI> ();
-	
+
+	@Column ( name = "update_date" )
+	@Index ( name = "sample_group_up_date" )
+	private Date updateDate;
+
 	private final SecureEntityDelegate securityDelegate = new SecureEntityDelegate ();
 	
 	protected BioSampleGroup () {
@@ -177,6 +183,16 @@ public class BioSampleGroup extends DefaultAccessibleAnnotatable
 	public void setReleaseDate ( Date releaseDate )
 	{
 		securityDelegate.setReleaseDate ( releaseDate );
+	}
+	
+	public Date getUpdateDate ()
+	{
+		return updateDate;
+	}
+
+	public void setUpdateDate ( Date updateDate )
+	{
+		this.updateDate = updateDate;
 	}
 
 	@Transient

@@ -11,6 +11,8 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
 import javax.persistence.Transient;
 
+import org.hibernate.annotations.Index;
+
 import uk.ac.ebi.fg.biosd.model.access_control.SecureEntityDelegate;
 import uk.ac.ebi.fg.biosd.model.access_control.User;
 import uk.ac.ebi.fg.biosd.model.organizational.BioSampleGroup;
@@ -39,6 +41,9 @@ public class BioSample extends BioMaterial<ExperimentalPropertyValue>
 	private Set<BioSampleGroup> groups = new HashSet<BioSampleGroup> (); 
 	private Set<MSI> msis = new HashSet<MSI> ();
 
+	private Date updateDate;
+
+	
 	/** This entities have an owner and a visibility status, @see {@link SecureEntityDelegate} */
 	private final SecureEntityDelegate securityDelegate = new SecureEntityDelegate ();
 	
@@ -149,6 +154,18 @@ public class BioSample extends BioMaterial<ExperimentalPropertyValue>
 	public void setReleaseDate ( Date releaseDate )
 	{
 		securityDelegate.setReleaseDate ( releaseDate );
+	}
+	
+	@Column ( name = "update_date" )
+	@Index ( name = "sample_up_date" )
+	public Date getUpdateDate ()
+	{
+		return updateDate;
+	}
+
+	public void setUpdateDate ( Date updateDate )
+	{
+		this.updateDate = updateDate;
 	}
 
 	@Transient
