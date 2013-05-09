@@ -40,6 +40,7 @@ public class JobRegisterDAOTest
 		EntityManager em = emProvider.getEntityManager ();
 		JobRegisterDAO jrDao = new JobRegisterDAO ( em );
 		
+		// Entries are created by the loader and the unloader, so typically the DAO is user more for querying.
 		JobRegisterEntry 
 		  jre1 = new JobRegisterEntry ( "test.type", "test.acc1", Operation.ADD ),
 		  jre2 = new JobRegisterEntry ( "test.type", "test.acc2", Operation.DELETE );
@@ -51,14 +52,16 @@ public class JobRegisterDAOTest
 		ts.commit ();
 		
 		jrDao.setEntityManager ( em = emProvider.newEntityManager () );
-		List<JobRegisterEntry> log = jrDao.find ( 1 );
 		
+		// Find anything in the last day
+		List<JobRegisterEntry> log = jrDao.find ( 1 );
 		assertEquals ( "Log entry storage didn't work!", 2, log.size () );
 		assertTrue ( "Wrong data retrieved from the job register log!", 
 			jre1.equals ( log.get ( 0 ) ) && jre2.equals ( log.get ( 1 ) ) 
 			|| jre1.equals ( log.get ( 1 ) ) && jre2.equals ( log.get ( 0 ) ) 
 	  );
 		
+		// Find a specific operation in the last day
 		log = jrDao.find ( 1, Operation.DELETE );
 		assertEquals ( "find with Operation didn't work!", 1, log.size () );
 		assertEquals ( "find with Operation didn't work!", jre2, log.get ( 0 ) );
@@ -67,7 +70,8 @@ public class JobRegisterDAOTest
 		assertFalse ( "Wrong result for hasEntry ()", jrDao.hasEntry ( 
 			jre1.getEntityType (), jre1.getAcc (), 
 			new GregorianCalendar ( 1990, 1, 1 ).getTime (), new GregorianCalendar ( 2000, 3, 12 ).getTime () ));
-		
+
+		// Clean it all (i.e. entries older than 0 days)
 		ts = em.getTransaction ();
 		ts.begin ();
 		jrDao.clean ( 0 );
