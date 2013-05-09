@@ -15,8 +15,9 @@ import uk.ac.ebi.fg.core_model.toplevel.Accessible;
 import uk.ac.ebi.fg.core_model.toplevel.Identifiable;
 
 /**
- * This entity/table keeps track of relevant things that are deleted from the BioSD database. This is needed for operations
- * like incremental update of XML exports used for the BioSD web interface.
+ * This entity/table keeps track of persistence operations made for relevant BioSD entities. 
+ * This is needed for operations like incremental update of XML exports used for the BioSD web interface, or 
+ * the submission tracking application.
  *
  * <dl><dt>date</dt><dd>Apr 24, 2013</dd></dl>
  * @author Marco Brandizi
