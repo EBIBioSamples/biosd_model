@@ -92,4 +92,5 @@ public class SecureEntityDelegate
 			? this.getReleaseDate () != null && ( this.releaseDate.before ( now ) || this.releaseDate.equals ( now ) ) 
 			: this.publicFlag;
 	}
+	
 }

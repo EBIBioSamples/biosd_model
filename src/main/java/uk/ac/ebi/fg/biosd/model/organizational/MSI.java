@@ -3,20 +3,25 @@
  */
 package uk.ac.ebi.fg.biosd.model.organizational;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.AssociationOverride;
 import javax.persistence.AssociationOverrides;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.apache.commons.lang.StringUtils;
 
+import uk.ac.ebi.fg.biosd.model.access_control.SecureEntityDelegate;
+import uk.ac.ebi.fg.biosd.model.access_control.User;
 import uk.ac.ebi.fg.biosd.model.expgraph.BioSample;
 import uk.ac.ebi.fg.biosd.model.xref.DatabaseRefSource;
 import uk.ac.ebi.fg.core_model.organizational.Submission;
@@ -46,7 +51,7 @@ public class MSI extends Submission
 	private Set<DatabaseRefSource> databases = new HashSet<DatabaseRefSource> ();
 	private Set<BioSampleGroup> sampleGroups = new HashSet<BioSampleGroup> ();
 	private Set<BioSample> samples = new HashSet<BioSample> ();
-	
+	private final SecureEntityDelegate securityDelegate = new SecureEntityDelegate ();
 	
 	protected MSI () {
 		super ();
@@ -127,17 +132,70 @@ public class MSI extends Submission
 	
 	
 	
+	/** @see SecureEntityDelegate */
+	@ManyToMany ( mappedBy = "MSIs", cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH } )
+	public Set<User> getUsers ()
+	{
+		return securityDelegate.getUsers ();
+	}
+
+	protected void setUsers ( Set<User> users ) {
+		securityDelegate.setUsers ( users );
+	}
+
+	/** It's symmetric, {@link User#getMSIs()} will be updated. @see {@link SecureEntityDelegate}. */
+	public boolean addUser ( User user )
+	{
+		return securityDelegate.addUser ( this, user, "addMSI" );
+	}
+
+	/** It's symmetric, {@link User#getMSIs()} will be updated. @see {@link SecureEntityDelegate}. */
+	public boolean deleteUser ( User user )
+	{
+		return securityDelegate.deleteUser ( this, user, "deleteMSI" );
+	}
+
+	/** @see SecureEntityDelegate. */
+	@Column ( name = "public_flag", nullable = true )
+	public Boolean getPublicFlag ()
+	{
+		return securityDelegate.getPublicFlag ();
+	}
+
+	public void setPublicFlag ( Boolean publicFlag )
+	{
+		securityDelegate.setPublicFlag ( publicFlag );
+	}
+
+	/** @see SecureEntityDelegate. */
+	public Date getReleaseDate ()
+	{
+		return securityDelegate.getReleaseDate ();
+	}
+
+	public void setReleaseDate ( Date releaseDate )
+	{
+		securityDelegate.setReleaseDate ( releaseDate );
+	}
+	
+	@Transient
+	public boolean isPublic ()
+	{
+		return securityDelegate.isPublic ();
+	}
+
+	
 	@Override
 	public String toString ()
 	{
 		return String.format ( 
 			"%s { id: %s, acc: '%s', title: '%s', description: '%s', version: '%s', sub. date: '%s', rel. date: '%s', " +
-			"update date: '%s', format ver.: '%s', contacts:\n  %s,\n organizations:\n  %s,\n databases:\n  %s, " +
-			"\n ref sources:\n  %s}",
+			"update date: '%s', format ver.: '%s', publicFlag: %s, contacts:\n  %s,\n organizations:\n  %s,\n databases:\n  %s, " +
+			"\n ref sources:\n  %s, users:\n %s}",
 			this.getClass ().getSimpleName (), this.getId (), this.getAcc (), this.getTitle (), 
 			StringUtils.abbreviate ( this.getDescription (), 20 ), this.getVersion (), this.getSubmissionDate (),
-			this.getReleaseDate (), this.getUpdateDate (), this.getFormatVersion (), this.getContacts (), 
-			this.getOrganizations (), this.getDatabases (), this.getReferenceSources ()
+			this.getReleaseDate (), this.getUpdateDate (), this.getFormatVersion (), this.getPublicFlag (), this.getContacts (), 
+			this.getOrganizations (), this.getDatabases (), this.getReferenceSources (), this.getUsers ()
 		);
 	}
 }

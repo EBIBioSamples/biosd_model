@@ -1,5 +1,9 @@
 package uk.ac.ebi.fg.biosd.model.persistence.hibernate.access_control;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.util.GregorianCalendar;
 import java.util.List;
 
@@ -8,8 +12,6 @@ import javax.persistence.EntityTransaction;
 
 import org.junit.Rule;
 import org.junit.Test;
-
-import static org.junit.Assert.*; 
 
 import uk.ac.ebi.fg.biosd.model.application_mgmt.UnloadLogEntry;
 import uk.ac.ebi.fg.biosd.model.persistence.hibernate.application_mgmt.UnloadLogDAO;

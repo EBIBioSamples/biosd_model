@@ -132,9 +132,9 @@ public class AccessControlPersistenceTest
 		tns.commit ();
 
 		tns.begin ();
-		acMgr.changeBioSampleVisibility ( model.smp1.getAcc (), false );
+		acMgr.setBioSampleVisibility ( model.smp1.getAcc (), false );
 		Date relDate = new GregorianCalendar ( 2100, 1, 21 ).getTime ();  
-		acMgr.changeBioSampleReleaseDate ( model.smp1.getAcc (), relDate );
+		acMgr.setBioSampleReleaseDate ( model.smp1.getAcc (), relDate );
 		tns.commit ();
 		
 		BioSample smp1DB = sampleDao.find ( model.smp1.getAcc () );
@@ -142,9 +142,9 @@ public class AccessControlPersistenceTest
 		assertEquals ( "releaseDate not saved!", relDate, smp1DB.getReleaseDate () );
 		
 		tns.begin ();
-		acMgr.changeBioSampleGroupVisibility ( model.sg1.getAcc (), null, true );
+		acMgr.setBioSampleGroupVisibility ( model.sg1.getAcc (), null, true );
 		relDate = new GregorianCalendar ( 1971, 10, 1 ).getTime ();  
-		acMgr.changeBioSampleGroupReleaseDate ( model.sg1.getAcc (), relDate, true );
+		acMgr.setBioSampleGroupReleaseDate ( model.sg1.getAcc (), relDate, true );
 		tns.commit ();
 				
 		// Re-using em doesn't work and replacing it doesn't work either

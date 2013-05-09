@@ -17,10 +17,12 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.xml.bind.DatatypeConverter;
 
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.annotations.Index;
 
 import uk.ac.ebi.fg.biosd.model.expgraph.BioSample;
 import uk.ac.ebi.fg.biosd.model.organizational.BioSampleGroup;
+import uk.ac.ebi.fg.biosd.model.organizational.MSI;
 import uk.ac.ebi.fg.core_model.resources.Const;
 import uk.ac.ebi.fg.core_model.toplevel.Accessible;
 import uk.ac.ebi.utils.orm.Many2ManyUtils;
@@ -46,6 +48,7 @@ public class User extends Accessible
 	
 	private Set<BioSampleGroup> bioSampleGroups = new HashSet<BioSampleGroup> ();
 	private Set<BioSample> bioSamples = new HashSet<BioSample> ();
+	private Set<MSI> msis = new HashSet<MSI> ();
 	
 	
 	private static MessageDigest messageDigest = null;
@@ -175,6 +178,32 @@ public class User extends Accessible
 		return Many2ManyUtils.deleteMany2Many ( this, smp, "deleteUser", this.getBioSamples () );
 	}
 
+	
+	@ManyToMany ( cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH } )
+	@JoinTable ( name = "user_msi", 
+		joinColumns = @JoinColumn ( name = "user_id" ), inverseJoinColumns = @JoinColumn ( name = "msi_id" ) )
+	public Set<MSI> getMSIs ()
+	{
+		return msis;
+	}
+
+	protected void setMSIs ( Set<MSI> msis )
+	{
+		this.msis = msis;
+	}
+	
+	/** It's symmetric, {@link MSI#getUsers()} will be updated. @see {@link SecureEntityDelegate}. */
+	public boolean addMSI ( MSI msi )  {
+		return Many2ManyUtils.addMany2Many ( this, msi, "addUser", this.getMSIs () );
+	}
+	
+	/** It's symmetric, {@link MSI#getUsers()} will be updated. @see {@link SecureEntityDelegate}. */
+	public boolean deleteMSI ( MSI msi ) {
+		return Many2ManyUtils.deleteMany2Many ( this, msi, "deleteUser", this.getMSIs () );
+	}
+
+	
+	
 	/**
 	 * Provides an immutable view (not a copy) over all the objects that a user might own, i.e., {@link BioSample} and
 	 * {@link BioSampleGroup}. Uses {@link Sets#union(Set, Set)}.
@@ -182,7 +211,11 @@ public class User extends Accessible
 	@Transient
 	public Set<Accessible> getOwnedEntities ()
 	{
-		return Sets.union ( (Set<? extends Accessible>) this.getBioSampleGroups (), (Set<? extends Accessible>) this.getBioSamples () );
+		return Sets.union ( 
+			(Set<? extends Accessible>) this.getMSIs (), Sets.union ( 
+				(Set<? extends Accessible>) this.getBioSampleGroups (), 
+				(Set<? extends Accessible>) this.getBioSamples ()
+		));
 	}
 
 
@@ -222,5 +255,11 @@ public class User extends Accessible
 	public int hashCode ()
 	{
 		return this.getEmail ().hashCode ();
+	}
+
+	@Override
+	public String toString () {
+		return String.format ( "email (== acc): %s, name: %s, surname %s, notes: %s", 
+			this.getEmail (), this.getName (), this.getSurname (), StringUtils.abbreviate ( this.getNotes (), 15 ) );
 	}
 }
