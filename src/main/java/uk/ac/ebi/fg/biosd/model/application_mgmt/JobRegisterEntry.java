@@ -3,6 +3,8 @@ package uk.ac.ebi.fg.biosd.model.application_mgmt;
 import java.util.Date;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
@@ -21,40 +23,44 @@ import uk.ac.ebi.fg.core_model.toplevel.Identifiable;
  *
  */
 @Entity
-@Table ( name = "unload_log" )
-public class UnloadLogEntry extends Identifiable
+@Table ( name = "job_register" )
+public class JobRegisterEntry extends Identifiable
 {
+	public static enum Operation { ADD, DELETE, UPDATE };
+	
 	private String acc;
 	private String entityType;
+	private Operation operation;
 	private Date timestamp;
 	
-	protected UnloadLogEntry () {
+	protected JobRegisterEntry () {
 		super ();
 	}
 
 	/**
 	 * Identity is built on all these three properties.
 	 */
-	public UnloadLogEntry ( String acc, String entityType, Date timestamp )
+	public JobRegisterEntry ( String acc, String entityType, Operation operation, Date timestamp )
 	{
 		super ();
 		this.acc = acc;
 		this.entityType = entityType;
+		this.operation = operation;
 		this.timestamp = timestamp;
 	}
 
 	/**
 	 * Uses the current time as timestamp.
 	 */
-	public UnloadLogEntry ( String acc, String entityType )
+	public JobRegisterEntry ( String acc, String entityType, Operation operation )
 	{
-		this ( acc, entityType, new Date () );
+		this ( acc, entityType, operation, new Date () );
 	}
 
 	/**
 	 * Uses entity.getClass().getSimpleName() as type and {@link Accessible#getAcc()} as accession.
 	 */
-	public UnloadLogEntry ( Accessible entity, Date timestamp )
+	public JobRegisterEntry ( Accessible entity, Operation operation, Date timestamp )
 	{
 		super ();
 		if ( entity != null ) 
@@ -62,15 +68,16 @@ public class UnloadLogEntry extends Identifiable
 			this.acc = entity.getAcc ();
 			this.entityType = entity.getClass ().getSimpleName ();
 		}
+		this.operation = operation;
 		this.timestamp = timestamp;
 	}
 	
 	/**
-	 * Like {@link #UnloadLogEntry(Accessible, Date)}, but uses the current time as timestamp.
+	 * Like {@link #JobRegisterEntry(Accessible, Date)}, but uses the current time as timestamp.
 	 */
-	public UnloadLogEntry ( Accessible entity )
+	public JobRegisterEntry ( Accessible entity, Operation operation )
 	{
-		this ( entity, new Date () );
+		this ( entity, operation, new Date () );
 	}
 	
 	
@@ -80,7 +87,7 @@ public class UnloadLogEntry extends Identifiable
 	 * in future too.
 	 */
 	@NotEmpty
-	@Index ( name = "undel_log_entity" )
+	@Index ( name = "jr_entity" )
 	public String getEntityType ()
 	{
 		return entityType;
@@ -96,7 +103,7 @@ public class UnloadLogEntry extends Identifiable
 	 * We assume you keep track of {@link Accessible} only, so we recommend you use {@link Accessible#getAcc()} for this.
 	 */
 	@NotEmpty
-	@Index ( name = "undel_log_acc" )
+	@Index ( name = "jr_acc" )
 	public String getAcc ()
 	{
 		return acc;
@@ -107,11 +114,22 @@ public class UnloadLogEntry extends Identifiable
 		this.acc = acc;
 	}
 
+	@NotNull
+	@Index( name = "jr_op")
+	@Enumerated ( EnumType.STRING )
+	public Operation getOperation () {
+		return operation;
+	}
+
+	protected void setOperation ( Operation operation ) {
+		this.operation = operation;
+	}
+
 	/**
 	 * When the entity was deleted.
 	 */
 	@NotNull
-	@Index ( name = "undel_log_ts" )
+	@Index ( name = "jr_ts" )
 	public Date getTimestamp () {
 		return timestamp;
 	}
@@ -121,7 +139,7 @@ public class UnloadLogEntry extends Identifiable
 	}
 	
 	/**
-	 * Based on {@link #getEntityType()} + {@link #getAcc()} + {@link #getTimestamp()}.
+	 * Based on {@link #getEntityType()} + {@link #getAcc()} + {@link #getOperation()} + {@link #getTimestamp()}.
 	 */
   @Override
   public boolean equals ( Object o ) 
@@ -131,15 +149,16 @@ public class UnloadLogEntry extends Identifiable
   	if ( this.getClass () != o.getClass () ) return false;
   	
     // The entity type
-  	UnloadLogEntry that = (UnloadLogEntry) o;
+  	JobRegisterEntry that = (JobRegisterEntry) o;
     if ( this.getEntityType () == null || that.getEntityType () == null || !this.entityType.equals ( that.entityType ) ) return false; 
     if ( this.getAcc () == null || that.getAcc () == null || !this.acc.equals ( that.acc ) ) return false; 
+    if ( this.getOperation () == null || that.getOperation () == null || !this.operation.equals ( that.operation ) ) return false; 
     if ( this.getTimestamp () == null || that.getTimestamp () == null || !this.timestamp.equals ( that.timestamp ) ) return false;
     return true;
   }
 	
 	/**
-	 * Based on {@link #getEntityType()} + {@link #getAcc()} + {@link #getTimestamp()}.
+	 * Based on {@link #getEntityType()} + {@link #getAcc()} + {@link #getOperation()} + {@link #getTimestamp()}.
 	 */
 	@Override
 	public int hashCode ()
@@ -147,14 +166,15 @@ public class UnloadLogEntry extends Identifiable
 		int result = 1;
 		result = 31 * result + ( ( this.getEntityType () == null ) ? 0 : entityType.hashCode () );
 		result = 31 * result + ( ( this.getAcc () == null ) ? 0 : acc.hashCode () );
+		result = 31 * result + ( ( this.getOperation () == null ) ? 0 : operation.hashCode () );
 		result = 31 * result + ( ( this.getTimestamp () == null ) ? 0 : timestamp.hashCode () );
 		return result;
 	}
   
   @Override
   public String toString() {
-  	return String.format ( "%s { id: %d, entity: '%s', acc: '%s', timestamp: %t$5F %t$5T.%t$5L", 
-  		this.getClass ().getSimpleName (), this.getId (), this.getEntityType (), this.getAcc (), this.getTimestamp () );
+  	return String.format ( "%s { id: %d, entity: '%s', acc: '%s', operation: %s, timestamp: %t$6F %t$6T.%t$6L", 
+  		this.getClass ().getSimpleName (), this.getId (), this.getEntityType (), this.getAcc (), this.getOperation (), this.getTimestamp () );
   }
 
 }
