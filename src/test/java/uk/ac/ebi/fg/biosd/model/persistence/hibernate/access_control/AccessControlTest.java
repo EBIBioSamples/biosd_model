@@ -1,4 +1,4 @@
-package uk.ac.ebi.fg.biosd.persistence.hibernate;
+package uk.ac.ebi.fg.biosd.model.persistence.hibernate.access_control;
 
 import static java.lang.System.out;
 import static org.junit.Assert.assertEquals;
@@ -22,6 +22,7 @@ import uk.ac.ebi.fg.biosd.model.access_control.User;
 import uk.ac.ebi.fg.biosd.model.expgraph.BioSample;
 import uk.ac.ebi.fg.biosd.model.organizational.BioSampleGroup;
 import uk.ac.ebi.fg.biosd.model.organizational.MSI;
+import uk.ac.ebi.fg.biosd.model.persistence.hibernate.SubmissionPersistenceTest;
 import uk.ac.ebi.fg.biosd.model.persistence.hibernate.access_control.AccessControlManager;
 import uk.ac.ebi.fg.biosd.model.persistence.hibernate.access_control.UserDAO;
 import uk.ac.ebi.fg.biosd.model.utils.test.AccessControlTestModel;
@@ -31,6 +32,8 @@ import uk.ac.ebi.fg.core_model.resources.Resources;
 import uk.ac.ebi.fg.core_model.utils.expgraph.DirectDerivationGraphDumper;
 import uk.ac.ebi.utils.test.junit.TestEntityMgrProvider;
 
+import static org.apache.commons.lang.time.DateFormatUtils.*;
+
 /**
  * Tests access control and ownership features.
  *
@@ -39,7 +42,7 @@ import uk.ac.ebi.utils.test.junit.TestEntityMgrProvider;
  *
  */
 @SuppressWarnings ( { "rawtypes" } )
-public class AccessControlPersistenceTest
+public class AccessControlTest
 {
 	@Rule
 	public TestEntityMgrProvider emProvider = new TestEntityMgrProvider ( Resources.getInstance ().getEntityManagerFactory () );
@@ -115,7 +118,7 @@ public class AccessControlPersistenceTest
 	}
 
 	@Test
-	public void testAccessControlManager ()
+	public void testAccessControlCLIVisibility ()
 	{
 		AccessibleDAO<BioSample> sampleDao = new AccessibleDAO<BioSample> ( BioSample.class, em );
 		AccessibleDAO<BioSampleGroup> sgDao = new AccessibleDAO<BioSampleGroup> ( BioSampleGroup.class, em );
@@ -162,5 +165,93 @@ public class AccessControlPersistenceTest
 		
 		assertTrue ( "sg.isPublic() not working!", sg1DB.isPublic () );
 		assertTrue ( "smp.isPublic() not working!", smp1DB.isPublic () );
+	}
+	
+	
+	@Test
+	public void testAccessControlCLI ()
+	{
+		AccessibleDAO<BioSample> sampleDao = new AccessibleDAO<BioSample> ( BioSample.class, em );
+		AccessibleDAO<BioSampleGroup> sgDao = new AccessibleDAO<BioSampleGroup> ( BioSampleGroup.class, em );
+		AccessibleDAO<MSI> msiDao = new AccessibleDAO<MSI> ( MSI.class, em );
+		
+		
+		// Save
+		// 
+		EntityTransaction tns = em.getTransaction ();
+		tns.begin ();
+		sampleDao.create ( model.smp1 );
+		sampleDao.getOrCreate ( model.smp2 );
+		msiDao.getOrCreate ( model.msi );
+		tns.commit ();
+
+		// Re-using em doesn't work and replacing it doesn't work either
+		AccessControlCLI acCli = new AccessControlCLI ( em.getEntityManagerFactory ().createEntityManager () );
+
+		acCli.run ( String.format ( "set visibility samples -%s", model.smp1.getAcc () ));
+		Date relDate = new GregorianCalendar ( 2100, 0, 21 ).getTime ();
+		String cmd = 
+			"set release-date samples " + model.smp1.getAcc () + "  " + format ( relDate, AccessControlCLI.DATE_FMTS [ 1 ] );
+		out.println ( "Sending Command: " + cmd );
+		acCli.run ( cmd );
+		
+		// TODO: use 'get-visibility'
+		sampleDao.setEntityManager ( em.getEntityManagerFactory ().createEntityManager () );
+		BioSample smp1DB = sampleDao.find ( model.smp1.getAcc () );
+		assertFalse ( "publicFlag not saved!", smp1DB.getPublicFlag () );
+		assertEquals ( "releaseDate not saved!", relDate, smp1DB.getReleaseDate () );
+		
+		
+		acCli.run ( String.format ( "  set visibility  sample-groups --%s++ ", model.sg1.getAcc () ));
+		relDate = new GregorianCalendar ( 1971, 9, 1, 14, 15, 33 ).getTime ();
+
+		cmd = "set release-date  sample-groups  " + model.sg1.getAcc () + " " + format ( relDate, AccessControlCLI.DATE_FMTS [ 0 ] ) + "++";
+		out.println ( "Sending Command: " + cmd );
+		acCli.run ( cmd );
+				
+		
+		// TODO: use 'get-visibility'
+		// Re-using em doesn't work and replacing it doesn't work either
+		EntityManager em1 = em.getEntityManagerFactory ().createEntityManager ();
+		sampleDao.setEntityManager ( em1 );
+		sgDao.setEntityManager ( em1 );
+		
+		smp1DB = sampleDao.find ( model.smp1.getAcc () );
+		BioSampleGroup sg1DB = sgDao.find ( model.sg1.getAcc () );
+		
+		out.println ( "reloaded SG1:\n" + sg1DB );
+		
+		assertNull ( "sg didn't save publicFlag!", sg1DB.getPublicFlag () );
+		assertEquals ( "sg didn't save releaseDate update!", relDate, sg1DB.getReleaseDate () );
+		assertNull ( "sg didn't cascade publicFlag update!", smp1DB.getPublicFlag () );
+		assertEquals ( "sg didn't cascade releaseDate update!", relDate, smp1DB.getReleaseDate () );
+		
+		assertTrue ( "sg.isPublic() not working!", sg1DB.isPublic () );
+		assertTrue ( "smp.isPublic() not working!", smp1DB.isPublic () );		
+	}
+	
+	
+	@Test
+	public void testAccessControlCLIUsers ()
+	{
+		// Re-using em doesn't work and replacing it doesn't work either
+		AccessControlCLI acCli = new AccessControlCLI ( em );
+		String email = "test.user@somewhere.net", name = "Mr", surname = "Test 'The' Test", pwd = "the_secret", 
+			notes = "This is a test user   ";
+		String cmd = String.format ( 
+			"--email = %s --name = '%s'  --surname = \"%s\" --password = %s --notes = '%s'", email, name, surname, pwd, notes 
+		);
+		out.println ( "Sending: " + cmd );
+		acCli.createUser ( cmd );
+		
+		UserDAO udao = new UserDAO ( em.getEntityManagerFactory ().createEntityManager () );
+		User uDB = udao.find ( email );
+		assertNotNull ( "user not saved!", uDB );
+		
+		out.println ( "Reloaded user:\n" + uDB );
+		
+		assertEquals ( "Wrong name", name, uDB.getName () );
+		assertEquals ( "Wrong surname", surname, uDB.getSurname () );
+		assertEquals ( "Password doesn't match!", User.hashPassword ( pwd ), uDB.getHashPassword () );
 	}
 }

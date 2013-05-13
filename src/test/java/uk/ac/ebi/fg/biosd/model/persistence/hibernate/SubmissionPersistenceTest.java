@@ -1,7 +1,7 @@
 /*
  * 
  */
-package uk.ac.ebi.fg.biosd.persistence.hibernate;
+package uk.ac.ebi.fg.biosd.model.persistence.hibernate;
 
 import static java.lang.System.out;
 import static org.junit.Assert.assertEquals;
@@ -55,7 +55,7 @@ public class SubmissionPersistenceTest
 	 * Checks that the {@link Node nodes} in model are loaded/unloaded (depending on checkIsLoaded), issues warnings
 	 * and triggers a test failure in case not. 
 	 */
-	static void verifyTestModel ( Object model, boolean checkIsLoaded, EntityManager em ) throws Exception
+	public static void verifyTestModel ( Object model, boolean checkIsLoaded, EntityManager em ) throws Exception
 	{
 		AccessibleDAO<Accessible> accDao = new AccessibleDAO<Accessible> ( Accessible.class, em );
 		

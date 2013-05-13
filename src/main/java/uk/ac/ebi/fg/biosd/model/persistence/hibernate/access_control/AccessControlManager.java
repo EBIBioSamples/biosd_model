@@ -13,7 +13,7 @@ import uk.ac.ebi.fg.core_model.persistence.dao.hibernate.toplevel.AccessibleDAO;
  * An access control manager, for managing entity ownership and visibility (public/private, release date).
  * Note this object doesn't deal with transactions, you have to start/commit transactions on your own. 
  * 
- * The {@link AccessControlAPI} does that instead.
+ * The {@link AccessControlCLI} does that instead.
  *
  * <dl><dt>date</dt><dd>Mar 30, 2013</dd></dl>
  * @author Marco Brandizi
