@@ -224,6 +224,8 @@ public class User extends Accessible
 	 */
 	public static String hashPassword ( String clearPassword )
 	{
+		if ( clearPassword == null ) return null;
+		
 		if ( messageDigest == null )
 		{
 			try {

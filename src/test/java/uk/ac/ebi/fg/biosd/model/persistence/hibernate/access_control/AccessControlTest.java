@@ -1,6 +1,7 @@
 package uk.ac.ebi.fg.biosd.model.persistence.hibernate.access_control;
 
 import static java.lang.System.out;
+import static org.apache.commons.lang.time.DateFormatUtils.format;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -23,16 +24,12 @@ import uk.ac.ebi.fg.biosd.model.expgraph.BioSample;
 import uk.ac.ebi.fg.biosd.model.organizational.BioSampleGroup;
 import uk.ac.ebi.fg.biosd.model.organizational.MSI;
 import uk.ac.ebi.fg.biosd.model.persistence.hibernate.SubmissionPersistenceTest;
-import uk.ac.ebi.fg.biosd.model.persistence.hibernate.access_control.AccessControlManager;
-import uk.ac.ebi.fg.biosd.model.persistence.hibernate.access_control.UserDAO;
 import uk.ac.ebi.fg.biosd.model.utils.test.AccessControlTestModel;
 import uk.ac.ebi.fg.core_model.expgraph.BioMaterial;
 import uk.ac.ebi.fg.core_model.persistence.dao.hibernate.toplevel.AccessibleDAO;
 import uk.ac.ebi.fg.core_model.resources.Resources;
 import uk.ac.ebi.fg.core_model.utils.expgraph.DirectDerivationGraphDumper;
 import uk.ac.ebi.utils.test.junit.TestEntityMgrProvider;
-
-import static org.apache.commons.lang.time.DateFormatUtils.*;
 
 /**
  * Tests access control and ownership features.
@@ -242,7 +239,7 @@ public class AccessControlTest
 			"--email = %s --name = '%s'  --surname = \"%s\" --password = %s --notes = '%s'", email, name, surname, pwd, notes 
 		);
 		out.println ( "Sending: " + cmd );
-		acCli.createUser ( cmd );
+		acCli.storeUser ( cmd, true );
 		
 		UserDAO udao = new UserDAO ( em.getEntityManagerFactory ().createEntityManager () );
 		User uDB = udao.find ( email );
@@ -253,5 +250,18 @@ public class AccessControlTest
 		assertEquals ( "Wrong name", name, uDB.getName () );
 		assertEquals ( "Wrong surname", surname, uDB.getSurname () );
 		assertEquals ( "Password doesn't match!", User.hashPassword ( pwd ), uDB.getHashPassword () );
+
+		String newSurname = "New Test Surname";
+		cmd = String.format ( "--surname = %s --email = %s", newSurname, email );
+		out.println ( "Sending: " + cmd );
+		acCli.storeUser ( cmd, false );
+		
+		udao = new UserDAO ( em.getEntityManagerFactory ().createEntityManager () );
+		uDB = udao.find ( email );
+		assertNotNull ( "Changed user not saved!", uDB );
+		
+		out.println ( "Reloaded modified user:\n" + uDB );
+		assertEquals ( "name change didn't work!", newSurname, uDB.getSurname () );
+		assertEquals ( "lost name during change command!", name, uDB.getName () );
 	}
 }

@@ -4,7 +4,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -313,14 +312,18 @@ public class AccessControlCLI
 	 * TODO:
 	 * create user attr = value... 
 	 *   attr = name|surname|pass|notes, use \attr to embed it as part of the attr-value
+	 *   
 	 * set user ...
-	 * set owner <uname> samples|sample-groups|submissions [+|-] acc[++] [acc[++]]...
-	 * set -owner 
-	 * delete user <uname>
+	 * delete user <uname>[++] // ++ to remove ownership instead of yielding error.
 	 * 
+	 * set owner <uname> samples|sample-groups|submissions [+|-] acc[++] [acc[++]]...
+	 * set -owner samples|sample-groups|submissions acc[++] [acc[++]]... // remove all
+	 * 
+	 * get owner samples|sample-groups|submissions acc[++] [acc[++]]...
+	 * get user <pattern>
 	 */
 	
-	public void createUser ( String userSpec )
+	public void storeUser ( String userSpec, boolean isNew )
 	{
 		userSpec = StringUtils.trimToNull ( userSpec );
 		if ( userSpec == null ) throw new IllegalArgumentException ( "Syntax error, null user description" );
@@ -367,20 +370,26 @@ public class AccessControlCLI
 		
 		log.debug ( "user attributes:\n" + attrs );
 		String email = attrs.get ( "email" );
-		if ( email == null ) throw new IllegalArgumentException ( "Syntax error in user specification (null email)" );
-		
 		String pwd = attrs.get ( "password" );
-		if ( pwd == null ) throw new IllegalArgumentException ( "Syntax error in user specification (null password)" );
+
+		if ( email == null ) throw new IllegalArgumentException ( "Syntax error in user specification (null email)" );
+		if ( isNew && pwd == null ) throw new IllegalArgumentException ( "Syntax error in user specification (null password)" );
 		
 		User user = new User ( 
 			email, attrs.get ( "name" ), attrs.get ( "surname" ), User.hashPassword ( pwd ), attrs.get ( "notes" ) 
 		);
 		
 		log.debug ( "saving user: " + user );
+		
 		EntityManager em = accMgr.getEntityManager ();
 		EntityTransaction ts = em.getTransaction ();
 		ts.begin ();
-		  userDao.create ( user );
+			if ( isNew )
+				userDao.create ( user );
+			else
+			{
+				userDao.mergeBean ( user );
+			}
 		ts.commit ();
 		log.debug ( "saved" );
 	}
