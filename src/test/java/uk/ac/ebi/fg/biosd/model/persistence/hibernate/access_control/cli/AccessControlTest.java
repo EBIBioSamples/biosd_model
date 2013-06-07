@@ -1,4 +1,4 @@
-package uk.ac.ebi.fg.biosd.model.persistence.hibernate.access_control;
+package uk.ac.ebi.fg.biosd.model.persistence.hibernate.access_control.cli;
 
 import static java.lang.System.out;
 import static org.apache.commons.lang.time.DateFormatUtils.format;
@@ -10,6 +10,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -24,6 +25,8 @@ import uk.ac.ebi.fg.biosd.model.expgraph.BioSample;
 import uk.ac.ebi.fg.biosd.model.organizational.BioSampleGroup;
 import uk.ac.ebi.fg.biosd.model.organizational.MSI;
 import uk.ac.ebi.fg.biosd.model.persistence.hibernate.SubmissionPersistenceTest;
+import uk.ac.ebi.fg.biosd.model.persistence.hibernate.access_control.AccessControlManager;
+import uk.ac.ebi.fg.biosd.model.persistence.hibernate.access_control.UserDAO;
 import uk.ac.ebi.fg.biosd.model.utils.test.AccessControlTestModel;
 import uk.ac.ebi.fg.core_model.expgraph.BioMaterial;
 import uk.ac.ebi.fg.core_model.persistence.dao.hibernate.toplevel.AccessibleDAO;
@@ -70,9 +73,11 @@ public class AccessControlTest
 		EntityTransaction tns = em.getTransaction ();
 		tns.begin ();
 		model.delete ( em );
+		em.createQuery ( "delete from User" );
 		tns.commit ();
 
 		SubmissionPersistenceTest.verifyTestModel ( model, false, em );
+		assertTrue( "User deletion at @After didn't work!", em.createQuery ( "FROM User" ).getResultList ().isEmpty () );
 	}
 	
 	@Test
@@ -173,7 +178,7 @@ public class AccessControlTest
 		AccessibleDAO<MSI> msiDao = new AccessibleDAO<MSI> ( MSI.class, em );
 		
 		
-		// Save
+		// Save the test model
 		// 
 		EntityTransaction tns = em.getTransaction ();
 		tns.begin ();
@@ -188,7 +193,7 @@ public class AccessControlTest
 		acCli.run ( String.format ( "set visibility samples -%s", model.smp1.getAcc () ));
 		Date relDate = new GregorianCalendar ( 2100, 0, 21 ).getTime ();
 		String cmd = 
-			"set release-date samples " + model.smp1.getAcc () + "  " + format ( relDate, AccessControlCLI.DATE_FMTS [ 1 ] );
+			"set release-date samples " + model.smp1.getAcc () + "  " + format ( relDate, RelDateParser.DATE_FMTS [ 1 ] );
 		out.println ( "Sending Command: " + cmd );
 		acCli.run ( cmd );
 		
@@ -202,7 +207,7 @@ public class AccessControlTest
 		acCli.run ( String.format ( "  set visibility  sample-groups --%s++ ", model.sg1.getAcc () ));
 		relDate = new GregorianCalendar ( 1971, 9, 1, 14, 15, 33 ).getTime ();
 
-		cmd = "set release-date  sample-groups  " + model.sg1.getAcc () + " " + format ( relDate, AccessControlCLI.DATE_FMTS [ 0 ] ) + "++";
+		cmd = "set release-date  sample-groups  " + model.sg1.getAcc () + " " + format ( relDate, RelDateParser.DATE_FMTS [ 0 ] ) + "++";
 		out.println ( "Sending Command: " + cmd );
 		acCli.run ( cmd );
 				
@@ -232,14 +237,14 @@ public class AccessControlTest
 	public void testAccessControlCLIUsers ()
 	{
 		// Re-using em doesn't work and replacing it doesn't work either
-		AccessControlCLI acCli = new AccessControlCLI ( em );
+		UserStoreParser usrStoreCli = new UserStoreParser ( em );
 		String email = "test.user@somewhere.net", name = "Mr", surname = "Test 'The' Test", pwd = "the_secret", 
 			notes = "This is a test user   ";
 		String cmd = String.format ( 
 			"--email = %s --name = '%s'  --surname = \"%s\" --password = %s --notes = '%s'", email, name, surname, pwd, notes 
 		);
 		out.println ( "Sending: " + cmd );
-		acCli.storeUser ( cmd, true );
+		usrStoreCli.run ( cmd, true );
 		
 		UserDAO udao = new UserDAO ( em.getEntityManagerFactory ().createEntityManager () );
 		User uDB = udao.find ( email );
@@ -254,14 +259,191 @@ public class AccessControlTest
 		String newSurname = "New Test Surname";
 		cmd = String.format ( "--surname = %s --email = %s", newSurname, email );
 		out.println ( "Sending: " + cmd );
-		acCli.storeUser ( cmd, false );
+		usrStoreCli.run ( cmd, false );
 		
-		udao = new UserDAO ( em.getEntityManagerFactory ().createEntityManager () );
+		udao = new UserDAO ( em = em.getEntityManagerFactory ().createEntityManager () );
 		uDB = udao.find ( email );
 		assertNotNull ( "Changed user not saved!", uDB );
 		
 		out.println ( "Reloaded modified user:\n" + uDB );
 		assertEquals ( "name change didn't work!", newSurname, uDB.getSurname () );
 		assertEquals ( "lost name during change command!", name, uDB.getName () );
+		
+		UserDeleteParser udelParser = new UserDeleteParser ( em );
+		udelParser.run ( email + "++" );
+		
+		udao.setEntityManager ( em.getEntityManagerFactory ().createEntityManager () );
+		assertNull ( "Test user not deleted!", udao.find ( email ) );
+	}
+	
+	
+	@Test
+	public void testOwnerSetCLI ()
+	{
+		AccessibleDAO<BioSample> sampleDao = new AccessibleDAO<BioSample> ( BioSample.class, em );
+		AccessibleDAO<BioSampleGroup> sgDao = new AccessibleDAO<BioSampleGroup> ( BioSampleGroup.class, em );
+		AccessibleDAO<MSI> msiDao = new AccessibleDAO<MSI> ( MSI.class, em );
+
+		EntityTransaction tns = em.getTransaction ();
+		tns.begin ();
+		sampleDao.create ( model.smp1 );
+		sampleDao.getOrCreate ( model.smp2 );
+		msiDao.getOrCreate ( model.msi );
+		tns.commit ();
+		
+		UserStoreParser usrStoreCli = new UserStoreParser ( em );
+		String email = "test.user@somewhere.net", name = "Mr", surname = "Test 'The' Test", pwd = "the_secret", 
+			notes = "This is a test user   ";
+		String cmd = String.format ( 
+			"--email = %s --name = '%s'  --surname = \"%s\" --password = %s --notes = '%s'", email, name, surname, pwd, notes 
+		);
+		out.println ( "Sending: " + cmd );
+		usrStoreCli.run ( cmd, true );
+		
+		UserDAO udao = new UserDAO ( em.getEntityManagerFactory ().createEntityManager () );
+		User uDB = udao.find ( email );
+		assertNotNull ( "user not saved!", uDB );
+
+		OwnerSetParser ownerSetParser = new OwnerSetParser ( em );
+		ownerSetParser.run ( String.format ( "%s samples %s", email, model.smp1.getAcc (), model.smp2.getAcc () ) );
+		
+		sampleDao.setEntityManager ( em.getEntityManagerFactory ().createEntityManager () );
+		BioSample smp1DB = sampleDao.find ( model.smp1.getAcc () );
+		assertTrue ( "User owner for smp1 not correctly saved!", smp1DB.getUsers ().contains ( uDB ) );
+		
+		
+		// Do the same for SGs
+		ownerSetParser.run ( String.format ( "%s sample-groups %s++", email, model.sg2.getAcc () ) );
+
+		sgDao.setEntityManager ( em.getEntityManagerFactory ().createEntityManager () );
+		BioSampleGroup sg2DB = sgDao.find ( model.sg2.getAcc () );
+
+		sampleDao.setEntityManager ( em.getEntityManagerFactory ().createEntityManager () );
+		BioSample smp4DB = sampleDao.find ( model.smp4.getAcc () );
+		
+		assertTrue ( "User owner for sg2 not correctly saved!", sg2DB.getUsers ().contains ( uDB ) );
+		assertTrue ( "User owner for smp4 not correctly saved!", smp4DB.getUsers ().contains ( uDB ) );
+
+		
+		ownerSetParser.run ( String.format ( "%s sample-groups -%s++", email, model.sg2.getAcc () ) );
+
+		sgDao.setEntityManager ( em.getEntityManagerFactory ().createEntityManager () );
+		sg2DB = sgDao.find ( model.sg2.getAcc () );
+		
+		sampleDao.setEntityManager ( em.getEntityManagerFactory ().createEntityManager () );
+		smp4DB = sampleDao.find ( model.smp4.getAcc () );
+		
+		assertFalse ( "User owner for sg2 not removed!", sg2DB.getUsers ().contains ( uDB ) );
+		assertFalse ( "User owner for smp4 not removed!", smp4DB.getUsers ().contains ( uDB ) );
+		
+		
+		ownerSetParser.run ( String.format ( "%s sample-groups =%s", email, model.sg2.getAcc () ) );
+
+		sgDao.setEntityManager ( em.getEntityManagerFactory ().createEntityManager () );
+		sg2DB = sgDao.find ( model.sg2.getAcc () );
+
+		sampleDao.setEntityManager ( em.getEntityManagerFactory ().createEntityManager () );
+		smp4DB = sampleDao.find ( model.smp4.getAcc () );
+
+		assertTrue ( "User owner for sg2 not correctly saved!", sg2DB.getUsers ().contains ( uDB ) );
+		assertFalse ( "User owner for sg2 were unexpectedely cascaded!", smp4DB.getUsers ().contains ( uDB ) );
+		
+		
+		ownerSetParser.run ( String.format ( "%s sample-groups =%s++", email, model.sg1.getAcc () ) );
+		
+		sgDao.setEntityManager ( em.getEntityManagerFactory ().createEntityManager () );
+		BioSampleGroup sg1DB = sgDao.find ( model.sg1.getAcc () );
+
+		sampleDao.setEntityManager ( em.getEntityManagerFactory ().createEntityManager () );
+		BioSample smp2DB = sampleDao.find ( model.smp2.getAcc () );
+		
+		assertTrue ( "User owner for sg1 not correctly saved!", sg1DB.getUsers ().contains ( uDB ) );
+		assertTrue ( "User owner for sg1 weren't cascaded!", smp1DB.getUsers ().contains ( uDB ) );
+		assertFalse ( "User owner for sg1 weren't cascaded!", smp2DB.getUsers ().contains ( model.user2 ) );
+
+		
+		ownerSetParser.run ( String.format ( "null sample-groups %s++", model.sg1.getAcc () ) );
+
+		sgDao.setEntityManager ( em.getEntityManagerFactory ().createEntityManager () );
+		sg1DB = sgDao.find ( model.sg1.getAcc () );
+
+		sampleDao.setEntityManager ( em.getEntityManagerFactory ().createEntityManager () );
+		smp1DB = sampleDao.find ( model.smp1.getAcc () );
+		smp2DB = sampleDao.find ( model.smp2.getAcc () );
+		
+		assertTrue ( "User owner for sg1 not removed!", sg1DB.getUsers ().isEmpty () );
+		assertTrue ( "User owner removal for sg1 wasn't cascaded!", smp1DB.getUsers ().isEmpty () );
+		assertTrue ( "User owner removal for sg1 wasn't cascaded!", smp2DB.getUsers ().isEmpty () );
+		
+		
+		ownerSetParser.run ( String.format ( "%s submissions %s++", email, model.msi.getAcc () ) );
+	
+		msiDao.setEntityManager ( em.getEntityManagerFactory ().createEntityManager () );
+		MSI msiDB = msiDao.find ( model.msi.getAcc () );
+		
+		sgDao.setEntityManager ( em.getEntityManagerFactory ().createEntityManager () );
+		sg2DB = sgDao.find ( model.sg2.getAcc () );
+
+		sampleDao.setEntityManager ( em.getEntityManagerFactory ().createEntityManager () );
+		BioSample smp6DB = sampleDao.find ( model.smp6.getAcc () );
+		
+		assertTrue ( "owner-set for MSI didn't work! ", msiDB.getUsers ().contains ( uDB ) );
+		assertTrue ( "owner-set for MSI didn't cascade to sg2!", sg2DB.getUsers ().contains ( uDB ) );
+		assertTrue ( "owner-set for MSI didn't cascade to smp62!", smp6DB.getUsers ().contains ( uDB ) );
+		
+		// Just to test that users are auto-removed from their links.
+		ownerSetParser.run ( String.format ( "%s submissions %s++", email, model.msi.getAcc () ) );
+		
+		// DEBUG
+//		tns = em.getTransaction ();
+//		tns.begin ();
+//		uDB.deleteBioSample ( model.smp1 );
+//		uDB.deleteBioSample ( model.smp2 );
+//		tns.commit ();
+		
+		
+		UserDeleteParser udelParser = new UserDeleteParser ( em );
+		udelParser.run ( email + "++" );
+		
+		udao.setEntityManager ( em.getEntityManagerFactory ().createEntityManager () );
+		assertNull ( "Test user not deleted!", udao.find ( email ) );
+	}
+	
+	@Test
+	public void testUserSearchCLI ()
+	{
+		AccessibleDAO<BioSample> sampleDao = new AccessibleDAO<BioSample> ( BioSample.class, em );
+		AccessibleDAO<MSI> msiDao = new AccessibleDAO<MSI> ( MSI.class, em );
+
+		EntityTransaction tns = em.getTransaction ();
+		tns.begin ();
+		sampleDao.create ( model.smp1 );
+		sampleDao.getOrCreate ( model.smp2 );
+		msiDao.getOrCreate ( model.msi );
+		tns.commit ();
+		
+		List<User> users = new UserSearchParser ( this.em ).run ( "--email = @test.net" );
+		assertEquals ( "Wrong size for user search! ", 2, users.size () );
+		assertTrue ( "user search doesn't return user1!", users.contains ( model.user1 ) );
+		assertTrue ( "user search doesn't return user2!", users.contains ( model.user2 ) );
+	}
+	
+	@Test
+	public void testVisibilityGetCLI ()
+	{
+		AccessibleDAO<BioSample> sampleDao = new AccessibleDAO<BioSample> ( BioSample.class, em );
+		AccessibleDAO<MSI> msiDao = new AccessibleDAO<MSI> ( MSI.class, em );
+
+		EntityTransaction tns = em.getTransaction ();
+		tns.begin ();
+		sampleDao.create ( model.smp1 );
+		sampleDao.getOrCreate ( model.smp2 );
+		msiDao.getOrCreate ( model.msi );
+		tns.commit ();
+
+		AccessControlCLI cli = new AccessControlCLI ( em );
+		List<MSI> msis = (List<MSI>) cli.run ( String.format ( "get visibility submissions %s++", model.msi.getAcc () ) );
+		assertNotNull ( "'get visibility' returned null!", msis );
+		assertEquals ( "'get visibility' returned a wrong-size result!", 1, msis.size () );
 	}
 }
