@@ -2,7 +2,9 @@ package uk.ac.ebi.fg.biosd.model.access_control;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.AttributeOverride;
@@ -25,6 +27,7 @@ import uk.ac.ebi.fg.biosd.model.organizational.BioSampleGroup;
 import uk.ac.ebi.fg.biosd.model.organizational.MSI;
 import uk.ac.ebi.fg.core_model.resources.Const;
 import uk.ac.ebi.fg.core_model.toplevel.Accessible;
+import uk.ac.ebi.utils.collections.AlphaNumComparator;
 import uk.ac.ebi.utils.orm.Many2ManyUtils;
 
 import com.google.common.collect.Sets;
@@ -50,8 +53,26 @@ public class User extends Accessible
 	private Set<BioSample> bioSamples = new HashSet<BioSample> ();
 	private Set<MSI> msis = new HashSet<MSI> ();
 	
-	
 	private static MessageDigest messageDigest = null;
+
+	/**
+	 * TODO: Comment me!
+	 *
+	 */
+	public static class UserComparator implements Comparator<User> 
+	{
+		@Override
+		public int compare ( User u1, User u2 )
+		{
+			if ( u1 == null ) return u2 == null ? 0 : -1;
+			if ( u2 == null ) return -1; // cause u1 == null
+			
+			AlphaNumComparator<String> scmp = new AlphaNumComparator<String> ( false );
+			int result = scmp.compare ( u1.getSurname (), u2.getSurname () ); if ( result != 0 ) return result;
+			result = scmp.compare ( u1.getName (), u2.getName () ); if ( result != 0 ) return result;
+			return scmp.compare ( u1.getEmail (), u2.getEmail () ); 
+		}
+	}
 	
 	protected User () {
 		super ();
@@ -71,6 +92,22 @@ public class User extends Accessible
 		this.notes = notes;
 	}
 
+	/** 
+	 * Initialises a user from a set of attribute-value pairs, useful for tools like command lines.
+	 * Valid attributes are: email, name, surname, password, notes. The password attribute is considered a clear 
+	 * password and so it's first passed to {@link #hashPassword(String)}.
+	 *    
+	 */
+	public User ( Map<String, String> attributes )
+	{
+		this ( 
+			attributes.get ( "email" ), 
+			attributes.get ( "name" ), 
+			attributes.get ( "surname" ), 
+			User.hashPassword ( attributes.get ( "password" ) ), 
+			attributes.get ( "notes" )
+		);
+	}
 	
 	@Index ( name = "user_n" )
 	public String getName ()
@@ -94,7 +131,7 @@ public class User extends Accessible
 		this.surname = surname;
 	}
 
-	@Column ( nullable = false, unique = true )
+	@Transient
 	public String getEmail ()
 	{
 		return this.getAcc ();
@@ -261,7 +298,7 @@ public class User extends Accessible
 
 	@Override
 	public String toString () {
-		return String.format ( "email (== acc): %s, name: %s, surname %s, notes: %s", 
-			this.getEmail (), this.getName (), this.getSurname (), StringUtils.abbreviate ( this.getNotes (), 15 ) );
+		return String.format ( "id = %s, email (== acc): %s, name: %s, surname %s, notes: %s", 
+			this.getId (), this.getEmail (), this.getName (), this.getSurname (), StringUtils.abbreviate ( this.getNotes (), 15 ) );
 	}
 }

@@ -41,9 +41,6 @@ public class BioSampleGroup extends DefaultAccessibleAnnotatable
 	private Set<BioSample> samples = new HashSet<BioSample> ();
 	private Collection<ExperimentalPropertyValue> propertyValues = new ArrayList<ExperimentalPropertyValue> ();
 	private Set<MSI> msis = new HashSet<MSI> ();
-
-	@Column ( name = "update_date" )
-	@Index ( name = "sample_group_up_date" )
 	private Date updateDate;
 
 	private final SecureEntityDelegate securityDelegate = new SecureEntityDelegate ();
@@ -185,6 +182,8 @@ public class BioSampleGroup extends DefaultAccessibleAnnotatable
 		securityDelegate.setReleaseDate ( releaseDate );
 	}
 	
+	@Column ( name = "update_date" )
+	@Index ( name = "sample_group_up_date" )
 	public Date getUpdateDate ()
 	{
 		return updateDate;

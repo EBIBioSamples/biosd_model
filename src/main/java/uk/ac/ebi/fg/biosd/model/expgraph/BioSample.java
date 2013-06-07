@@ -132,6 +132,7 @@ public class BioSample extends BioMaterial<ExperimentalPropertyValue>
 		return securityDelegate.deleteUser ( this, user, "deleteBioSample" );
 	}
 
+
 	/** @see SecureEntityDelegate. */
 	@Column ( name = "public_flag", nullable = true )
 	public Boolean getPublicFlag ()
