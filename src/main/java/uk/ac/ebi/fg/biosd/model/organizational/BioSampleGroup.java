@@ -68,14 +68,14 @@ public class BioSampleGroup extends DefaultAccessibleAnnotatable
 	
 	public boolean addSample ( BioSample smp ) 
 	{
-		if ( !this.samples.add ( smp ) ) return false;
+		if ( !this.getSamples ().add ( smp ) ) return false;
 		smp.addGroup ( this );
 		return true;
 	}
 	
 	public boolean deleteSample ( BioSample smp ) 
 	{
-		if ( !this.samples.remove ( smp ) ) return false;
+		if ( !this.getSamples ().remove ( smp ) ) return false;
 		smp.deleteGroup ( this );
 		return true;
 	}
@@ -93,14 +93,14 @@ public class BioSampleGroup extends DefaultAccessibleAnnotatable
 
 	public boolean addMSI ( MSI msi ) 
 	{
-		if ( !this.msis.add ( msi ) ) return false;
+		if ( !this.getMSIs ().add ( msi ) ) return false;
 		msi.addSampleGroup ( this );
 		return true;
 	}
 	
 	public boolean deleteMSI ( MSI msi ) 
 	{
-		if ( !this.msis.remove ( msi ) ) return false;
+		if ( !this.getMSIs ().remove ( msi ) ) return false;
 		msi.deleteSampleGroup ( this );
 		return true;
 	}
@@ -133,7 +133,7 @@ public class BioSampleGroup extends DefaultAccessibleAnnotatable
 	 * @see #getPropertyValues().
 	 */
 	public boolean addPropertyValue ( ExperimentalPropertyValue pval ) {
-		return this.propertyValues.add ( pval );
+		return this.getPropertyValues ().add ( pval );
 	}
 	
 

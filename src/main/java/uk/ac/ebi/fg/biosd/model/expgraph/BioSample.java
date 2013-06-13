@@ -69,14 +69,14 @@ public class BioSample extends BioMaterial<ExperimentalPropertyValue>
 
 	public boolean addGroup ( BioSampleGroup sg ) 
 	{
-		if ( !this.groups.add ( sg ) ) return false;
+		if ( !this.getGroups ().add ( sg ) ) return false;
 		sg.addSample ( this );
 		return true;
 	}
 
 	public boolean deleteGroup ( BioSampleGroup sg ) 
 	{
-		if ( !this.groups.remove ( sg ) ) return false;
+		if ( !this.getGroups ().remove ( sg ) ) return false;
 		sg.deleteSample ( this );
 		return true;
 	}
@@ -96,14 +96,14 @@ public class BioSample extends BioMaterial<ExperimentalPropertyValue>
 
 	public boolean addMSI ( MSI msi ) 
 	{
-		if ( !this.msis.add ( msi ) ) return false;
+		if ( !this.getMSIs ().add ( msi ) ) return false;
 		msi.addSample ( this );
 		return true;
 	}
 	
 	public boolean deleteMSI ( MSI msi ) 
 	{
-		if ( !this.msis.remove ( msi ) ) return false;
+		if ( !this.getMSIs ().remove ( msi ) ) return false;
 		msi.deleteSample ( this );
 		return true;
 	}

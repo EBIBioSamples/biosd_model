@@ -73,7 +73,7 @@ public class MSI extends Submission
 	}
 	
 	public boolean addDatabase ( DatabaseRefSource db ) {
-		return this.databases.add ( db );
+		return this.getDatabases ().add ( db );
 	}
 
 	
@@ -90,14 +90,14 @@ public class MSI extends Submission
 
 	public boolean addSampleGroup ( BioSampleGroup sg )
 	{
-		if ( !this.sampleGroups.add ( sg ) ) return false;
+		if ( !this.getSampleGroups ().add ( sg ) ) return false;
 		sg.addMSI ( this );
 		return true;
 	}
 
 	public boolean deleteSampleGroup ( BioSampleGroup sg )
 	{
-		if ( !this.sampleGroups.remove ( sg ) ) return false;
+		if ( !this.getSampleGroups ().remove ( sg ) ) return false;
 		sg.deleteMSI ( this );
 		return true;
 	}
@@ -118,14 +118,14 @@ public class MSI extends Submission
 
 	public boolean addSample ( BioSample smp ) 
 	{
-		if ( !this.samples.add ( smp ) ) return false;
+		if ( !this.getSamples ().add ( smp ) ) return false;
 		smp.addMSI ( this );
 		return true;
 	}
 	
 	public boolean deleteSample ( BioSample smp )
 	{
-		if ( !this.samples.remove ( smp ) ) return false;
+		if ( !this.getSamples ().remove ( smp ) ) return false;
 		smp.deleteMSI ( this );
 		return true;
 	}
