@@ -1,5 +1,7 @@
 package uk.ac.ebi.fg.biosd.model.persistence.hibernate.access_control.cli;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.persistence.EntityManager;
@@ -9,6 +11,7 @@ import org.apache.commons.lang.StringUtils;
 
 import uk.ac.ebi.fg.biosd.model.persistence.hibernate.access_control.AccessControlManager;
 import uk.ac.ebi.fg.biosd.model.persistence.hibernate.access_control.UserDAO;
+import uk.ac.ebi.fg.core_model.toplevel.Accessible;
 import uk.ac.ebi.utils.regex.RegEx;
 
 /**
@@ -38,7 +41,7 @@ public class OwnerSetParser extends CLIParser
 	 * - default is +, or = when name == null
 	 * - uname == null as a special case (removes all)
 	 */
-	public <T> T  run ( String cmd )
+	public int  run ( String cmd )
 	{
 		cmd = StringUtils.trimToNull ( cmd );
 		if ( cmd == null ) throw new IllegalArgumentException ( "Syntax error in '" + cmd + "'" );
@@ -52,6 +55,8 @@ public class OwnerSetParser extends CLIParser
 		if ( entitiesBits == null || entitiesBits.length < 1 ) throw new IllegalArgumentException (
 			"Syntax error in '" + cmd + "' (bad entitites specification)" 
 		);
+
+		int result = 0;
 		
 		EntityManager em = accMgr.getEntityManager ();
 		EntityTransaction ts = em.getTransaction ();
@@ -77,27 +82,27 @@ public class OwnerSetParser extends CLIParser
 					"Error with '" + singleEntityStr + "' ('++' is invalid for samples)" 
 				);
 				// Do it for samples
-				if ( userStr == null || "=".equals ( changeTypeStr ) ) accMgr.setSampleOwner ( entityAcc, userStr );
-				else if ( "+".equals ( changeTypeStr ) ) accMgr.addSampleOwner ( entityAcc, userStr );
-				else accMgr.deleteSampleOwner ( entityAcc, userStr ); // it is '-'
+				if ( userStr == null || "=".equals ( changeTypeStr ) ) result += accMgr.setSampleOwner ( entityAcc, userStr );
+				else if ( "+".equals ( changeTypeStr ) ) { if ( accMgr.addSampleOwner ( entityAcc, userStr ) ) result++; }
+				else { if ( accMgr.deleteSampleOwner ( entityAcc, userStr ) ) result++; } // it is '-'
 			}
 			else if ( "sample-groups".equalsIgnoreCase ( entityTypeStr ) ) 
 			{
 				// Do it for sample-groups
-				if ( userStr == null || "=".equals ( changeTypeStr ) ) accMgr.setSampleGroupOwner ( entityAcc, userStr, cascadingFlag );
-				else if ( "+".equals ( changeTypeStr ) ) accMgr.addSampleGroupOwner ( entityAcc, userStr, cascadingFlag );
-				else accMgr.deleteSampleGroupOwner ( entityAcc, userStr, cascadingFlag ); // it is '-'
+				if ( userStr == null || "=".equals ( changeTypeStr ) ) result += accMgr.setSampleGroupOwner ( entityAcc, userStr, cascadingFlag );
+				else if ( "+".equals ( changeTypeStr ) ) result += accMgr.addSampleGroupOwner ( entityAcc, userStr, cascadingFlag );
+				else result += accMgr.deleteSampleGroupOwner ( entityAcc, userStr, cascadingFlag ); // it is '-'
 			}
 			else // it's 'submissions'
 			{
 				// Do it for sample-groups
-				if ( userStr == null || "=".equals ( changeTypeStr ) ) accMgr.setMSIOwner ( entityAcc, userStr, cascadingFlag );
-				else if ( "+".equals ( changeTypeStr ) ) accMgr.addMSIOwner ( entityAcc, userStr, cascadingFlag );
-				else accMgr.deleteMSIOwner ( entityAcc, userStr, cascadingFlag ); // it is '-'
+				if ( userStr == null || "=".equals ( changeTypeStr ) ) result += accMgr.setMSIOwner ( entityAcc, userStr, cascadingFlag );
+				else if ( "+".equals ( changeTypeStr ) ) result += accMgr.addMSIOwner ( entityAcc, userStr, cascadingFlag );
+				else result += accMgr.deleteMSIOwner ( entityAcc, userStr, cascadingFlag ); // it is '-'
 			}
 		}
 		ts.commit ();
-		return null;
+		return result;
 	}
 	
 	

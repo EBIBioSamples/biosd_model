@@ -10,10 +10,9 @@ import org.apache.commons.lang.StringUtils;
 
 import uk.ac.ebi.fg.biosd.model.organizational.MSI;
 import uk.ac.ebi.fg.biosd.model.persistence.hibernate.access_control.AccessControlManager;
-import uk.ac.ebi.fg.core_model.persistence.dao.hibernate.toplevel.AccessibleDAO;
 
 /**
- * TODO: Comment me!
+ * Allows to set the visibility (public/private flag) of SampleTab submissions (and possibly the objects it contains).
  *
  * <dl><dt>date</dt><dd>May 23, 2013</dd></dl>
  * @author Marco Brandizi
@@ -22,25 +21,29 @@ import uk.ac.ebi.fg.core_model.persistence.dao.hibernate.toplevel.AccessibleDAO;
 class MSIVisibilitySetParser extends CLIParser
 {
 	private AccessControlManager accMgr;
-	private AccessibleDAO<MSI> msiDao; 
 
 	public MSIVisibilitySetParser ( EntityManager entityManager ) {
 		super ( entityManager );
 	}
 
-	public List<MSI> run ( String cmd )
+	/**
+	 * Splits the input into spaced chunks (using \s+), then uses {@link VisibilityParser#SAMPLE_GROUP_VISIBILITY_SET_SPEC_RE}
+	 * to match accession specifications and set the corresponding visibility.
+	 * 
+	 */
+	public int run ( String cmd )
 	{
 		cmd = StringUtils.trimToNull ( cmd );
 		if ( cmd == null ) throw new IllegalArgumentException ( "Syntax error (null submission visibility specification)" );
 		
-		List<MSI> result = new ArrayList<MSI> ();
+		int result = 0; 
 		
 		EntityManager em = accMgr.getEntityManager ();
 		EntityTransaction ts = em.getTransaction ();
 		ts.begin ();
 		for ( String singleSpec: cmd.split ( "\\s+" ) )
 		{
-			String specBits[] = SAMPLE_GROUP_VISIBILITY_SET_SPEC_RE.groups ( singleSpec );
+			String specBits[] = VisibilityParser.SAMPLE_GROUP_VISIBILITY_SET_SPEC_RE.groups ( singleSpec );
 			if ( specBits == null || specBits.length < 4 ) throw new IllegalArgumentException ( "Syntax error in '" + singleSpec +"'" );
 			
 			String acc = specBits [ 2 ]; 
@@ -50,9 +53,7 @@ class MSIVisibilitySetParser extends CLIParser
 				: null; // last case is --
 			boolean isCascaded = "++".equals ( specBits [ 3 ] );
 				
-			MSI msi = accMgr.setMSIVisibility ( acc, publicFlag, isCascaded );
-			
-			result.add ( msi );
+			result += accMgr.setMSIVisibility ( acc, publicFlag, isCascaded );
 		}
 		ts.commit ();
 		return result;
@@ -69,7 +70,6 @@ class MSIVisibilitySetParser extends CLIParser
 	public void setEntityManager ( EntityManager entityManager )
 	{
 		this.accMgr = new AccessControlManager ( entityManager );
-		this.msiDao = new AccessibleDAO<MSI> ( MSI.class, entityManager );
 	}
 
 }

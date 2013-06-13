@@ -30,7 +30,7 @@ class RelDateParser extends CLIParser
 		super ( entityManager );
 	}
 
-	public <T> T run ( String cmd )
+	public int run ( String cmd )
 	{
 		cmd = StringUtils.trimToNull ( cmd );
 		if ( cmd == null ) throw new IllegalArgumentException ( "Syntax error (null visibility command)" );

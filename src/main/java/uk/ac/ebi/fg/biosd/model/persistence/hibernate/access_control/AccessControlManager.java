@@ -39,34 +39,55 @@ public class AccessControlManager
 	/**
 	 * Changes the visibility of a bio-sample.  
 	 */
-	public void setBioSampleVisibility ( String sampleAcc, Boolean publicFlag ) 
+	public boolean setBioSampleVisibility ( BioSample sample, Boolean publicFlag ) 
 	{
-		BioSample sample = sampleDao.find ( sampleAcc );
-		if ( sample == null ) throw new RuntimeException ( "Sample '" + sampleAcc + "' not found" );
+		Boolean oldPubFlag = sample.getPublicFlag ();
+		if ( oldPubFlag == null ? publicFlag == null : oldPubFlag.equals ( publicFlag ) ) return false;
+		
 		sample.setPublicFlag ( publicFlag );
+		return true;
 	}
 
+	public boolean setBioSampleVisibility ( String sampleAcc, Boolean publicFlag ) 
+	{
+		BioSample sample = sampleDao.findAndFail ( sampleAcc );
+		return this.setBioSampleVisibility ( sample, publicFlag );
+	}
+	
+	
 	/**
 	 * Changes the release date for a sample 
 	 */
-	public void setBioSampleReleaseDate ( String sampleAcc, Date releaseDate ) 
+	public boolean setBioSampleReleaseDate ( BioSample sample, Date releaseDate ) 
 	{
-		BioSample sample = sampleDao.find ( sampleAcc );
-		if ( sample == null ) throw new RuntimeException ( "Sample '" + sampleAcc + "' not found" );
+		Date oldDate = sample.getReleaseDate ();
+		if ( oldDate == null ? releaseDate == null : oldDate.equals ( releaseDate ) ) return false;
+		
 		sample.setReleaseDate ( releaseDate );
+		return true;
 	}
 
+	public boolean setBioSampleReleaseDate ( String sampleAcc, Date releaseDate ) 
+	{
+		BioSample sample = sampleDao.findAndFail ( sampleAcc );
+		return this.setBioSampleReleaseDate ( sample, releaseDate ); 
+	}
 	
 	/**
 	 * Changes the visibility for a sample group and optionally cascades the operation to all the samples linked to 
 	 * the group.
 	 */
-	public void setBioSampleGroupVisibility ( String sgAcc, Boolean publicFlag, boolean isCascaded ) 
-	{
-		BioSampleGroup sg = sgDao.find ( sgAcc );
-		if ( sg == null ) throw new RuntimeException ( "Sample '" + sgAcc + "' not found" );
-		sg.setPublicFlag ( publicFlag );
-		if ( !isCascaded ) return;
+	public int setBioSampleGroupVisibility ( BioSampleGroup sg, Boolean publicFlag, boolean isCascaded ) 
+	{		
+		int result = 0;
+		
+		Boolean oldPubFlag = sg.getPublicFlag ();
+		if ( oldPubFlag == null ? publicFlag != null : !oldPubFlag.equals ( publicFlag ) ) {
+			sg.setPublicFlag ( publicFlag );
+			result++;
+		}
+
+		if ( !isCascaded ) return result;
 
 		// PLEASE NOTE, do not say WHERE smp.*id* IN ... this is an Hibernate problem, the intuitive form doesn't work, this
 		// not-so-good form is auto-translated into id comparison.
@@ -77,20 +98,36 @@ public class AccessControlManager
 			BioSample.class.getName () 
 		);
 		
-		entityManager.createQuery ( hql )
+		result += entityManager.createQuery ( hql )
 			.setParameter ( "publicFlag", publicFlag )
-			.setParameter ( "sgAcc", sgAcc )
+			.setParameter ( "sgAcc", sg.getAcc () )
 			.executeUpdate ();
+		
+		return result;
 	}
+	
+	public int setBioSampleGroupVisibility ( String sgAcc, Boolean publicFlag, boolean isCascaded ) 
+	{
+		BioSampleGroup sg = sgDao.findAndFail ( sgAcc );
+		return setBioSampleGroupVisibility ( sg, publicFlag, isCascaded );
+	}
+	
 	
 	/**
 	 * Changes the visibility for all the sample groups and samples linked to a submission. If isCascaded is true, cascades 
 	 * from all the sample groups to the the samples linked to them.
 	 */
-	public MSI setMSIVisibility ( String msiAcc, Boolean publicFlag, boolean isCascaded )
+	public int setMSIVisibility ( MSI msi, Boolean publicFlag, boolean isCascaded )
 	{
-		MSI msi = msiDao.find ( msiAcc );
-		if ( msi == null ) throw new RuntimeException ( "Submission '" + msiAcc + "' not found" );
+		int result = 0;
+		
+		Boolean oldPubFlag = msi.getPublicFlag ();
+		if ( oldPubFlag == null ? publicFlag != null : !oldPubFlag.equals ( publicFlag ) ) {
+			msi.setPublicFlag ( publicFlag );
+			result++;
+		}
+
+		if ( !isCascaded ) return result;
 
 		String hql = String.format ( 
 			"UPDATE %s smp SET smp.publicFlag = :publicFlag " +
@@ -98,24 +135,24 @@ public class AccessControlManager
 			BioSample.class.getName () 
 		);
 		
-		entityManager.createQuery ( hql )
+		String msiAcc = msi.getAcc (); 
+		
+		result += entityManager.createQuery ( hql )
 		  .setParameter ( "publicFlag", publicFlag )
 			.setParameter ( "msiAcc", msiAcc )
 			.executeUpdate ();
 
 		hql = String.format ( 
 			"UPDATE %s sg SET sg.publicFlag = :publicFlag " +
-			"WHERE sg IN (SELECT sg1.id FROM %1$s sg1 JOIN sg1.MSIS msi WHERE msi.acc = :msiAcc)", 
+			"WHERE sg IN (SELECT sg1.id FROM %1$s sg1 JOIN sg1.MSIs msi WHERE msi.acc = :msiAcc)", 
 			BioSampleGroup.class.getName () 
 		);
 		
-		entityManager.createQuery ( hql )
+		result += entityManager.createQuery ( hql )
 			.setParameter ( "publicFlag", publicFlag )
 			.setParameter ( "msiAcc", msiAcc )
 			.executeUpdate ();
 
-		
-		if ( !isCascaded ) return msi;
 
 		hql = String.format ( 
 			"UPDATE %s smp SET smp.publicFlag = :publicFlag " +
@@ -125,25 +162,38 @@ public class AccessControlManager
 			BioSample.class.getName (), BioSampleGroup.class.getName () 
 		);
 		
-		entityManager.createQuery ( hql )
+		result += entityManager.createQuery ( hql )
 			.setParameter ( "publicFlag", publicFlag )
 			.setParameter ( "msiAcc", msiAcc )
 			.executeUpdate ();
 
-		return msi;
+		return result;
 	}
 	
+	public int setMSIVisibility ( String msiAcc, Boolean publicFlag, boolean isCascaded )
+	{
+		MSI msi = msiDao.findAndFail ( msiAcc );
+		return this.setMSIVisibility ( msi, publicFlag, isCascaded );
+	}
+
 	
 	/**
 	 * Changes the release date for a sample group and optionally cascades the operation to all the samples linked to 
 	 * the group.
 	 */
-	public void setBioSampleGroupReleaseDate ( String sgAcc, Date releaseDate, boolean isCascaded ) 
+	public int setBioSampleGroupReleaseDate ( String sgAcc, Date releaseDate, boolean isCascaded ) 
 	{
-		BioSampleGroup sg = sgDao.find ( sgAcc );
-		if ( sg == null ) throw new RuntimeException ( "Sample '" + sgAcc + "' not found" );
-		sg.setReleaseDate ( releaseDate );
-		if ( !isCascaded ) return;
+		BioSampleGroup sg = sgDao.findAndFail ( sgAcc );
+		
+		int result = 0;
+		
+		Date oldDate = sg.getReleaseDate ();
+		if ( oldDate == null ? releaseDate != null : !oldDate.equals ( releaseDate ) ) {
+			sg.setReleaseDate ( releaseDate );
+			result++;
+		}
+
+		if ( !isCascaded ) return result;
 
 		String hql = String.format ( 
 			"UPDATE %s smp SET smp.releaseDate = :releaseDate " +
@@ -151,192 +201,296 @@ public class AccessControlManager
 			BioSample.class.getName () 
 		);
 		
-		entityManager.createQuery ( hql )
+		result += entityManager.createQuery ( hql )
 			.setParameter ( "releaseDate", releaseDate )
 			.setParameter ( "sgAcc", sgAcc )
 			.executeUpdate ();
+		
+		return result;
 	}
 
 	/**
 	 * Changes the visibility for all the sample groups and samples linked to a submission. If isCascaded is true, cascades 
 	 * from all the sample groups to the the samples linked to them.
 	 */
-	public void setMSIReleaseDate ( String msiAcc, Date releaseDate, boolean isCascaded )
+	public int setMSIReleaseDate ( String msiAcc, Date releaseDate, boolean isCascaded )
 	{
-		MSI msi = msiDao.find ( msiAcc );
-		if ( msi == null ) throw new RuntimeException ( "Submission '" + msiAcc + "' not found" );
+		MSI msi = msiDao.findAndFail ( msiAcc );
+
+		int result = 0;
+		
+		Date oldDate = msi.getReleaseDate ();
+		if ( oldDate == null ? releaseDate != null : !oldDate.equals ( releaseDate ) ) {
+			msi.setReleaseDate ( releaseDate );
+			result++;
+		}
+
+		if ( !isCascaded ) return result;
 
 		String hql = String.format ( 
 			"UPDATE %s smp SET smp.publicFlag = :publicFlag " +
-			"WHERE smp IN (SELECT smp1.id FROM %1$s smp1 JOIN smp1.MSIS msi WHERE msi.releaseDate = :releaseDate)", 
+			"WHERE smp IN (SELECT smp1.id FROM %1$s smp1 JOIN smp1.MSIs msi WHERE msi.releaseDate = :releaseDate)", 
 			BioSample.class.getName () 
 		);
 		
-		entityManager.createQuery ( hql )
+		result += entityManager.createQuery ( hql )
 		  .setParameter ( "releaseDate", releaseDate )
 			.setParameter ( "msiAcc", msiAcc )
 			.executeUpdate ();
 
 		hql = String.format ( 
 			"UPDATE %s sg SET sg.releaseDate = :releaseDate " +
-			"WHERE sg IN (SELECT sg1.id FROM %1$s sg1 JOIN sg1.MSIS msi WHERE msi.acc = :msiAcc)", 
+			"WHERE sg IN (SELECT sg1.id FROM %1$s sg1 JOIN sg1.MSIs msi WHERE msi.acc = :msiAcc)", 
 			BioSampleGroup.class.getName () 
 		);
 		
-		entityManager.createQuery ( hql )
+		result += entityManager.createQuery ( hql )
 			.setParameter ( "releaseDate", releaseDate )
 			.setParameter ( "msiAcc", msiAcc )
 			.executeUpdate ();
 		
-		if ( !isCascaded ) return;
-
 		hql = String.format ( 
 			"UPDATE %s smp SET smp.releaseDate = :releaseDate " +
 			"WHERE smp IN " +
 			"  (SELECT smp1.id FROM %1$s smp1 JOIN smp1.groups sg WHERE sg IN " +
-			"    (SELECT sg1.id FROM %2$s sg1 JOIN sg1.MSIS msi WHERE msi.acc = :msiAcc))", 
+			"    (SELECT sg1.id FROM %2$s sg1 JOIN sg1.MSIs msi WHERE msi.acc = :msiAcc))", 
 			BioSample.class.getName (), BioSampleGroup.class.getName () 
 		);
 		
-		entityManager.createQuery ( hql )
+		result += entityManager.createQuery ( hql )
 			.setParameter ( "releaseDate", releaseDate )
 			.setParameter ( "msiAcc", msiAcc )
 			.executeUpdate ();
+		
+		return result;
 	}
 
 
-	public void addSampleOwner ( String sampleAcc, String userAcc ) 
+	public boolean addSampleOwner ( BioSample sample, User user ) 
 	{
-		BioSample sample = sampleDao.findAndFail ( sampleAcc );
-		User user = userDao.findAndFail ( userAcc );
+		if ( sample.getUsers ().contains ( user ) ) return false;
 		
 		sample.addUser ( user );
+		return true;
 	}
 	
-	public void deleteSampleOwner ( String sampleAcc, String userAcc ) 
+	public boolean addSampleOwner ( String sampleAcc, String userAcc ) 
 	{
 		BioSample sample = sampleDao.findAndFail ( sampleAcc );
 		User user = userDao.findAndFail ( userAcc );
 		
+		return this.addSampleOwner ( sample, user );
+	}
+	
+	public boolean deleteSampleOwner ( BioSample sample, User user ) 
+	{
+		if ( !sample.getUsers ().contains ( user ) ) return false;
+
 		sample.deleteUser ( user );
+		return true;
 	}
 
-	private void setSampleOwner ( BioSample sample, User user ) 
+	public boolean deleteSampleOwner ( String sampleAcc, String userAcc ) 
 	{
+		BioSample sample = sampleDao.findAndFail ( sampleAcc );
+		User user = userDao.findAndFail ( userAcc );
+		
+		return this.deleteSampleOwner ( sample, user );
+	}
+
+	
+	public int setSampleOwner ( BioSample sample, User user ) 
+	{
+		int result = 0;
 		boolean isAlreadyThere = false;
 		for ( User susr: new LinkedList<User> ( sample.getUsers () ) )
-			if ( user == null ) 
-				sample.deleteUser ( susr );
+			if ( user == null ) { 
+				sample.deleteUser ( susr ); result++;
+			}
 			else { 
-			 if ( susr.equals ( user ) ) isAlreadyThere = true; else sample.deleteUser ( susr ); 
+			 if ( susr.equals ( user ) ) isAlreadyThere = true; 
+			 else { sample.deleteUser ( susr ); result++; }
 		}
 			
-		if ( !isAlreadyThere && user != null ) sample.addUser ( user );
+		if ( !isAlreadyThere && user != null ) { sample.addUser ( user ); result++; }
+		return result;
 	}
 	
-	public void setSampleOwner ( String sampleAcc, String userAcc ) 
+	public int setSampleOwner ( String sampleAcc, String userAcc ) 
 	{
 		BioSample sample = sampleDao.findAndFail ( sampleAcc );
 		User user = userAcc == null ? null : userDao.findAndFail ( userAcc );
 		
-		setSampleOwner ( sample, user );
+		return setSampleOwner ( sample, user );
 	}
 	
 	
-	public void addSampleGroupOwner ( String sgAcc, String userAcc, boolean isCascaded )
+	public int addSampleGroupOwner ( BioSampleGroup sg, User user, boolean isCascaded )
 	{
-		BioSampleGroup sg = sgDao.findAndFail ( sgAcc );
-		User user = userDao.findAndFail ( userAcc );
+		int result = 0;
 		
-		sg.addUser ( user );
-		
-		if ( !isCascaded ) return;
-		
-		for ( BioSample smp: sg.getSamples () ) smp.addUser ( user );
-	}
-	
-	public void deleteSampleGroupOwner ( String sgAcc, String userAcc, boolean isCascaded ) 
-	{
-		BioSampleGroup sg = sgDao.findAndFail ( sgAcc );
-		User user = userDao.findAndFail ( userAcc );
-		
-		sg.deleteUser ( user );
-
-		if ( !isCascaded ) return;
-		
-		for ( BioSample smp: sg.getSamples () ) smp.deleteUser ( user );
-	}
-
-	private void setSampleGroupOwner ( BioSampleGroup sg, User user, boolean isCascaded ) 
-	{
-		boolean isAlreadyThere = false;
-		for ( User sgUsr: new LinkedList<User> ( sg.getUsers () ) )
-			if ( user == null ) 
-				sg.deleteUser ( sgUsr );
-			else { 
-				if ( sgUsr.equals ( user ) ) isAlreadyThere = true; else sg.deleteUser ( sgUsr ); 
+		if ( !sg.getUsers ().contains ( user ) ) {
+			sg.addUser ( user );
+			result++;
 		}
 		
-		if ( !isAlreadyThere && user != null ) sg.addUser ( user );
+		if ( !isCascaded ) return result;
 		
-		if ( !isCascaded ) return;
-		for ( BioSample smp: sg.getSamples () ) this.setSampleOwner ( smp, user );
+		for ( BioSample smp: sg.getSamples () ) 
+			if ( this.addSampleOwner ( smp, user ) ) result++;
+		
+		return result;
 	}
 	
-	public void setSampleGroupOwner ( String sgAcc, String userAcc, boolean isCascaded ) 
+	public int addSampleGroupOwner ( String sgAcc, String userAcc, boolean isCascaded )
+	{
+		BioSampleGroup sg = sgDao.findAndFail ( sgAcc );
+		User user = userDao.findAndFail ( userAcc );
+
+		return addSampleGroupOwner ( sg, user, isCascaded );
+	}
+
+	
+	public int deleteSampleGroupOwner ( BioSampleGroup sg, User user, boolean isCascaded ) 
+	{
+		int result = 0;
+		
+		if ( sg.getUsers ().contains ( user ) ) {
+			sg.deleteUser ( user );
+			result++;
+		} 
+
+		if ( !isCascaded ) return result;
+		
+		for ( BioSample smp: sg.getSamples () ) 
+			if ( this.deleteSampleOwner ( smp, user ) ) result++;
+		
+		return result;
+	}
+
+	
+	public int deleteSampleGroupOwner ( String sgAcc, String userAcc, boolean isCascaded ) 
+	{
+		BioSampleGroup sg = sgDao.findAndFail ( sgAcc );
+		User user = userDao.findAndFail ( userAcc );
+
+		return deleteSampleGroupOwner ( sg, user, isCascaded );
+	}
+
+	public int setSampleGroupOwner ( BioSampleGroup sg, User user, boolean isCascaded ) 
+	{
+		int result = 0; 
+		
+		boolean isAlreadyThere = false;
+		for ( User sgUsr: new LinkedList<User> ( sg.getUsers () ) )
+			if ( user == null ) { 
+				sg.deleteUser ( sgUsr ); result++;
+			}
+			else { 
+				if ( sgUsr.equals ( user ) ) isAlreadyThere = true; 
+				else { sg.deleteUser ( sgUsr ); result++; } 
+		}
+		
+		if ( !isAlreadyThere && user != null ) {
+			sg.addUser ( user ); result++;
+		}
+		
+		if ( !isCascaded ) return result;
+		for ( BioSample smp: sg.getSamples () ) result += this.setSampleOwner ( smp, user );
+		
+		return result;
+	}
+	
+	public int setSampleGroupOwner ( String sgAcc, String userAcc, boolean isCascaded ) 
 	{
 		BioSampleGroup sg = sgDao.findAndFail ( sgAcc );
 		User user = userAcc == null ? null : userDao.findAndFail ( userAcc );
-	  setSampleGroupOwner ( sg, user, isCascaded );
+	  return setSampleGroupOwner ( sg, user, isCascaded );
 	}
 
 	
-	public void addMSIOwner ( String msiAcc, String userAcc, boolean isCascaded )
+	public int addMSIOwner ( MSI msi, User user, boolean isCascaded )
 	{
-		MSI msi = msiDao.findAndFail ( msiAcc );
-		User user = userDao.findAndFail ( userAcc );
+		int result= 0;
 		
-		msi.addUser ( user );
+		if ( !msi.getUsers ().contains ( user ) ) {
+			msi.addUser ( user ); result++;
+		}
 		
-		if ( !isCascaded ) return;
+		if ( !isCascaded ) return result;
 		
-		for ( BioSampleGroup sg: msi.getSampleGroups () ) sg.addUser ( user );
-		for ( BioSample smp: msi.getSamples () ) smp.addUser ( user );
+		for ( BioSampleGroup sg: msi.getSampleGroups () ) result += this.addSampleGroupOwner ( sg, user, true );
+		for ( BioSample smp: msi.getSamples () ) if ( this.addSampleOwner ( smp, user ) ) result++;
+		
+		return result;
 	}
+
 	
-	public void deleteMSIOwner ( String msiAcc, String userAcc, boolean isCascaded )
+	public int addMSIOwner ( String msiAcc, String userAcc, boolean isCascaded )
 	{
 		MSI msi = msiDao.findAndFail ( msiAcc );
 		User user = userDao.findAndFail ( userAcc );
-		
-		msi.deleteUser ( user );
-		
-		if ( !isCascaded ) return;
-		
-		for ( BioSampleGroup sg: msi.getSampleGroups () ) sg.deleteUser ( user );
-		for ( BioSample smp: msi.getSamples () ) smp.deleteUser ( user );
+
+		return addMSIOwner ( msi, user, isCascaded );
 	}
+
 	
-	public void setMSIOwner ( String msiAcc, String userAcc, boolean isCascaded )
+	public int deleteMSIOwner ( MSI msi, User user, boolean isCascaded )
+	{
+		int result = 0;
+		
+		if ( msi.getUsers ().contains ( user ) ) {
+			msi.deleteUser ( user ); result++;
+		}
+		
+		if ( !isCascaded ) return result;
+		
+		for ( BioSampleGroup sg: msi.getSampleGroups () ) result += this.deleteSampleGroupOwner ( sg, user, true );
+		for ( BioSample smp: msi.getSamples () ) if ( this.deleteSampleOwner ( smp, user ) ) result++;
+		
+		return result;
+	}
+
+	public int deleteMSIOwner ( String msiAcc, String userAcc, boolean isCascaded )
 	{
 		MSI msi = msiDao.findAndFail ( msiAcc );
 		User user = userDao.findAndFail ( userAcc );
+		
+		return this.deleteMSIOwner ( msi, user, isCascaded );
+	}
+
+	public int setMSIOwner ( MSI msi, User user, boolean isCascaded )
+	{
+		int result = 0;
 		
 		boolean isAlreadyThere = false;
 		for ( User msiUsr: new LinkedList<User> ( msi.getUsers () ) )
-			if ( user == null ) 
+			if ( user == null ) { 
 				msi.deleteUser ( msiUsr );
+				result++;
+			}
 			else { 
-				if ( msiUsr.equals ( user ) ) isAlreadyThere = true; else msi.deleteUser ( msiUsr ); 
+				if ( msiUsr.equals ( user ) ) isAlreadyThere = true; 
+				else { msi.deleteUser ( msiUsr ); result++; } 
 		}
 		
-		if ( !isAlreadyThere && user != null ) msi.addUser ( user );
+		if ( !isAlreadyThere && user != null ) { msi.addUser ( user ); result++; }
 		
-		if ( !isCascaded ) return;
-		for ( BioSampleGroup sg: msi.getSampleGroups () ) this.setSampleGroupOwner ( sg, user, isCascaded );
-		for ( BioSample smp: msi.getSamples () ) this.setSampleOwner ( smp, user );
+		if ( !isCascaded ) return result;
+		for ( BioSampleGroup sg: msi.getSampleGroups () ) result += this.setSampleGroupOwner ( sg, user, isCascaded );
+		for ( BioSample smp: msi.getSamples () ) result += this.setSampleOwner ( smp, user );
+		
+		return result;
 	}
 	
+	public int setMSIOwner ( String msiAcc, String userAcc, boolean isCascaded )
+	{
+		MSI msi = msiDao.findAndFail ( msiAcc );
+		User user = userDao.findAndFail ( userAcc );
+		
+		return this.setMSIOwner ( msi, user, isCascaded );
+	}
+
 	
 	public EntityManager getEntityManager ()
 	{

@@ -17,7 +17,7 @@ import uk.ac.ebi.fg.biosd.model.persistence.hibernate.access_control.AccessContr
 import uk.ac.ebi.fg.core_model.persistence.dao.hibernate.toplevel.AccessibleDAO;
 
 /**
- * TODO: Comment me!
+ * Reports visibility information about the BioSample submissions and possibly the objects it contains.
  *
  * <dl><dt>date</dt><dd>May 23, 2013</dd></dl>
  * @author Marco Brandizi
@@ -32,6 +32,11 @@ class MSIVisibilityGetParser extends CLIParser
 		super ( entityManager );
 	}
 
+	/**
+	 * Splits the input into spaced chunks (using \s+), then uses {@link VisibilityParser#SAMPLE_GROUP_VISIBILITY_GET_SPEC_RE}
+	 * to match accession specifications. Prints out a list of submissions and their permissions.
+	 * @return that same list.
+	 */
 	public List<MSI> run ( String cmd )
 	{
 		cmd = StringUtils.trimToNull ( cmd );
@@ -39,16 +44,15 @@ class MSIVisibilityGetParser extends CLIParser
 		
 		List<MSI> result = new ArrayList<MSI> ();
 		
-		EntityManager em = accMgr.getEntityManager ();
 		for ( String singleSpec: cmd.split ( "\\s+" ) )
 		{
-			String specBits[] = SAMPLE_GROUP_VISIBILITY_GET_SPEC_RE.groups ( singleSpec );
+			String specBits[] = VisibilityParser.SAMPLE_GROUP_VISIBILITY_GET_SPEC_RE.groups ( singleSpec );
 			if ( specBits == null || specBits.length < 3 ) throw new IllegalArgumentException ( "Syntax error in '" + singleSpec +"'" );
 			
 			String acc = specBits [ 1 ]; 
 			boolean isCascaded = "++".equals ( specBits [ 2 ] );
 				
-			MSI msi = msiDao.find ( acc );
+			MSI msi = msiDao.findAndFail ( acc );
 			
 			result.add ( msi );
 				
@@ -57,47 +61,24 @@ class MSIVisibilityGetParser extends CLIParser
 				msi.getAcc (), msi.getSubmissionDate (), msi.getReleaseDate (), msi.getUpdateDate (), msi.getPublicFlag (), 
 				msi.isPublic ()
 			);
-			if ( !isCascaded ) continue;
 			
-			out.print ( "users: " );
+			out.print ( ", users: " );
 			for ( User user: msi.getUsers () )
 				out.format ( "%s ", user.getEmail () );
 			out.println ();
-			
+
+			if ( !isCascaded ) continue;
+
 			out.println ( "\n  Sample Groups for " + msi.getAcc () + ":\n" );
 			for ( BioSampleGroup sg: msi.getSampleGroups () )
 			{
-				out.format ( "    group acc: %s, release date: %s, public flag: %s, is-public: %s",
-					sg.getAcc (), sg.getReleaseDate (), sg.getPublicFlag (), sg.isPublic ()
-				);
-				out.print ( ", users: " );
-				for ( User user: sg.getUsers () ) out.format ( "%s ", user.getEmail () );
-				out.println ();
-
-				out.println ( "\n      Samples for " + sg.getAcc () + ":" );
-				for ( BioSample smp: sg.getSamples () ) 
-				{
-					out.format ( "      acc: %s, release date: %s, public flag: %s, is-public: %s",
-						smp.getAcc (), smp.getReleaseDate (), smp.getPublicFlag (), smp.isPublic ()
-					);
-					out.print ( ", users: " );
-					for ( User user: smp.getUsers () ) out.format ( "%s ", user.getEmail () );
-					out.println ();
-				}
-				
+				reportSampleGroup ( sg, true, 2 );
 				out.println ();
 			}
 			
 			out.println ( "\n  Samples for " + msi.getAcc () + ":" );
 			for ( BioSample smp: msi.getSamples () ) 
-			{
-				out.format ( "  acc: %s, release date: %s, public flag: %s, is-public: %s",
-					smp.getAcc (), smp.getReleaseDate (), smp.getPublicFlag (), smp.isPublic ()
-				);
-				out.print ( ", users: " );
-				for ( User user: smp.getUsers () ) out.format ( "%s ", user.getEmail () );
-				out.println ();
-			}
+				reportSample ( smp, 3 );
 		}
 		return result;
 	}
@@ -116,4 +97,32 @@ class MSIVisibilityGetParser extends CLIParser
 		this.msiDao = new AccessibleDAO<MSI> ( MSI.class, entityManager );
 	}
 
+	
+	static void reportSampleGroup ( BioSampleGroup sg, boolean isCascaded, int indentLevel )
+	{
+		out.format ( "%sgroup acc: %s, release date: %s, public flag: %s, is-public: %s",
+			StringUtils.repeat ( "  ", indentLevel ), sg.getAcc (), sg.getReleaseDate (), sg.getPublicFlag (), sg.isPublic ()
+		);
+		out.print ( ", users: " );
+		for ( User user: sg.getUsers () ) out.format ( "%s ", user.getEmail () );
+		out.println ();
+
+		if ( !isCascaded ) return;
+		
+		indentLevel++;
+		out.format ( "\n%sSamples for %s:\n", StringUtils.repeat ( "  ", indentLevel ), sg.getAcc () );
+		for ( BioSample smp: sg.getSamples () ) 
+			reportSample ( smp, indentLevel );
+	}
+	
+	static void reportSample ( BioSample smp, int indentLevel )
+	{
+		out.format ( "%sacc: %s, release date: %s, public flag: %s, is-public: %s", 
+			StringUtils.repeat ( "  ", indentLevel ), smp.getAcc (), smp.getReleaseDate (), smp.getPublicFlag (), 
+			smp.isPublic ()
+		);
+		out.print ( ", users: " );
+		for ( User user: smp.getUsers () ) out.format ( "%s ", user.getEmail () );
+		out.println ();
+	}
 }

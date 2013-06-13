@@ -21,7 +21,7 @@ import uk.ac.ebi.utils.regex.RegEx;
  */
 class SampleGroupRelDateParser extends CLIParser
 {
-	private static final RegEx SAMPLE_GROUP_REL_DATE_SPEC_RE = new RegEx ( "(\\-\\-|[0-9,\\-]+)(\\+\\+)?" );
+	static final RegEx SAMPLE_GROUP_REL_DATE_SPEC_RE = new RegEx ( "(\\-\\-|[0-9,\\-]+)(\\+\\+)?" );
 
 	private AccessControlManager accMgr;
 
@@ -29,20 +29,19 @@ class SampleGroupRelDateParser extends CLIParser
 		super ( entityManager );
 	}
 
-	public <T> T run ( String cmd )
+	public int run ( String cmd )
 	{
 		cmd = StringUtils.trimToNull ( cmd );
 		if ( cmd == null ) throw new IllegalArgumentException ( "Syntax error (null sample release date specification)" );
 
+		int result = 0;
 		EntityManager em = accMgr.getEntityManager ();
 		EntityTransaction ts = em.getTransaction ();
 		ts.begin ();
 		
 		String chunks[] = cmd.split ( "\\s+" );
 		
-		if ( chunks.length < 2 ) throw new IllegalArgumentException ( 
-			"Syntax error in '" + cmd + "'"
-		);
+		if ( chunks.length < 2 ) throw new IllegalArgumentException ( "Syntax error in '" + cmd + "'"	);
 		
 		for ( int i = 0;  i < chunks.length - 1; i++ )
 		{
@@ -65,11 +64,11 @@ class SampleGroupRelDateParser extends CLIParser
 				throw new IllegalArgumentException ( "Syntax error in '" + cmd + "'" );
 			}
 			
-			accMgr.setBioSampleGroupReleaseDate ( sgAcc, relDate, "++".equals ( dateBits [ 2 ] ) );
+			result += accMgr.setBioSampleGroupReleaseDate ( sgAcc, relDate, "++".equals ( dateBits [ 2 ] ) );
 
 		}
 		ts.commit ();
-		return null;
+		return result;
 	}
 
 	

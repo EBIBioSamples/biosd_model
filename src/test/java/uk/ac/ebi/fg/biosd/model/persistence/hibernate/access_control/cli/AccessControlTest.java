@@ -36,12 +36,14 @@ import uk.ac.ebi.utils.test.junit.TestEntityMgrProvider;
 
 /**
  * Tests access control and ownership features.
+ * 
+ * TODO: test the return values.
  *
  * <dl><dt>date</dt><dd>Aug 23, 2012</dd></dl>
  * @author Marco Brandizi
  *
  */
-@SuppressWarnings ( { "rawtypes" } )
+@SuppressWarnings ( { "rawtypes", "unchecked" } )
 public class AccessControlTest
 {
 	@Rule
@@ -237,14 +239,14 @@ public class AccessControlTest
 	public void testAccessControlCLIUsers ()
 	{
 		// Re-using em doesn't work and replacing it doesn't work either
-		UserStoreParser usrStoreCli = new UserStoreParser ( em );
+		AccessControlCLI cli = new AccessControlCLI ( em );
 		String email = "test.user@somewhere.net", name = "Mr", surname = "Test 'The' Test", pwd = "the_secret", 
 			notes = "This is a test user   ";
 		String cmd = String.format ( 
-			"--email = %s --name = '%s'  --surname = \"%s\" --password = %s --notes = '%s'", email, name, surname, pwd, notes 
+			"create  user   --email = %s --name = '%s'  --surname = \"%s\" --password = %s --notes = '%s'", email, name, surname, pwd, notes 
 		);
 		out.println ( "Sending: " + cmd );
-		usrStoreCli.run ( cmd, true );
+		cli.run ( cmd );
 		
 		UserDAO udao = new UserDAO ( em.getEntityManagerFactory ().createEntityManager () );
 		User uDB = udao.find ( email );
@@ -257,9 +259,9 @@ public class AccessControlTest
 		assertEquals ( "Password doesn't match!", User.hashPassword ( pwd ), uDB.getHashPassword () );
 
 		String newSurname = "New Test Surname";
-		cmd = String.format ( "--surname = %s --email = %s", newSurname, email );
+		cmd = String.format ( "modify user --surname = %s --email = %s", newSurname, email );
 		out.println ( "Sending: " + cmd );
-		usrStoreCli.run ( cmd, false );
+		cli.run ( cmd );
 		
 		udao = new UserDAO ( em = em.getEntityManagerFactory ().createEntityManager () );
 		uDB = udao.find ( email );
@@ -269,8 +271,7 @@ public class AccessControlTest
 		assertEquals ( "name change didn't work!", newSurname, uDB.getSurname () );
 		assertEquals ( "lost name during change command!", name, uDB.getName () );
 		
-		UserDeleteParser udelParser = new UserDeleteParser ( em );
-		udelParser.run ( email + "++" );
+		cli.run ( "delete user " + email + "++" );
 		
 		udao.setEntityManager ( em.getEntityManagerFactory ().createEntityManager () );
 		assertNull ( "Test user not deleted!", udao.find ( email ) );
@@ -304,8 +305,8 @@ public class AccessControlTest
 		User uDB = udao.find ( email );
 		assertNotNull ( "user not saved!", uDB );
 
-		OwnerSetParser ownerSetParser = new OwnerSetParser ( em );
-		ownerSetParser.run ( String.format ( "%s samples %s", email, model.smp1.getAcc (), model.smp2.getAcc () ) );
+		AccessControlCLI cli = new AccessControlCLI ( em );
+		cli.run ( String.format ( "set owner  %s samples %s", email, model.smp1.getAcc (), model.smp2.getAcc () ) );
 		
 		sampleDao.setEntityManager ( em.getEntityManagerFactory ().createEntityManager () );
 		BioSample smp1DB = sampleDao.find ( model.smp1.getAcc () );
@@ -313,7 +314,7 @@ public class AccessControlTest
 		
 		
 		// Do the same for SGs
-		ownerSetParser.run ( String.format ( "%s sample-groups %s++", email, model.sg2.getAcc () ) );
+		cli.run ( String.format ( "set owner %s sample-groups %s++", email, model.sg2.getAcc () ) );
 
 		sgDao.setEntityManager ( em.getEntityManagerFactory ().createEntityManager () );
 		BioSampleGroup sg2DB = sgDao.find ( model.sg2.getAcc () );
@@ -325,7 +326,7 @@ public class AccessControlTest
 		assertTrue ( "User owner for smp4 not correctly saved!", smp4DB.getUsers ().contains ( uDB ) );
 
 		
-		ownerSetParser.run ( String.format ( "%s sample-groups -%s++", email, model.sg2.getAcc () ) );
+		cli.run ( String.format ( "set  owner  %s sample-groups -%s++", email, model.sg2.getAcc () ) );
 
 		sgDao.setEntityManager ( em.getEntityManagerFactory ().createEntityManager () );
 		sg2DB = sgDao.find ( model.sg2.getAcc () );
@@ -337,7 +338,7 @@ public class AccessControlTest
 		assertFalse ( "User owner for smp4 not removed!", smp4DB.getUsers ().contains ( uDB ) );
 		
 		
-		ownerSetParser.run ( String.format ( "%s sample-groups =%s", email, model.sg2.getAcc () ) );
+		cli.run ( String.format ( "set owner %s sample-groups =%s", email, model.sg2.getAcc () ) );
 
 		sgDao.setEntityManager ( em.getEntityManagerFactory ().createEntityManager () );
 		sg2DB = sgDao.find ( model.sg2.getAcc () );
@@ -349,7 +350,7 @@ public class AccessControlTest
 		assertFalse ( "User owner for sg2 were unexpectedely cascaded!", smp4DB.getUsers ().contains ( uDB ) );
 		
 		
-		ownerSetParser.run ( String.format ( "%s sample-groups =%s++", email, model.sg1.getAcc () ) );
+		cli.run ( String.format ( "set owner %s sample-groups =%s++", email, model.sg1.getAcc () ) );
 		
 		sgDao.setEntityManager ( em.getEntityManagerFactory ().createEntityManager () );
 		BioSampleGroup sg1DB = sgDao.find ( model.sg1.getAcc () );
@@ -362,7 +363,7 @@ public class AccessControlTest
 		assertFalse ( "User owner for sg1 weren't cascaded!", smp2DB.getUsers ().contains ( model.user2 ) );
 
 		
-		ownerSetParser.run ( String.format ( "null sample-groups %s++", model.sg1.getAcc () ) );
+		cli.run ( String.format ( "set owner null sample-groups %s++", model.sg1.getAcc () ) );
 
 		sgDao.setEntityManager ( em.getEntityManagerFactory ().createEntityManager () );
 		sg1DB = sgDao.find ( model.sg1.getAcc () );
@@ -376,7 +377,7 @@ public class AccessControlTest
 		assertTrue ( "User owner removal for sg1 wasn't cascaded!", smp2DB.getUsers ().isEmpty () );
 		
 		
-		ownerSetParser.run ( String.format ( "%s submissions %s++", email, model.msi.getAcc () ) );
+		cli.run ( String.format ( "set owner %s submissions %s++", email, model.msi.getAcc () ) );
 	
 		msiDao.setEntityManager ( em.getEntityManagerFactory ().createEntityManager () );
 		MSI msiDB = msiDao.find ( model.msi.getAcc () );
@@ -392,7 +393,7 @@ public class AccessControlTest
 		assertTrue ( "owner-set for MSI didn't cascade to smp62!", smp6DB.getUsers ().contains ( uDB ) );
 		
 		// Just to test that users are auto-removed from their links.
-		ownerSetParser.run ( String.format ( "%s submissions %s++", email, model.msi.getAcc () ) );
+		cli.run ( String.format ( "set owner %s submissions %s++", email, model.msi.getAcc () ) );
 		
 		// DEBUG
 //		tns = em.getTransaction ();
@@ -445,5 +446,11 @@ public class AccessControlTest
 		List<MSI> msis = (List<MSI>) cli.run ( String.format ( "get visibility submissions %s++", model.msi.getAcc () ) );
 		assertNotNull ( "'get visibility' returned null!", msis );
 		assertEquals ( "'get visibility' returned a wrong-size result!", 1, msis.size () );
+
+		out.println ( "\n\n" );
+		List<BioSampleGroup> sgs = (List<BioSampleGroup>) cli.run ( String.format ( 
+			"get visibility sample-groups %s++ %s++", model.sg1.getAcc (), model.sg2.getAcc () ) );
+		assertNotNull ( "'get visibility sample-groups' returned null!", sgs );
+		assertEquals ( "'get visibility sample-groups' returned a wrong-size result!", 2, sgs.size () );
 	}
 }

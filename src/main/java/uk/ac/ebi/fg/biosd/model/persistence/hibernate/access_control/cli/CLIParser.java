@@ -8,11 +8,20 @@ import javax.persistence.EntityManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.ebi.fg.biosd.model.organizational.BioSampleGroup;
+import uk.ac.ebi.fg.biosd.model.organizational.MSI;
 import uk.ac.ebi.utils.regex.RegEx;
 
 
 /**
- * TODO: Comment me!
+ * Base interface to make a command line interface for the BioSD access control API (users, permissions etc).
+ * This follows the <a href = "http://en.wikipedia.org/wiki/Interpreter_pattern">interpreter pattern</a>, with both 
+ * parsing and interpretation in the same procedure.
+ * 
+ * This abstract class contains just a few common things. Concrete implementations contains various signatures of the 
+ * run() method.
+ * 
+ * @see AccessControlCLI, the entry point to the access control CLI.
  *
  * <dl><dt>date</dt><dd>May 23, 2013</dd></dl>
  * @author Marco Brandizi
@@ -20,18 +29,18 @@ import uk.ac.ebi.utils.regex.RegEx;
  */
 abstract class CLIParser
 {
-	protected static final RegEx SAMPLE_GROUP_VISIBILITY_SET_SPEC_RE = new RegEx ( "(\\+|\\-\\-|\\-)([^\\s\\+]+)(\\+\\+)?" );
-	protected static final RegEx SAMPLE_GROUP_VISIBILITY_GET_SPEC_RE = new RegEx ( "([^\\s\\+]+)(\\+\\+)?" );
-
 	protected Logger log = LoggerFactory.getLogger ( this.getClass () );
-
-	protected Map<String, Object> options = new HashMap<String, Object> ();
 	
+	/** The default just invokes {@link #setEntityManager(EntityManager)}. */
 	public CLIParser ( EntityManager entityManager )
 	{
 		this.setEntityManager ( entityManager );
 	}
 
 	public abstract EntityManager getEntityManager ();
+
+	/**
+	 * Prepares objects that need to connect an underline database (e.g., DAOs). This is usually called by the constructor.
+	 */
 	public abstract void setEntityManager ( EntityManager entityManager );
 }
