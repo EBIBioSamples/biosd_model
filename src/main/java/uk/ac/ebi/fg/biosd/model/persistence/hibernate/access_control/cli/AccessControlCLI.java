@@ -57,6 +57,7 @@ public class AccessControlCLI extends CLIParser
 		  
 			"\n\tset release-date submissions|sample-groups|samples acc --|date[++] acc...\n" +
 		  "\t  sets item release dates, -- = null (let the visibility flag to decide), ++ cascades as above\n" +
+			"\t  date format is: yyyyMMdd[-HHmmss]\n" +
 			
 			"\n\tset owner email|null samples|sample-groups|submissions +|-|=acc[++]\n" + 
 			"\t  sets entities owner, + = adds to existing owners, - removes from existing owners, = sets exactly that owner, ++ = cascades as above\n" +
