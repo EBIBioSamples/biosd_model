@@ -1,11 +1,14 @@
 package uk.ac.ebi.fg.biosd.model.persistence.hibernate.access_control.cli;
 
+import static java.lang.System.out;
+
 import java.util.regex.Pattern;
+
 import javax.persistence.EntityManager;
+
 import org.apache.commons.lang.StringUtils;
 
 import uk.ac.ebi.utils.regex.RegEx;
-import static java.lang.System.out;
 
 
 /**

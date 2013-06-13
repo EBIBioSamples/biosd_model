@@ -1,7 +1,5 @@
 package uk.ac.ebi.fg.biosd.model.persistence.hibernate.access_control.cli;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.persistence.EntityManager;
@@ -11,7 +9,6 @@ import org.apache.commons.lang.StringUtils;
 
 import uk.ac.ebi.fg.biosd.model.persistence.hibernate.access_control.AccessControlManager;
 import uk.ac.ebi.fg.biosd.model.persistence.hibernate.access_control.UserDAO;
-import uk.ac.ebi.fg.core_model.toplevel.Accessible;
 import uk.ac.ebi.utils.regex.RegEx;
 
 /**

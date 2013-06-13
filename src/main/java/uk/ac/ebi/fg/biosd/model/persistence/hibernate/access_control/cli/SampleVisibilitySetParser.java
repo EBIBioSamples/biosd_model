@@ -1,8 +1,5 @@
 package uk.ac.ebi.fg.biosd.model.persistence.hibernate.access_control.cli;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 

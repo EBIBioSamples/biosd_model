@@ -1,5 +1,7 @@
 package uk.ac.ebi.fg.biosd.model.persistence.hibernate.access_control.cli;
 
+import static uk.ac.ebi.fg.biosd.model.persistence.hibernate.access_control.cli.SampleGroupRelDateParser.SAMPLE_GROUP_REL_DATE_SPEC_RE;
+
 import java.text.ParseException;
 import java.util.Date;
 
@@ -10,8 +12,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 
 import uk.ac.ebi.fg.biosd.model.persistence.hibernate.access_control.AccessControlManager;
-
-import static uk.ac.ebi.fg.biosd.model.persistence.hibernate.access_control.cli.SampleGroupRelDateParser.SAMPLE_GROUP_REL_DATE_SPEC_RE;
 
 /**
  * Sets the release date for SampleTab submissions.
