@@ -56,7 +56,7 @@ public class User extends Accessible
 	private static MessageDigest messageDigest = null;
 
 	/**
-	 * TODO: Comment me!
+	 * A comparator for the user entity, which uses surname, name, email (case insensitive).
 	 *
 	 */
 	public static class UserComparator implements Comparator<User> 

@@ -200,8 +200,11 @@ public class AccessControlTest
 		acCli.run ( cmd );
 		
 		// TODO: use 'get-visibility'
-		sampleDao.setEntityManager ( em.getEntityManagerFactory ().createEntityManager () );
-		BioSample smp1DB = sampleDao.find ( model.smp1.getAcc () );
+		List<BioSample> visResults = (List<BioSample>) acCli.run ( "get visibility samples " + model.smp1.getAcc () );
+		BioSample smp1DB = visResults.get ( 0 );
+		
+//		sampleDao.setEntityManager ( em.getEntityManagerFactory ().createEntityManager () );
+//		BioSample smp1DB = sampleDao.find ( model.smp1.getAcc () );
 		assertFalse ( "publicFlag not saved!", smp1DB.getPublicFlag () );
 		assertEquals ( "releaseDate not saved!", relDate, smp1DB.getReleaseDate () );
 		
@@ -213,8 +216,6 @@ public class AccessControlTest
 		out.println ( "Sending Command: " + cmd );
 		acCli.run ( cmd );
 				
-		
-		// TODO: use 'get-visibility'
 		// Re-using em doesn't work and replacing it doesn't work either
 		EntityManager em1 = em.getEntityManagerFactory ().createEntityManager ();
 		sampleDao.setEntityManager ( em1 );
@@ -306,7 +307,7 @@ public class AccessControlTest
 		assertNotNull ( "user not saved!", uDB );
 
 		AccessControlCLI cli = new AccessControlCLI ( em );
-		cli.run ( String.format ( "set owner  %s samples %s", email, model.smp1.getAcc (), model.smp2.getAcc () ) );
+		cli.run ( String.format ( "set owner %s samples %s %s", email, model.smp1.getAcc (), model.smp2.getAcc () ) );
 		
 		sampleDao.setEntityManager ( em.getEntityManagerFactory ().createEntityManager () );
 		BioSample smp1DB = sampleDao.find ( model.smp1.getAcc () );

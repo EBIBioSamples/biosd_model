@@ -12,7 +12,7 @@ import uk.ac.ebi.fg.biosd.model.persistence.hibernate.access_control.AccessContr
 import uk.ac.ebi.fg.core_model.persistence.dao.hibernate.toplevel.AccessibleDAO;
 
 /**
- * TODO: Comment me!
+ * Manage the visibility commands for sample groups. @see {@link VisibilityParser}.
  *
  * <dl><dt>date</dt><dd>May 23, 2013</dd></dl>
  * @author Marco Brandizi
@@ -27,6 +27,9 @@ class SampleGroupVisibilityGetParser extends CLIParser
 		super ( entityManager );
 	}
 
+	/**
+	 * @return the list of sample groups which of visibility you're asking for. 
+	 */
 	public List<BioSampleGroup> run ( String cmd )
 	{
 		cmd = StringUtils.trimToNull ( cmd );

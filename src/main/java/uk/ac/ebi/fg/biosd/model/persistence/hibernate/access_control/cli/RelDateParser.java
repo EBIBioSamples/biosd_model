@@ -9,8 +9,8 @@ import org.apache.commons.lang.StringUtils;
 import uk.ac.ebi.utils.regex.RegEx;
 
 /**
- * TODO: Comment me!
- *
+ * Manages the commands about the release date. @see {@link AccessControlCLI}.  
+ * 
  * <dl><dt>date</dt><dd>May 23, 2013</dd></dl>
  * @author Marco Brandizi
  *
@@ -30,6 +30,11 @@ class RelDateParser extends CLIParser
 		super ( entityManager );
 	}
 
+	/**
+	 * <pre>set release-date submissions|sample-groups|samples acc --|date[++] acc...</pre>
+	 * @return the number of changed entities.
+	 * 
+	 */
 	public int run ( String cmd )
 	{
 		cmd = StringUtils.trimToNull ( cmd );

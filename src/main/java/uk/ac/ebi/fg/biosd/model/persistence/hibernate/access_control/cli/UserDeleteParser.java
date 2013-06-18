@@ -9,7 +9,7 @@ import uk.ac.ebi.fg.biosd.model.access_control.User;
 import uk.ac.ebi.fg.biosd.model.persistence.hibernate.access_control.UserDAO;
 
 /**
- * TODO: Comment me!
+ * Manages the 'user delete' command. @see {@link AccessControlCLI}.
  *
  * <dl><dt>date</dt><dd>May 23, 2013</dd></dl>
  * @author Marco Brandizi
@@ -25,7 +25,11 @@ class UserDeleteParser extends CLIParser
 
 
 	/**
-	 * @param cmd email[++] ++ for auto-removing the links to the {@link User#getOwnedEntities() entities the user owns}.
+	 * 
+	 * <pre>user delete email[++]</pre>
+	 * ++ for auto-removing the links to the {@link User#getOwnedEntities() entities the user owns.
+	 * 
+	 * @return true if the user existed and was deleted.
 	 */
 	public boolean run ( String cmd )
 	{

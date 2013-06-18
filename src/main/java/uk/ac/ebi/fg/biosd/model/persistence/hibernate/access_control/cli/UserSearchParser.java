@@ -13,7 +13,7 @@ import uk.ac.ebi.fg.biosd.model.access_control.User;
 import uk.ac.ebi.fg.biosd.model.persistence.hibernate.access_control.UserDAO;
 
 /**
- * TODO: Comment me!
+ * Manages the 'user search' command. @see {@link AccessControlCLI}.
  *
  * <dl><dt>date</dt><dd>Jun 5, 2013</dd></dl>
  * @author Marco Brandizi
@@ -27,7 +27,10 @@ public class UserSearchParser extends CLIParser
 		super ( entityManager );
 	}
 
-	
+	/**
+	 * <pre>search user --email|--name|--surname|--password|--notes = value</pre>
+	 * @return the list of found users.
+	 */
 	public List<User> run ( String cmd )
 	{
 		cmd = StringUtils.trimToNull ( cmd );

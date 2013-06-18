@@ -9,10 +9,11 @@ import javax.persistence.EntityTransaction;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 
+import uk.ac.ebi.fg.biosd.model.expgraph.BioSample;
 import uk.ac.ebi.fg.biosd.model.persistence.hibernate.access_control.AccessControlManager;
 
 /**
- * TODO: Comment me!
+ * Manages release dates for {@link BioSample}. @see {@link RelDateParser}.
  *
  * <dl><dt>date</dt><dd>May 23, 2013</dd></dl>
  * @author Marco Brandizi

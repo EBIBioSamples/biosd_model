@@ -11,7 +11,7 @@ import uk.ac.ebi.fg.biosd.model.organizational.MSI;
 import uk.ac.ebi.utils.regex.RegEx;
 
 /**
- * Works out visibility commands (set|get visibility ...) and dispatches to sub-parsers.
+ * Works out visibility commands (set|get visibility ...) and dispatches to sub-parsers:
  *
  * <dl><dt>date</dt><dd>May 23, 2013</dd></dl>
  * @author Marco Brandizi
@@ -50,7 +50,9 @@ class VisibilityParser extends CLIParser
 		super ( entityManager );
 	}
 
-	
+	/**
+	 * <pre>set|get visibility submissions|sample-groups|samples [+|-|--]acc[++]...</pre>
+	 */
 	public Object run ( String cmd, boolean isSetOrGet )
 	{
 		cmd = StringUtils.trimToNull ( cmd );

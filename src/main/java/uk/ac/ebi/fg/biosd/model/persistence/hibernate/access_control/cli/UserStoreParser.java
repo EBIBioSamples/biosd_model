@@ -18,7 +18,7 @@ import uk.ac.ebi.fg.biosd.model.persistence.hibernate.access_control.UserDAO;
 import uk.ac.ebi.utils.regex.RegEx;
 
 /**
- * TODO: Comment me!
+ * Manages the 'user modify' command. @see {@link AccessControlCLI}.
  *
  * <dl><dt>date</dt><dd>May 23, 2013</dd></dl>
  * @author Marco Brandizi
@@ -57,18 +57,9 @@ class UserStoreParser extends CLIParser
 	}
 
 	/**
-	 * TODO:
-	 * create user attr = value... 
-	 *   attr = name|surname|pass|notes, use \attr to embed it as part of the attr-value
-	 *   
-	 * set user ...
-	 * delete user <uname>[++] // ++ to remove ownership instead of yielding error.
-	 * get user <pattern>
+	 * <pre>user modify user --email|--name|--surname|--password|--notes = value ...</pre>
 	 * 
-	 * set owner <uname> samples|sample-groups|submissions [+|-|=] acc[++] [acc[++]]...
-	 * set -owner samples|sample-groups|submissions acc[++] [acc[++]]... // remove all
-	 * 
-	 * get owner samples|sample-groups|submissions acc[++] [acc[++]]...
+	 * @return the modified user
 	 */
 	public User run ( String cmd, boolean isNewUser )
 	{

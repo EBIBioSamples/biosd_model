@@ -26,6 +26,7 @@ class MSIVisibilitySetParser extends CLIParser
 	 * Splits the input into spaced chunks (using \s+), then uses {@link VisibilityParser#SAMPLE_GROUP_VISIBILITY_SET_SPEC_RE}
 	 * to match accession specifications and set the corresponding visibility.
 	 * 
+	 * @return the number of entities that were changed.
 	 */
 	public int run ( String cmd )
 	{

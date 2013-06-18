@@ -12,7 +12,7 @@ import uk.ac.ebi.fg.biosd.model.persistence.hibernate.access_control.UserDAO;
 import uk.ac.ebi.utils.regex.RegEx;
 
 /**
- * TODO: Comment me!
+ * Manages commands to set entitity's owners. @see {@link AccessControlCLI}.
  *
  * <dl><dt>date</dt><dd>May 30, 2013</dd></dl>
  * @author Marco Brandizi
@@ -21,7 +21,7 @@ import uk.ac.ebi.utils.regex.RegEx;
 public class OwnerSetParser extends CLIParser
 {
 	private static RegEx OWNER_SPEC_RE = new RegEx ( 
-		"([^\\s]+)\\s+(samples|sample-groups|submissions)\\s+([^\\s]+)", Pattern.CASE_INSENSITIVE 
+		"([^\\s]+)\\s+(samples|sample-groups|submissions)\\s+(.+)", Pattern.CASE_INSENSITIVE 
 	);
 	private static RegEx ENTITY_SPEC_RE = new RegEx ( "(\\+|\\-|\\=)?([^\\s\\+]+)(\\+\\+)?" );
 	

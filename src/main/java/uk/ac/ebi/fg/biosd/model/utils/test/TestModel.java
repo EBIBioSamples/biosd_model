@@ -1,6 +1,3 @@
-/*
- * 
- */
 package uk.ac.ebi.fg.biosd.model.utils.test;
 
 import java.util.Collections;
@@ -121,7 +118,7 @@ public class TestModel
 		smp1.addPropertyValue ( cv2 );
 
 		// Cannot be re-used, you need to create a new one, even if it is the same
-		// TODO: check
+		// TODO: change JPA annotations and allow for n-m
 		cv3 = new BioCharacteristicValue ( "mus-mus", ch1 );
 		smp2.addPropertyValue ( cv3 );
 		

@@ -14,7 +14,7 @@ import org.apache.commons.lang.time.DateUtils;
 import uk.ac.ebi.fg.biosd.model.persistence.hibernate.access_control.AccessControlManager;
 
 /**
- * Sets the release date for SampleTab submissions.
+ * Sets the release date for SampleTab submissions. @see {@link AccessControlCLI}.
  *
  * <dl><dt>date</dt><dd>May 23, 2013</dd></dl>
  * @author Marco Brandizi

@@ -10,7 +10,7 @@ import uk.ac.ebi.fg.biosd.model.persistence.hibernate.access_control.AccessContr
 import uk.ac.ebi.utils.regex.RegEx;
 
 /**
- * TODO: Comment me!
+ * Manage the visibility of {@link BioSample} entities. @see {@link AccessControlCLI} 
  *
  * <dl><dt>date</dt><dd>May 23, 2013</dd></dl>
  * @author Marco Brandizi
@@ -30,7 +30,9 @@ class SampleVisibilitySetParser extends CLIParser
 		super ( entityManager );
 	}
 
-	
+	/**
+	 * @return the number of samples that were chnaged.
+	 */
 	public int run ( String cmd )
 	{
 		cmd = StringUtils.trimToNull ( cmd );

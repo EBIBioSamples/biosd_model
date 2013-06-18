@@ -35,6 +35,7 @@ class MSIVisibilityGetParser extends CLIParser
 	/**
 	 * Splits the input into spaced chunks (using \s+), then uses {@link VisibilityParser#SAMPLE_GROUP_VISIBILITY_GET_SPEC_RE}
 	 * to match accession specifications. Prints out a list of submissions and their permissions.
+	 * 
 	 * @return that same list.
 	 */
 	public List<MSI> run ( String cmd )

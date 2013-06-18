@@ -174,7 +174,7 @@ public class JobRegisterEntry extends Identifiable
   
   @Override
   public String toString() {
-  	return String.format ( "%s { id: %d, entity: '%s', acc: '%s', operation: %s, timestamp: %t$6F %t$6T.%t$6L", 
+  	return String.format ( "%s { id: %d, entity: '%s', acc: '%s', operation: %s, timestamp: %6$tF/%6$tT.%6$tL", 
   		this.getClass ().getSimpleName (), this.getId (), this.getEntityType (), this.getAcc (), this.getOperation (), this.getTimestamp () );
   }
 

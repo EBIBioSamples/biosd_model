@@ -11,7 +11,7 @@ import uk.ac.ebi.fg.biosd.model.expgraph.BioSample;
 import uk.ac.ebi.fg.core_model.persistence.dao.hibernate.toplevel.AccessibleDAO;
 
 /**
- * TODO: Comment me!
+ * Manage the visibility of {@link BioSample} entities. @see {@link AccessControlCLI} 
  *
  * <dl><dt>date</dt><dd>May 23, 2013</dd></dl>
  * @author Marco Brandizi
@@ -25,7 +25,9 @@ class SampleVisibilityGetParser extends CLIParser
 		super ( entityManager );
 	}
 
-	
+	/**
+	 * @return the list of samples that yo're asking for.
+	 */
 	public List<BioSample> run ( String cmd )
 	{
 		cmd = StringUtils.trimToNull ( cmd );

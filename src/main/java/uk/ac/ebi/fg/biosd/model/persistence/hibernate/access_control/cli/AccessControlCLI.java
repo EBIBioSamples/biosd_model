@@ -51,19 +51,19 @@ public class AccessControlCLI extends CLIParser
 	public static String getSyntax ()
 	{
 		return 
-			"\tset|get visibility submissions|sample-groups|samples [+|-|--]acc[++]...\n" +
+			"\tset|get visibility submissions|sample-groups|samples [+|-|--]acc[++] ...\n" +
 		  "\t  sets/gets the items visibility, + = public, - = private, -- = null (let the release date to decide),\n" +
 		  "\t  ++ = for submissions or sample groups, cascade the same permission to contained entities (e.g., from submissions to sample groups and samples)\n" +
 		  
-			"\n\tset release-date submissions|sample-groups|samples acc --|date[++] acc...\n" +
+			"\n\tset release-date submissions|sample-groups|samples acc --|date[++] acc ...\n" +
 		  "\t  sets item release dates, -- = null (let the visibility flag to decide), ++ cascades as above\n" +
 			"\t  date format is: yyyyMMdd[-HHmmss]\n" +
 			
-			"\n\tset owner email|null samples|sample-groups|submissions +|-|=acc[++]\n" + 
+			"\n\tset owner email|null samples|sample-groups|submissions +|-|=acc[++] ...\n" + 
 			"\t  sets entities owner, + = adds to existing owners, - removes from existing owners, = sets exactly that owner, ++ = cascades as above\n" +
 			"\t  email = null and '='  to remove all the owners\n" +
 			
-			"\n\tsearch|create|modify user --email|--name|--surname|--password|--notes = value\n" +
+			"\n\tsearch|create|modify user --email|--name|--surname|--password|--notes = value ...\n" +
 			"\t  searches (partial match) users, create a new user, changes attributes for existing users\n" + 
 			
 			"\n\tdelete user email[++]\n" + 

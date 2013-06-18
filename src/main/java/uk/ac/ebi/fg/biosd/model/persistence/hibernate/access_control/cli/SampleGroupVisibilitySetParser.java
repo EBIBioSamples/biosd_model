@@ -8,7 +8,7 @@ import org.apache.commons.lang.StringUtils;
 import uk.ac.ebi.fg.biosd.model.persistence.hibernate.access_control.AccessControlManager;
 
 /**
- * TODO: Comment me!
+ *  Manage the visibility commands for sample groups. @see {@link VisibilityParser}.
  *
  * <dl><dt>date</dt><dd>May 23, 2013</dd></dl>
  * @author Marco Brandizi
@@ -22,6 +22,9 @@ class SampleGroupVisibilitySetParser extends CLIParser
 		super ( entityManager );
 	}
 
+	/**
+	 * @return the number of entities that were changed.
+	 */
 	public int run ( String cmd )
 	{
 		cmd = StringUtils.trimToNull ( cmd );
