@@ -1,6 +1,3 @@
-/*
- * 
- */
 package uk.ac.ebi.fg.biosd.model.persistence.hibernate;
 
 import static java.lang.System.out;
