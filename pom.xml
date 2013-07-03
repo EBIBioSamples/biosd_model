@@ -289,7 +289,6 @@
   
   	<profile>
   		<id>test.hsql</id>
-  		<activation><activeByDefault>true</activeByDefault></activation>
   		<properties>
 				<test.jdbc.username>sa</test.jdbc.username>
 				<test.jdbc.password />
@@ -324,8 +323,29 @@
 	        <version>${hsql.version}</version>
 				</dependency>  		
   		</dependencies>
-  	</profile>  
+  	</profile> 
   	
+  	 
+		<profile>
+			<id>test.h2</id>
+			<activation><activeByDefault>true</activeByDefault></activation>
+			<properties>
+				<test.jdbc.username>sa</test.jdbc.username>
+				<test.jdbc.password />
+				<test.jdbc.url>jdbc:h2:mem:testdb</test.jdbc.url>
+				<test.jdbc.driverClassName>org.h2.Driver</test.jdbc.driverClassName>
+				<test.hibernate.dialect>org.hibernate.dialect.H2Dialect</test.hibernate.dialect>
+				<test.hibernate.hbm2ddl.auto>update</test.hibernate.hbm2ddl.auto>
+			</properties>
+			<dependencies>
+				<dependency>
+					<groupId>com.h2database</groupId>
+					<artifactId>h2</artifactId>
+					<version>${h2.version}</version>
+				</dependency>
+			</dependencies>
+		</profile>  	
+		
   	<profile>
   		<id>test.h2_file</id>
   		<properties>
@@ -344,6 +364,7 @@
 				</dependency>
       </dependencies>
   	</profile>    	  	
+  	
   	
   	<profile>
   		<id>test.mysql</id>

@@ -1,6 +1,3 @@
-/*
- * 
- */
 package uk.ac.ebi.fg.biosd.model.xref;
 
 import javax.persistence.Entity;
