@@ -8,6 +8,8 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Transient;
 
@@ -17,6 +19,7 @@ import uk.ac.ebi.fg.biosd.model.access_control.SecureEntityDelegate;
 import uk.ac.ebi.fg.biosd.model.access_control.User;
 import uk.ac.ebi.fg.biosd.model.organizational.BioSampleGroup;
 import uk.ac.ebi.fg.biosd.model.organizational.MSI;
+import uk.ac.ebi.fg.biosd.model.xref.DatabaseRefSource;
 import uk.ac.ebi.fg.core_model.expgraph.BioMaterial;
 import uk.ac.ebi.fg.core_model.expgraph.Node;
 import uk.ac.ebi.fg.core_model.expgraph.properties.ExperimentalPropertyValue;
@@ -39,10 +42,13 @@ import uk.ac.ebi.utils.orm.Many2ManyUtils;
 public class BioSample extends BioMaterial<ExperimentalPropertyValue>
 {
 	private Set<BioSampleGroup> groups = new HashSet<BioSampleGroup> (); 
+	private Set<DatabaseRefSource> databases = new HashSet<DatabaseRefSource> ();
 	private Set<MSI> msis = new HashSet<MSI> ();
 
 	private Date updateDate;
 
+	private boolean isInReferenceLayer;
+	
 	
 	/** This entities have an owner and a visibility status, @see {@link SecureEntityDelegate} */
 	private final SecureEntityDelegate securityDelegate = new SecureEntityDelegate ();
@@ -82,10 +88,24 @@ public class BioSample extends BioMaterial<ExperimentalPropertyValue>
 	}
 	
 	
+	@ManyToMany ( cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH } )
+	@JoinTable ( name = "sample_database", 
+    joinColumns = @JoinColumn ( name = "sample_id" ), inverseJoinColumns = @JoinColumn ( name = "database_id" ) )
+	public Set<DatabaseRefSource> getDatabases () {
+		return databases;
+	}
+
+	public void setDatabases ( Set<DatabaseRefSource> databases ) {
+		this.databases = databases;
+	}
+	
+	public boolean addDatabase ( DatabaseRefSource db ) {
+		return this.getDatabases ().add ( db );
+	}
+	
 	
 	@ManyToMany ( mappedBy = "samples" )
-	public Set<MSI> getMSIs ()
-	{
+	public Set<MSI> getMSIs () {
 		return msis;
 	}
 
@@ -132,7 +152,23 @@ public class BioSample extends BioMaterial<ExperimentalPropertyValue>
 		return securityDelegate.deleteUser ( this, user, "deleteBioSample" );
 	}
 
+	
+	/**
+	 * Reference Layer entities are pre-loaded into BioSD to support future data generation and linking from other
+	 * repositories.
+	 */
+	@Column ( name = "is_ref_layer" )
+	public boolean isInReferenceLayer ()
+	{
+		return isInReferenceLayer;
+	}
 
+	public void setInReferenceLayer ( boolean isInReferenceLayer )
+	{
+		this.isInReferenceLayer = isInReferenceLayer;
+	}
+	
+	
 	/** @see SecureEntityDelegate. */
 	@Column ( name = "public_flag", nullable = true )
 	public Boolean getPublicFlag ()

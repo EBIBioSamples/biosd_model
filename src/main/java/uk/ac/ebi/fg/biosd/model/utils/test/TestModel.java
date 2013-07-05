@@ -78,6 +78,7 @@ public class TestModel
 	 *  
 	 *  sg1 contains (1,2,3)
 	 *  sg2 contains (3,4,5,6) 
+	 *  smp1 is a reference layer sample.
 	 *  </pre>        
 	 */
 	public TestModel ( String prefix )
@@ -100,6 +101,7 @@ public class TestModel
 		smp6.addDerivedFrom ( smp4 );
 		smp5.addDerivedInto ( smp6 );
 		
+		smp1.setInReferenceLayer ( true );
 		
 		ch1 = new BioCharacteristicType ( "Organism" );
 		cv1 = new BioCharacteristicValue ( "mus-mus", ch1 );

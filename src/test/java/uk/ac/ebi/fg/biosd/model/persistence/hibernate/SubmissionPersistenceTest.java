@@ -134,6 +134,8 @@ public class SubmissionPersistenceTest
 		new DirectDerivationGraphDumper ().dump ( out, smp1DB );
 
 		verifyTestModel ( model, true, em );
+		
+		assertTrue ( "Reference layer flag not saved!", smp1DB.isInReferenceLayer () );
 	}
 
 	@Test 
