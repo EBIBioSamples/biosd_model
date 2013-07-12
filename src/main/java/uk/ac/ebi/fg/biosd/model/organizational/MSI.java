@@ -19,6 +19,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import org.apache.commons.lang.StringUtils;
+import org.hibernate.annotations.Index;
 
 import uk.ac.ebi.fg.biosd.model.access_control.SecureEntityDelegate;
 import uk.ac.ebi.fg.biosd.model.access_control.User;
@@ -46,6 +47,9 @@ import uk.ac.ebi.fg.core_model.organizational.Submission;
   @AssociationOverride ( name = "referenceSources", 
   	joinTable = @JoinTable ( name = "msi_ref_source", joinColumns = @JoinColumn ( name = "msi_id" ) ) )
 })
+@org.hibernate.annotations.Table ( appliesTo = "msi", 
+	indexes = @Index ( name = "msi_acc", columnNames = "acc" ) 
+)
 public class MSI extends Submission
 {
 	private Set<DatabaseRefSource> databases = new HashSet<DatabaseRefSource> ();

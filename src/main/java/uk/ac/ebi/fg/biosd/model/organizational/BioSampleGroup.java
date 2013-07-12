@@ -36,6 +36,9 @@ import uk.ac.ebi.fg.core_model.toplevel.DefaultAccessibleAnnotatable;
  */
 @Entity
 @Table( name = "bio_sample_group" )
+@org.hibernate.annotations.Table ( appliesTo = "bio_sample_group", 
+	indexes = @Index ( name = "sg_acc", columnNames = "acc" ) 
+)
 @SuppressWarnings ( "rawtypes" )
 public class BioSampleGroup extends DefaultAccessibleAnnotatable
 {
@@ -202,7 +205,7 @@ public class BioSampleGroup extends DefaultAccessibleAnnotatable
 	}
 	
 	@Column ( name = "update_date" )
-	@Index ( name = "sample_group_up_date" )
+	@Index ( name = "sg_up_date" )
 	public Date getUpdateDate ()
 	{
 		return updateDate;

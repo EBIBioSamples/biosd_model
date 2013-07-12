@@ -42,6 +42,9 @@ import com.google.common.collect.Sets;
 @Entity
 @Table( name = "acc_ctrl_user" )
 @AttributeOverride ( name = "acc", column = @Column( unique = true, nullable = false, length = Const.COL_LENGTH_M ) )
+@org.hibernate.annotations.Table ( appliesTo = "acc_ctrl_user", 
+	indexes = @Index ( name = "user_acc", columnNames = "acc" ) 
+)
 public class User extends Accessible
 {
 	private String name;
