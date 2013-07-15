@@ -109,7 +109,7 @@ public class AttributePerformanceTest
 	}
 	
 	
-	@Test // @Ignore ( "Not a real Junit test and too time-consuming" )
+	@Test // @Ignore ( "Not a real JUnit test and too time-consuming" )
 	public void testSimpleLoop ()
 	{
 		Map<String, Counter> counts = new HashMap<String, Counter> ();
