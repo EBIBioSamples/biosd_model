@@ -11,7 +11,8 @@ import uk.ac.ebi.fg.core_model.expgraph.Product;
 import uk.ac.ebi.fg.core_model.utils.expgraph.DirectDerivationGraphDumper;
 
 /**
- * TODO: Comment me!
+ * Handy little helper that prints out the content of a SampleTab submission (i.e., an {@link MSI} object and linked 
+ * objects).
  *
  * <dl><dt>date</dt><dd>Jan 21, 2013</dd></dl>
  * @author Marco Brandizi

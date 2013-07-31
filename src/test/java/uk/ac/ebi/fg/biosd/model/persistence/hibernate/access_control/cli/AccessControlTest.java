@@ -199,7 +199,6 @@ public class AccessControlTest
 		out.println ( "Sending Command: " + cmd );
 		acCli.run ( cmd );
 		
-		// TODO: use 'get-visibility'
 		List<BioSample> visResults = (List<BioSample>) acCli.run ( "get visibility samples " + model.smp1.getAcc () );
 		BioSample smp1DB = visResults.get ( 0 );
 		

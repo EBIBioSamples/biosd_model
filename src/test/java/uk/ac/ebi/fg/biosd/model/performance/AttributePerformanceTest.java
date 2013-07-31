@@ -20,7 +20,8 @@ import uk.ac.ebi.fg.core_model.resources.Resources;
 import uk.ac.ebi.utils.test.junit.TestEntityMgrProvider;
 
 /**
- * TODO: Comment me!
+ * Quick/dirty test used to evaluate the speed of sample/group attribute retrieval queries, which is a critical task 
+ * for XML export.
  * 
  * <dl>
  * <dt>date</dt>
