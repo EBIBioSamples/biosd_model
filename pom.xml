@@ -467,26 +467,6 @@
 				</dependency>
 			</dependencies>
 		</profile>				
-
-  	<profile>
-  		<id>test.oracle_myeq_test</id>
-  		<activation><activeByDefault>false</activeByDefault></activation>
-  		<properties>
-				<test.jdbc.username>myeqtst</test.jdbc.username>
-				<test.jdbc.password>myeqtst</test.jdbc.password>
-				<test.jdbc.url>jdbc:oracle:thin:@bart.ebi.ac.uk:1521:biosdtst</test.jdbc.url>
-				<test.jdbc.driverClassName>oracle.jdbc.driver.OracleDriver</test.jdbc.driverClassName>
-				<test.hibernate.dialect>org.hibernate.dialect.Oracle10gDialect</test.hibernate.dialect>
-				<test.hibernate.hbm2ddl.auto>create</test.hibernate.hbm2ddl.auto>
-  		</properties>
-  		<dependencies>
-				<dependency>
-					<groupId>com.oracle</groupId>
-					<artifactId>ojdbc5</artifactId>
-					<version>11.1.0.7.0</version>
-				</dependency>
-  		</dependencies>
-  	</profile>
   		
   </profiles>  
 </project>
