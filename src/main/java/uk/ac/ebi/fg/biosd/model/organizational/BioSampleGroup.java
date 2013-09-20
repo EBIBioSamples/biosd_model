@@ -36,9 +36,6 @@ import uk.ac.ebi.fg.core_model.toplevel.DefaultAccessibleAnnotatable;
  */
 @Entity
 @Table( name = "bio_sample_group" )
-@org.hibernate.annotations.Table ( appliesTo = "bio_sample_group", 
-	indexes = @Index ( name = "sg_acc", columnNames = "acc" ) 
-)
 @SuppressWarnings ( "rawtypes" )
 public class BioSampleGroup extends DefaultAccessibleAnnotatable
 {

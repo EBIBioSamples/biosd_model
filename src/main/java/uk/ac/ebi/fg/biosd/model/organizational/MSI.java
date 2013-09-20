@@ -12,6 +12,7 @@ import javax.persistence.AssociationOverrides;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -19,7 +20,6 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import org.apache.commons.lang.StringUtils;
-import org.hibernate.annotations.Index;
 
 import uk.ac.ebi.fg.biosd.model.access_control.SecureEntityDelegate;
 import uk.ac.ebi.fg.biosd.model.access_control.User;
@@ -47,9 +47,6 @@ import uk.ac.ebi.fg.core_model.organizational.Submission;
   @AssociationOverride ( name = "referenceSources", 
   	joinTable = @JoinTable ( name = "msi_ref_source", joinColumns = @JoinColumn ( name = "msi_id" ) ) )
 })
-@org.hibernate.annotations.Table ( appliesTo = "msi", 
-	indexes = @Index ( name = "msi_acc", columnNames = "acc" ) 
-)
 public class MSI extends Submission
 {
 	private Set<DatabaseRefSource> databases = new HashSet<DatabaseRefSource> ();
@@ -109,7 +106,7 @@ public class MSI extends Submission
 	
 	
 	
-	@ManyToMany ( cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH } )
+	@ManyToMany ( cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH }, fetch = FetchType.LAZY )
 	@JoinTable ( name = "msi_sample", 
     joinColumns = @JoinColumn ( name = "msi_id" ), inverseJoinColumns = @JoinColumn ( name = "sample_id" ) )
 	public Set<BioSample> getSamples () {
@@ -172,6 +169,8 @@ public class MSI extends Submission
 	}
 
 	/** @see SecureEntityDelegate. */
+	@Override
+	@Transient // Cause the damn Hibernate doesn't seem to get it was already defined by the parent. 
 	public Date getReleaseDate ()
 	{
 		return securityDelegate.getReleaseDate ();
