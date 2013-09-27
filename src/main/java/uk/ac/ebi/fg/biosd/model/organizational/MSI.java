@@ -1,14 +1,9 @@
-/*
- * 
- */
 package uk.ac.ebi.fg.biosd.model.organizational;
 
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.AssociationOverride;
-import javax.persistence.AssociationOverrides;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -16,7 +11,6 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import org.apache.commons.lang.StringUtils;
@@ -36,17 +30,6 @@ import uk.ac.ebi.fg.core_model.organizational.Submission;
  *
  */
 @Entity
-@Table ( name = "msi" )
-@AssociationOverrides ({
-  @AssociationOverride ( name = "contacts", 
-    joinTable = @JoinTable ( name = "msi_contact", joinColumns = @JoinColumn ( name = "msi_id" ) ) ),
-  @AssociationOverride ( name = "organizations", 
-  	joinTable = @JoinTable ( name = "msi_organization", joinColumns = @JoinColumn ( name = "msi_id" ) ) ),
-  @AssociationOverride ( name = "organizations", 
-	  joinTable = @JoinTable ( name = "msi_organization", joinColumns = @JoinColumn ( name = "msi_id" ) ) ),
-  @AssociationOverride ( name = "referenceSources", 
-  	joinTable = @JoinTable ( name = "msi_ref_source", joinColumns = @JoinColumn ( name = "msi_id" ) ) )
-})
 public class MSI extends Submission
 {
 	private Set<DatabaseRefSource> databases = new HashSet<DatabaseRefSource> ();
@@ -186,7 +169,7 @@ public class MSI extends Submission
 	{
 		return securityDelegate.isPublic ();
 	}
-
+	
 	
 	@Override
 	public String toString ()

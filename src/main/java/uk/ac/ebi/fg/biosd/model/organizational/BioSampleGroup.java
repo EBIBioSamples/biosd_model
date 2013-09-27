@@ -35,7 +35,7 @@ import uk.ac.ebi.fg.core_model.toplevel.DefaultAccessibleAnnotatable;
  *
  */
 @Entity
-@Table( name = "bio_sample_group" )
+@Table( name = "bio_smp_grp" )
 @SuppressWarnings ( "rawtypes" )
 public class BioSampleGroup extends DefaultAccessibleAnnotatable
 {
@@ -191,6 +191,7 @@ public class BioSampleGroup extends DefaultAccessibleAnnotatable
 
 	/** @see SecureEntityDelegate. */
 	@Column ( name = "release_date", nullable = true )
+	@Index ( name = "sg_rel_date" )
 	public Date getReleaseDate ()
 	{
 		return securityDelegate.getReleaseDate ();

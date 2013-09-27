@@ -183,6 +183,7 @@ public class BioSample extends BioMaterial<ExperimentalPropertyValue>
 
 	/** @see SecureEntityDelegate. */
 	@Column ( name = "release_date", nullable = true )
+	@Index ( name = "sample_rel_date" )
 	public Date getReleaseDate ()
 	{
 		return securityDelegate.getReleaseDate ();
