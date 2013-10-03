@@ -1,6 +1,3 @@
-/*
- * 
- */
 package uk.ac.ebi.fg.biosd.model.utils;
 
 import java.io.PrintStream;
@@ -37,6 +34,21 @@ public class MSIDumper
 				super.dumpProduct ( out, node );
 				out.println ( "\n    --------- Linked to Groups:" );
 				out.println ( ((BioSample) node).getGroups () + "\n" );
+
+				out.println ( "\n    --------- Derived From:" );
+				String sep = "";
+				for ( Product<?> smp: ((BioSample) node).getDerivedFrom () ) {
+					out.print ( sep + smp.getAcc () ); sep = ", ";
+				}
+				out.println ( "\n" );
+				
+				out.println ( "\n    --------- Derived Into:" );
+				sep = "";
+				for ( Product<?> smp: ((BioSample) node).getDerivedInto () ) {
+					out.print ( sep + smp.getAcc () ); sep = ", ";
+				}
+				out.println ( "\n" );
+				
 			}
 			
 		}.dump ( out, msi.getSamples () );

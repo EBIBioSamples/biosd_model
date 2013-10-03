@@ -2,6 +2,7 @@ package uk.ac.ebi.fg.biosd.model.xref;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import uk.ac.ebi.fg.core_model.xref.ReferenceSource;
 
@@ -14,7 +15,7 @@ import uk.ac.ebi.fg.core_model.xref.ReferenceSource;
  *
  */
 @Entity
-@Table ( name = "db_ref_src" )
+@Table ( name = "db_ref_src", uniqueConstraints = @UniqueConstraint ( columnNames = { "acc", "version" } ) )
 public class DatabaseRefSource extends ReferenceSource
 {
 	protected DatabaseRefSource () {
