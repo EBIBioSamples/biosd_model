@@ -7,6 +7,8 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+import org.apache.commons.lang.StringUtils;
+
 import uk.ac.ebi.fg.biosd.model.application_mgmt.JobRegisterEntry;
 import uk.ac.ebi.fg.biosd.model.application_mgmt.JobRegisterEntry.Operation;
 import uk.ac.ebi.fg.core_model.persistence.dao.hibernate.toplevel.IdentifiableDAO;
@@ -43,50 +45,110 @@ public class JobRegisterDAO extends IdentifiableDAO<JobRegisterEntry>
 	}
 
 
-
 	/**
-	 * All the entries deleted in this time window (extremes included). Filters by operation if this is non-null.
+	 * All the entries of type entityType, affected by the operation 'operation' in the parameter time window (extremes included). 
+	 * if entityType is null, gets all entities, if operation is null, gets any operation. 
 	 */
 	@SuppressWarnings ( "unchecked" )
-	public List<JobRegisterEntry> find ( Date from, Date to, Operation operation )
+	public List<JobRegisterEntry> find ( Date from, Date to, String entityType, Operation operation )
 	{
+		entityType = StringUtils.trimToNull ( entityType );
+		
 		String hql = 
 			"FROM " + JobRegisterEntry.class.getCanonicalName () + " jr WHERE jr.timestamp BETWEEN :from AND :to" + 
-			( operation == null ? "" : " AND operation = :operation" );
+			( operation == null ? "" : " AND operation = :operation" ) + 
+			( entityType == null ? "" : " AND entityType = :entityType" );
 		
 		Query q = this.getEntityManager ().createQuery ( hql )
 		.setParameter ( "from", from )
 		.setParameter ( "to", to );
 		if ( operation != null ) q.setParameter ( "operation", operation );
-
+		if ( entityType != null ) q.setParameter ( "entityType", entityType );
+		
 		return q.getResultList ();
 	}
 
-	/**
-	 * A wrapper of {@link #find(Date, Date, Operation) find (from, to, null)} 
+	/** 
+	 * A wrapper of {@link #find(String, Date, Date, Operation)}, which uses {@link Class#getSimpleName()} as 
+	 * entityType parameter. 
+	 */
+	public List<JobRegisterEntry> find ( Date from, Date to, Class<? extends Accessible> entityType, Operation operation )
+	{
+		return find ( from, to, entityType == null ? null : entityType.getSimpleName (), operation );
+	}
+
+	public List<JobRegisterEntry> find ( Date from, Date to, Class<? extends Accessible> entityType )
+	{
+		return find ( from, to, entityType, null );
+	}
+	
+	/** A wrapper of {@link #find(Date, Date, String, Operation)} with operation = null (i.e., gets all operations) */
+	public List<JobRegisterEntry> find ( Date from, Date to, String entityType )
+	{
+		return find ( from, to, entityType, null );
+	}
+	
+	/** A wrapper of {@link #find(Date, Date, String, Operation)} with entityType = null (i.e., gets all entity types) */
+	public List<JobRegisterEntry> find ( Date from, Date to, Operation operation )
+	{
+		return find ( from, to, (String) null, operation );
+	}
+	
+	/** 
+	 * A wrapper of {@link #find(Date, Date, String, Operation)} with entityType and operatin = null 
+	 * (i.e., gets all entity types and all operations) 
 	 */
 	public List<JobRegisterEntry> find ( Date from, Date to ) {
-		return find ( from, to , null );
+		return find ( from, to , (String) null, null );
 	}
 
 	
 	/**
-	 * All the entries deleted in the last daysAgo. If you send in a negative number, this will become positive and you'll
-	 * search things in the future, presumably getting a null result. Filters by operation if this is non-null.
+	 * All the entries of type entityType, affected by the parameter operation in the last daysAgo.
+	 * if entityType is null, you'll get all the entities, if operation is null, you'll get all the operations.
+	 *  
+	 * If you send in a negative number, you'll search things in the future, presumably getting a null result. 
 	 */
-	public List<JobRegisterEntry> find ( int daysAgo, Operation operation )
+	public List<JobRegisterEntry> find ( int daysAgo, String entityType, Operation operation )
 	{
 		Calendar cal = Calendar.getInstance ();
 		cal.add ( Calendar.DAY_OF_YEAR, - daysAgo );
-		return find ( cal.getTime (), new Date (), operation );
-	}
-	
-	/** A wrapper of {@link #find(int, Operation) find ( daysAgo, null )} */
-	public List<JobRegisterEntry> find ( int daysAgo )
-	{
-		return find ( daysAgo, (Operation) null );
+		return find ( cal.getTime (), new Date (), entityType, operation );
 	}
 
+	/**
+	 * A wrapper of {@link #find(int, String, Operation)} that uses {@link #find(String, Date, Date, Operation)}.
+	 */
+	public List<JobRegisterEntry> find ( int daysAgo, Class<? extends Accessible> entityType, Operation operation )
+	{
+		return find ( daysAgo, entityType == null ? null : entityType.getSimpleName (), null );
+	}
+	
+	/** A wrapper of {@link #find(int, String, Operation)} with operation = null (i.e., search all operations) */
+	public List<JobRegisterEntry> find ( int daysAgo, String entityType )
+	{
+		return find ( daysAgo, entityType, null );
+	}
+
+	/** A wrapper of {@link #find(int, String, Operation)} with operation = null (i.e., search all operations) */
+	public List<JobRegisterEntry> find ( int daysAgo, Class<? extends Accessible> entityType )
+	{
+		return find ( daysAgo, entityType, null );
+	}
+
+	/** A wrapper of {@link #find(int, String, Operation)} with entityType = null (i.e., search all entities) */
+	public List<JobRegisterEntry> find ( int daysAgo, Operation operation )
+	{
+		return find ( daysAgo, (String) null, operation );
+	}
+	
+	/** A wrapper of {@link #find(int, Operation) find ( daysAgo, null )} (i.e., search all entity types and operations). */
+	public List<JobRegisterEntry> find ( int daysAgo )
+	{
+		return find ( daysAgo, (String) null, null );
+	}
+
+	
 	/**
 	 * Invokes {@link #hasEntry(String, String, Date, Date, Operation)} with entity.getClass ().getSimpleName () and
 	 * entity.getAcc().

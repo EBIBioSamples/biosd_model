@@ -15,6 +15,7 @@ import org.junit.Test;
 
 import uk.ac.ebi.fg.biosd.model.application_mgmt.JobRegisterEntry;
 import uk.ac.ebi.fg.biosd.model.application_mgmt.JobRegisterEntry.Operation;
+import uk.ac.ebi.fg.biosd.model.organizational.MSI;
 import uk.ac.ebi.fg.biosd.model.persistence.hibernate.application_mgmt.JobRegisterDAO;
 import uk.ac.ebi.fg.core_model.resources.Resources;
 import uk.ac.ebi.utils.test.junit.TestEntityMgrProvider;
@@ -40,22 +41,24 @@ public class JobRegisterDAOTest
 		EntityManager em = emProvider.getEntityManager ();
 		JobRegisterDAO jrDao = new JobRegisterDAO ( em );
 		
-		// Entries are created by the loader and the unloader, so typically the DAO is user more for querying.
+		// Entries are created by the loader and the unloader, so typically the DAO is more used for querying.
 		JobRegisterEntry 
 		  jre1 = new JobRegisterEntry ( "test.type", "test.acc1", Operation.ADD ),
-		  jre2 = new JobRegisterEntry ( "test.type", "test.acc2", Operation.DELETE );
+		  jre2 = new JobRegisterEntry ( "test.type", "test.acc2", Operation.DELETE ),
+			jre3 = new JobRegisterEntry ( new MSI ( "test.acc3" ), Operation.UPDATE );
 		
 		EntityTransaction ts = em.getTransaction ();
 		ts.begin ();
 		jrDao.create ( jre1 );
 		jrDao.create ( jre2 );
+		jrDao.create ( jre3 );
 		ts.commit ();
 		
 		jrDao.setEntityManager ( em = emProvider.newEntityManager () );
 		
 		// Find anything in the last day
 		List<JobRegisterEntry> log = jrDao.find ( 1 );
-		assertEquals ( "Log entry storage didn't work!", 2, log.size () );
+		assertEquals ( "Log entry storage didn't work!", 3, log.size () );
 		assertTrue ( "Wrong data retrieved from the job register log!", 
 			jre1.equals ( log.get ( 0 ) ) && jre2.equals ( log.get ( 1 ) ) 
 			|| jre1.equals ( log.get ( 1 ) ) && jre2.equals ( log.get ( 0 ) ) 
@@ -71,6 +74,14 @@ public class JobRegisterDAOTest
 			jre1.getEntityType (), jre1.getAcc (), 
 			new GregorianCalendar ( 1990, 1, 1 ).getTime (), new GregorianCalendar ( 2000, 3, 12 ).getTime () ));
 
+		
+		// Find operations about a given type
+		log = jrDao.find ( 1, MSI.class );
+		assertEquals ( "find with entityType didn't work!", 1, log.size () );
+		JobRegisterEntry jrDB = log.get ( 0 );
+		assertEquals ( "find with entityType didn't fetch the right entry!", jre3, jrDB );
+		
+		
 		// Clean it all (i.e. entries older than 0 days)
 		ts = em.getTransaction ();
 		ts.begin ();
