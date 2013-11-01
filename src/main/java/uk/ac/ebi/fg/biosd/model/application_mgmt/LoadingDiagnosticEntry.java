@@ -25,12 +25,15 @@ public class LoadingDiagnosticEntry extends Identifiable
 	private String exceptionClassName;
 	private String exceptionMessage;
 	private Date timestamp;
-	private long parsingTimeMs;
-	private long persistenceTimeMs;
-	private int itemsCount;
+	private Long parsingTimeMs;
+	private Long persistenceTimeMs;
+	private Integer itemsCount;
 
-	public LoadingDiagnosticEntry ( String sampleTabPath, Throwable ex, long parsingTimeMs, long persistenceTimeMs,
-			int itemsCount )
+	/**
+	 * We're using primitive classes to be able to accept nulls.
+	 */
+	public LoadingDiagnosticEntry ( String sampleTabPath, Throwable ex, Long parsingTimeMs, Long persistenceTimeMs,
+			Integer itemsCount )
 	{
 		super ();
 		this.sampleTabPath = sampleTabPath;
@@ -73,23 +76,23 @@ public class LoadingDiagnosticEntry extends Identifiable
 		return timestamp;
 	}
 
-	@Column ( name = "parse_time_ms" )
+	@Column ( name = "parse_time_ms", nullable = true )
 	@Index ( name = "load_diag_parse_t" )
-	public long getParsingTimeMs ()
+	public Long getParsingTimeMs ()
 	{
 		return parsingTimeMs;
 	}
 
-	@Column ( name = "persist_time_ms" )
+	@Column ( name = "persist_time_ms", nullable = true  )
 	@Index ( name = "load_diag_perst_t" )
-	public long getPersistenceTimeMs ()
+	public Long getPersistenceTimeMs ()
 	{
 		return persistenceTimeMs;
 	}
 
-	@Column ( name = "items_count" )
+	@Column ( name = "items_count", nullable = true )
 	@Index ( name = "load_diag_items" )
-	public int getItemsCount ()
+	public Integer getItemsCount ()
 	{
 		return itemsCount;
 	}
@@ -114,17 +117,17 @@ public class LoadingDiagnosticEntry extends Identifiable
 		this.timestamp = timestamp;
 	}
 
-	protected void setParsingTimeMs ( long parsingTimeMs )
+	protected void setParsingTimeMs ( Long parsingTimeMs )
 	{
 		this.parsingTimeMs = parsingTimeMs;
 	}
 
-	protected void setPersistenceTimeMs ( long persistenceTimeMs )
+	protected void setPersistenceTimeMs ( Long persistenceTimeMs )
 	{
 		this.persistenceTimeMs = persistenceTimeMs;
 	}
 
-	protected void setItemsCount ( int itemsCount )
+	protected void setItemsCount ( Integer itemsCount )
 	{
 		this.itemsCount = itemsCount;
 	}
