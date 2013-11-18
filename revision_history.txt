@@ -1,4 +1,4 @@
-2.0-SNAPSHOT 
+2.0 
   - Access-control features added.
   - MSI.databases made many-to-many.
   - TestModel enriched with new entities.
