@@ -16,6 +16,8 @@ import uk.ac.ebi.fg.core_model.toplevel.Accessible;
 
 /**
  * DAO to manage {@link JobRegisterEntry}.
+ * 
+ * TODO: review all these signatures and null cases.
  *
  * <dl><dt>date</dt><dd>Apr 24, 2013</dd></dl>
  * @author Marco Brandizi
@@ -44,7 +46,7 @@ public class JobRegisterDAO extends IdentifiableDAO<JobRegisterEntry>
 		create ( entity, operation, new Date () );
 	}
 
-
+	
 	/**
 	 * All the entries of type entityType, affected by the operation 'operation' in the parameter time window (extremes included). 
 	 * if entityType is null, gets all entities, if operation is null, gets any operation. 
@@ -55,13 +57,17 @@ public class JobRegisterDAO extends IdentifiableDAO<JobRegisterEntry>
 		entityType = StringUtils.trimToNull ( entityType );
 		
 		String hql = 
-			"FROM " + JobRegisterEntry.class.getCanonicalName () + " jr WHERE jr.timestamp BETWEEN :from AND :to" + 
+			"FROM " + JobRegisterEntry.class.getCanonicalName () + " jr WHERE 1=1\n" +
+			( from != null 
+			    ? ( to != null ? " AND jr.timestamp BETWEEN :from AND :to" : " AND jr.timestamp >= :from" )
+			    : ( to != null ? " AND jr.timestamp <= :to" : "" ) // from is null here
+			) + 
 			( operation == null ? "" : " AND operation = :operation" ) + 
 			( entityType == null ? "" : " AND entityType = :entityType" );
 		
-		Query q = this.getEntityManager ().createQuery ( hql )
-		.setParameter ( "from", from )
-		.setParameter ( "to", to );
+		Query q = this.getEntityManager ().createQuery ( hql );
+		if ( from != null ) q.setParameter ( "from", from );
+		if ( to != null ) q.setParameter ( "to", to );
 		if ( operation != null ) q.setParameter ( "operation", operation );
 		if ( entityType != null ) q.setParameter ( "entityType", entityType );
 		
@@ -148,6 +154,42 @@ public class JobRegisterDAO extends IdentifiableDAO<JobRegisterEntry>
 		return find ( daysAgo, (String) null, null );
 	}
 
+	/**
+	 * TODO: comment me.
+	 */
+	public JobRegisterEntry findLast ( String entityType, String accession, Operation operation )
+	{
+		entityType = StringUtils.trimToNull ( entityType );
+		accession = StringUtils.trimToNull ( accession );
+		
+		String hql = 
+			"FROM " + JobRegisterEntry.class.getCanonicalName () + " jr\nWHERE 1 = 1" + 
+			( operation == null ? "" : " AND operation = :operation" ) + 
+			( entityType == null ? "" : " AND entityType = :entityType" ) +
+			( accession == null ? "" : " AND accession = :accession" ) +
+			"\nORDER BY timestamp DESC";
+		
+		Query q = this.getEntityManager ().createQuery ( hql );
+		if ( operation != null ) q.setParameter ( "operation", operation );
+		if ( entityType != null ) q.setParameter ( "entityType", entityType );
+		if ( accession != null ) q.setParameter ( "accession", accession );
+		
+		List<JobRegisterEntry> result = (List<JobRegisterEntry>) q.getResultList ();
+		return result == null || result.isEmpty () ? null : result.iterator ().next ();
+	}
+
+
+	public JobRegisterEntry findLast ( Class<? extends Accessible> entityType, String accession, Operation operation )
+	{
+		return findLast ( entityType == null ? null : entityType.getSimpleName (), accession, operation );
+	}
+
+	public JobRegisterEntry findLast ( Accessible entity, Operation operation )
+	{
+		String acc = entity == null ? null : entity.getAcc ();
+		return findLast ( entity.getClass (), acc, operation );
+	}
+		
 	
 	/**
 	 * Invokes {@link #hasEntry(String, String, Date, Date, Operation)} with entity.getClass ().getSimpleName () and
@@ -167,6 +209,7 @@ public class JobRegisterDAO extends IdentifiableDAO<JobRegisterEntry>
 	
 	/**
 	 * Tells you if this entry exists in the time window. Operation is only considered when non-null.
+	 * TODO: allow for null time bounds.
 	 */
 	public boolean hasEntry ( String entityType, String acc, Date from, Date to, Operation operation )
 	{
@@ -221,9 +264,117 @@ public class JobRegisterDAO extends IdentifiableDAO<JobRegisterEntry>
 	public boolean hasEntry ( String entityType, String acc, int daysAgo ) {
 		return hasEntry ( entityType, acc, daysAgo, null );
 	}
+	
+
+	
+	/**
+	 * TODO: comment me!
+	 * TODO: allow for null time bounds.
+	 */
+	public long count ( Date from, Date to, String entityType, Operation operation )
+	{
+		entityType = StringUtils.trimToNull ( entityType );
+		
+		String hql = 
+			"SELECT COUNT (*) AS ct FROM " + JobRegisterEntry.class.getCanonicalName () 
+			  + " jr\nWHERE jr.timestamp BETWEEN :from AND :to" + 
+			( operation == null ? "" : " AND operation = :operation" ) + 
+			( entityType == null ? "" : " AND entityType = :entityType" );
+		
+		Query q = this.getEntityManager ().createQuery ( hql )
+		.setParameter ( "from", from )
+		.setParameter ( "to", to );
+		if ( operation != null ) q.setParameter ( "operation", operation );
+		if ( entityType != null ) q.setParameter ( "entityType", entityType );
+		
+		return (Long) q.getSingleResult ();
+	}
+
+	/** 
+	 * A wrapper of {@link #count(String, Date, Date, Operation)}, which uses {@link Class#getSimpleName()} as 
+	 * entityType parameter. 
+	 */
+	public long count ( Date from, Date to, Class<? extends Accessible> entityType, Operation operation )
+	{
+		return count ( from, to, entityType == null ? null : entityType.getSimpleName (), operation );
+	}
+
+	/** A wrapper of {@link #count(Date, Date, Class, Operation)} with null as operation */
+	public long count ( Date from, Date to, Class<? extends Accessible> entityType )
+	{
+		return count ( from, to, entityType, null );
+	}
+	
+	/** A wrapper of {@link #count(Date, Date, String, Operation)} with operation = null (i.e., gets all operations) */
+	public long count ( Date from, Date to, String entityType )
+	{
+		return count ( from, to, entityType, null );
+	}
+	
+	/** A wrapper of {@link #count(Date, Date, String, Operation)} with entityType = null (i.e., gets all entity types) */
+	public long count ( Date from, Date to, Operation operation )
+	{
+		return count ( from, to, (String) null, operation );
+	}
+	
+	/** 
+	 * A wrapper of {@link #count(Date, Date, String, Operation)} with entityType and operatin = null 
+	 * (i.e., gets all entity types and all operations) 
+	 */
+	public List<JobRegisterEntry> count ( Date from, Date to ) {
+		return find ( from, to , (String) null, null );
+	}
+
+	
+	/**
+	 * All the entries of type entityType, affected by the parameter operation in the last daysAgo.
+	 * if entityType is null, you'll get all the entities, if operation is null, you'll get all the operations.
+	 *  
+	 * If you send in a negative number, you'll search things in the future, presumably getting a null result. 
+	 */
+	public long count ( int daysAgo, String entityType, Operation operation )
+	{
+		Calendar cal = Calendar.getInstance ();
+		cal.add ( Calendar.DAY_OF_YEAR, - daysAgo );
+		return count ( cal.getTime (), new Date (), entityType, operation );
+	}
+
+	/**
+	 * A wrapper of {@link #find(int, String, Operation)} that uses {@link #find(String, Date, Date, Operation)}.
+	 */
+	public long count ( int daysAgo, Class<? extends Accessible> entityType, Operation operation )
+	{
+		return count ( daysAgo, entityType == null ? null : entityType.getSimpleName (), null );
+	}
+	
+	/** A wrapper of {@link #find(int, String, Operation)} with operation = null (i.e., search all operations) */
+	public long count ( int daysAgo, String entityType )
+	{
+		return count ( daysAgo, entityType, null );
+	}
+
+	/** A wrapper of {@link #find(int, String, Operation)} with operation = null (i.e., search all operations) */
+	public long count ( int daysAgo, Class<? extends Accessible> entityType )
+	{
+		return count ( daysAgo, entityType, null );
+	}
+
+	/** A wrapper of {@link #count(int, String, Operation)} with entityType = null (i.e., search all entities) */
+	public long count ( int daysAgo, Operation operation )
+	{
+		return count ( daysAgo, (String) null, operation );
+	}
+	
+	/** A wrapper of {@link #count(int, Operation) find ( daysAgo, null )} (i.e., search all entity types and operations). */
+	public long count ( int daysAgo )
+	{
+		return count ( daysAgo, (String) null, null );
+	}	
+	
 
 	/**
 	 * Deletes all job register entries included in the time window. 
+	 * TODO: allow for null time bounds
 	 */
 	public long clean ( Date from, Date to )
 	{

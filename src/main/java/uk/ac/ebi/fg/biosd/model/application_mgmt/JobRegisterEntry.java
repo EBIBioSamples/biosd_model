@@ -9,7 +9,6 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Index;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import uk.ac.ebi.fg.core_model.toplevel.Accessible;
 import uk.ac.ebi.fg.core_model.toplevel.Identifiable;
@@ -27,7 +26,7 @@ import uk.ac.ebi.fg.core_model.toplevel.Identifiable;
 @Table ( name = "job_register" )
 public class JobRegisterEntry extends Identifiable
 {
-	public static enum Operation { ADD, DELETE, UPDATE };
+	public static enum Operation { ADD, DELETE, UPDATE, DB_PURGE };
 	
 	private String acc;
 	private String entityType;
@@ -87,7 +86,6 @@ public class JobRegisterEntry extends Identifiable
 	 * The biosd model has no two classes with the same name and from different packages at the moment and we commit to avoid this
 	 * in future too.
 	 */
-	@NotEmpty
 	@Index ( name = "jr_entity" )
 	public String getEntityType ()
 	{
@@ -103,7 +101,6 @@ public class JobRegisterEntry extends Identifiable
 	 * An accession identifying the entity of type {@link #getEntityType()} that was deleted. 
 	 * We assume you keep track of {@link Accessible} only, so we recommend you use {@link Accessible#getAcc()} for this.
 	 */
-	@NotEmpty
 	@Index ( name = "jr_acc" )
 	public String getAcc ()
 	{
