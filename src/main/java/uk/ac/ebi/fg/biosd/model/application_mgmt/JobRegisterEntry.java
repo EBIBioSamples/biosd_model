@@ -2,6 +2,7 @@ package uk.ac.ebi.fg.biosd.model.application_mgmt;
 
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -87,6 +88,7 @@ public class JobRegisterEntry extends Identifiable
 	 * in future too.
 	 */
 	@Index ( name = "jr_entity" )
+	@Column ( name = "entity" )
 	public String getEntityType ()
 	{
 		return entityType;
