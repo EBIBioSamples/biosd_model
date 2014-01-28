@@ -18,7 +18,7 @@ import org.apache.commons.lang.StringUtils;
 import uk.ac.ebi.fg.biosd.model.access_control.SecureEntityDelegate;
 import uk.ac.ebi.fg.biosd.model.access_control.User;
 import uk.ac.ebi.fg.biosd.model.expgraph.BioSample;
-import uk.ac.ebi.fg.biosd.model.xref.DatabaseRefSource;
+import uk.ac.ebi.fg.biosd.model.xref.DatabaseRecordRef;
 import uk.ac.ebi.fg.core_model.organizational.Submission;
 
 /**
@@ -32,7 +32,7 @@ import uk.ac.ebi.fg.core_model.organizational.Submission;
 @Entity
 public class MSI extends Submission
 {
-	private Set<DatabaseRefSource> databases = new HashSet<DatabaseRefSource> ();
+	private Set<DatabaseRecordRef> databaseRecordRefs = new HashSet<DatabaseRecordRef> ();
 	private Set<BioSampleGroup> sampleGroups = new HashSet<BioSampleGroup> ();
 	private Set<BioSample> samples = new HashSet<BioSample> ();
 	private final SecureEntityDelegate securityDelegate = new SecureEntityDelegate ();
@@ -46,18 +46,18 @@ public class MSI extends Submission
 	}
 
 	@ManyToMany ( cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH } )
-	@JoinTable ( name = "msi_database", 
-    joinColumns = @JoinColumn ( name = "msi_id" ), inverseJoinColumns = @JoinColumn ( name = "database_id" ) )
-	public Set<DatabaseRefSource> getDatabases () {
-		return databases;
+	@JoinTable ( name = "msi_db_rec_ref", 
+    joinColumns = @JoinColumn ( name = "msi_id" ), inverseJoinColumns = @JoinColumn ( name = "db_rec_id" ) )
+	public Set<DatabaseRecordRef> getDatabaseRecordRefs () {
+		return databaseRecordRefs;
 	}
 
-	public void setDatabases ( Set<DatabaseRefSource> databases ) {
-		this.databases = databases;
+	public void setDatabaseRecordRefs ( Set<DatabaseRecordRef> dbRecRefs ) {
+		this.databaseRecordRefs = dbRecRefs;
 	}
 	
-	public boolean addDatabase ( DatabaseRefSource db ) {
-		return this.getDatabases ().add ( db );
+	public boolean addDatabaseRecordRef ( DatabaseRecordRef dbRecRef ) {
+		return this.getDatabaseRecordRefs ().add ( dbRecRef );
 	}
 
 	
@@ -176,12 +176,12 @@ public class MSI extends Submission
 	{
 		return String.format ( 
 			"%s { id: %s, acc: '%s', title: '%s', description: '%s', version: '%s', sub. date: '%s', rel. date: '%s', " +
-			"update date: '%s', format ver.: '%s', publicFlag: %s, contacts:\n  %s,\n organizations:\n  %s,\n databases:\n  %s, " +
+			"update date: '%s', format ver.: '%s', publicFlag: %s, contacts:\n  %s,\n organizations:\n  %s,\n databaseRecordRefs:\n  %s, " +
 			"\n ref sources:\n  %s, users:\n %s}",
 			this.getClass ().getSimpleName (), this.getId (), this.getAcc (), this.getTitle (), 
 			StringUtils.abbreviate ( this.getDescription (), 20 ), this.getVersion (), this.getSubmissionDate (),
 			this.getReleaseDate (), this.getUpdateDate (), this.getFormatVersion (), this.getPublicFlag (), this.getContacts (), 
-			this.getOrganizations (), this.getDatabases (), this.getReferenceSources (), this.getUsers ()
+			this.getOrganizations (), this.getDatabaseRecordRefs (), this.getReferenceSources (), this.getUsers ()
 		);
 	}
 }

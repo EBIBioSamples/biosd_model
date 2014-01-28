@@ -21,7 +21,7 @@ import org.hibernate.annotations.Index;
 import uk.ac.ebi.fg.biosd.model.access_control.SecureEntityDelegate;
 import uk.ac.ebi.fg.biosd.model.access_control.User;
 import uk.ac.ebi.fg.biosd.model.expgraph.BioSample;
-import uk.ac.ebi.fg.biosd.model.xref.DatabaseRefSource;
+import uk.ac.ebi.fg.biosd.model.xref.DatabaseRecordRef;
 import uk.ac.ebi.fg.core_model.expgraph.properties.BioCharacteristicValue;
 import uk.ac.ebi.fg.core_model.expgraph.properties.ExperimentalPropertyValue;
 import uk.ac.ebi.fg.core_model.toplevel.DefaultAccessibleAnnotatable;
@@ -41,7 +41,7 @@ public class BioSampleGroup extends DefaultAccessibleAnnotatable
 {
 	private Set<BioSample> samples = new HashSet<BioSample> ();
 	private Collection<ExperimentalPropertyValue> propertyValues = new ArrayList<ExperimentalPropertyValue> ();
-	private Set<DatabaseRefSource> databases = new HashSet<DatabaseRefSource> ();
+	private Set<DatabaseRecordRef> databaseRecordRefs = new HashSet<DatabaseRecordRef> ();
 	private Set<MSI> msis = new HashSet<MSI> ();
 	private Date updateDate;
 
@@ -84,18 +84,18 @@ public class BioSampleGroup extends DefaultAccessibleAnnotatable
 	}
 	
 	@ManyToMany ( cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH } )
-	@JoinTable ( name = "sg_database", 
-    joinColumns = @JoinColumn ( name = "sg_id" ), inverseJoinColumns = @JoinColumn ( name = "database_id" ) )
-	public Set<DatabaseRefSource> getDatabases () {
-		return databases;
+	@JoinTable ( name = "sg_db_rec_ref", 
+    joinColumns = @JoinColumn ( name = "sg_id" ), inverseJoinColumns = @JoinColumn ( name = "db_rec_id" ) )
+	public Set<DatabaseRecordRef> getDatabaseRecordRefs () {
+		return databaseRecordRefs;
 	}
 
-	public void setDatabases ( Set<DatabaseRefSource> databases ) {
-		this.databases = databases;
+	public void setDatabaseRecordRefs ( Set<DatabaseRecordRef> dbRecRefs ) {
+		this.databaseRecordRefs = dbRecRefs;
 	}
 	
-	public boolean addDatabase ( DatabaseRefSource db ) {
-		return this.getDatabases ().add ( db );
+	public boolean addDatabaseRecordRef ( DatabaseRecordRef dbRecRef ) {
+		return this.getDatabaseRecordRefs ().add ( dbRecRef );
 	}
 
 	
