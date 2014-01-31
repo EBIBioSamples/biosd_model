@@ -96,7 +96,7 @@ public class DatabaseRecRefDAO extends IdentifiableDAO<DatabaseRecordRef>
 	  	" d WHERE d.dbName = :dbName AND d.acc = :acc AND " + parameterizedWithNullSql ( "d.version", "ver" );
 	
 	  Query query = getEntityManager ().createQuery ( hql )
-		  .setParameter ( "dbName", accession )
+		  .setParameter ( "dbName", dbName )
 	  	.setParameter ( "acc", accession )
 	  	.setParameter ( "ver", version );
 		

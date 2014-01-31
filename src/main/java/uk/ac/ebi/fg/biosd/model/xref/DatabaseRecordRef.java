@@ -32,6 +32,10 @@ public class DatabaseRecordRef extends Identifiable
   private String version;
   private String url;
   private String title;
+  
+	protected DatabaseRecordRef () {
+		super ();
+	}
 
 	public DatabaseRecordRef ( String dbName, String acc, String version, String url, String title )
 	{
