@@ -53,7 +53,7 @@ public class DatabaseRecordRef extends Identifiable
 
 
   @Index ( name = "dbrec_name" )
-  @Column ( name = "db_name", length = Const.COL_LENGTH_M )
+  @Column ( name = "db_name", length = Const.COL_LENGTH_L )
 	public String getDbName ()
 	{
 		return dbName;
