@@ -8,6 +8,7 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.Index;
 
+import uk.ac.ebi.fg.core_model.resources.Const;
 import uk.ac.ebi.fg.core_model.toplevel.Identifiable;
 
 /**
@@ -21,6 +22,7 @@ import uk.ac.ebi.fg.core_model.toplevel.Identifiable;
 @Table ( name = "loading_diagnostics" )
 public class LoadingDiagnosticEntry extends Identifiable
 {
+	private String msiAcc;
 	private String sampleTabPath;
 	private String exceptionClassName;
 	private String exceptionMessage;
@@ -32,10 +34,12 @@ public class LoadingDiagnosticEntry extends Identifiable
 	/**
 	 * We're using primitive classes to be able to accept nulls.
 	 */
-	public LoadingDiagnosticEntry ( String sampleTabPath, Throwable ex, Long parsingTimeMs, Long persistenceTimeMs,
+	public LoadingDiagnosticEntry ( String msiAcc, String sampleTabPath, Throwable ex, Long parsingTimeMs, Long persistenceTimeMs,
 			Integer itemsCount )
 	{
 		super ();
+		
+		this.msiAcc = msiAcc;
 		this.sampleTabPath = sampleTabPath;
 		
 		if ( ex != null ) {
@@ -47,6 +51,13 @@ public class LoadingDiagnosticEntry extends Identifiable
 		this.persistenceTimeMs = persistenceTimeMs;
 		this.itemsCount = itemsCount;
 		this.timestamp = new Date ();
+	}
+	
+	@Column ( name = "msi_acc", length = Const.COL_LENGTH_S )
+	@Index ( name = "load_diag_acc" )
+	public String getMsiAcc ()
+	{
+		return msiAcc;
 	}
 
 	@Column ( name = "sampletab_path", length = 300 )
@@ -95,6 +106,14 @@ public class LoadingDiagnosticEntry extends Identifiable
 	public Integer getItemsCount ()
 	{
 		return itemsCount;
+	}
+
+	
+	
+	
+	protected void setMsiAcc ( String msiAcc )
+	{
+		this.msiAcc = msiAcc;
 	}
 
 	protected void setSampleTabPath ( String sampleTabPath )
