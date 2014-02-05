@@ -65,7 +65,7 @@ public class DatabaseRecordRef extends Identifiable
 	}
 
   @Index ( name = "dbrec_acc" )
-	@Column( unique = false, nullable = false, length = Const.COL_LENGTH_S) 
+	@Column( unique = false, nullable = false, length = Const.COL_LENGTH_M) 
 	public String getAcc ()
 	{
 		return acc;
