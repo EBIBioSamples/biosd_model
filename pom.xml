@@ -1,35 +1,32 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+  
   <groupId>uk.ac.ebi.fg</groupId>
   <artifactId>biosd_model</artifactId>
   <version>2.0.1-SNAPSHOT</version>
   <name>The Biosample Database Object Model</name>
 
-	<properties>
-		<p6spy.version>1.3</p6spy.version>
-		<hsql.version>2.2.9</hsql.version>
-		<h2.version>1.3.168</h2.version>
-		<mysql.version>5.1.20</mysql.version>
-	</properties>
+  <parent>
+	  <groupId>uk.ac.ebi.fg.biosd</groupId>
+	  <artifactId>biosd_common</artifactId>
+	  <version>0.0.1-SNAPSHOT</version>
+	</parent> 
 	
 	<dependencies>
 	
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>1.6.1</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-entitymanager</artifactId>
-			<version>4.2.0.Final</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-validator</artifactId>
-			<version>4.3.1.Final</version>
 		</dependency>
 		
 		<dependency>
@@ -43,14 +40,12 @@
 	  <dependency>
 	    <groupId>junit</groupId>
 	    <artifactId>junit</artifactId>
-	    <version>4.10</version>
 	    <scope>test</scope>
 	  </dependency>
 
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
-			<version>0.9.29</version>
 	    <scope>test</scope>
 		</dependency>
 
@@ -69,31 +64,6 @@
 	      </configuration>
 	    </plugin>
 	
-	    <plugin>
-		    <artifactId>maven-source-plugin</artifactId>
-		    <executions>
-		      <execution>
-		        <id>attach-source</id>
-		        <goals>
-		          <goal>jar</goal>
-		        </goals>
-		      </execution>
-		    </executions>
-	    </plugin>
-
-		  <plugin>
-		    <groupId>org.apache.maven.plugins</groupId>
-		    <artifactId>maven-surefire-plugin</artifactId>
-		    <configuration>
-		      <properties>
-		        <property>
-		        	<!-- Prints out spaces and test name before/after every test method and automatically -->
-		          <name>listener</name>
-		          <value>uk.ac.ebi.utils.test.junit.TestOutputDecorator</value>
-		        </property>
-		       </properties>
-		    </configuration>
-		  </plugin>
 
       <!-- 
          This generates a .properties file, containing a list of all the JPA classes. This is then used by the 
@@ -170,14 +140,6 @@
 	    </resource>
     </resources>
 
-    <extensions>
-	    <extension>
-	      <groupId>org.apache.maven.wagon</groupId>
-	      <artifactId>wagon-ssh</artifactId>
-	      <version>2.2</version>
-	    </extension>
-    </extensions>    
-
 	</build>
 	
 	<scm>
@@ -196,10 +158,9 @@
 			<id>ebi-repo-snapshots</id>
 			<name>EBI Repo Snapshots</name>
 			<url>http://www.ebi.ac.uk/~maven/m2repo_snapshots</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
+			<snapshots><enabled>true</enabled></snapshots>
+		</repository> 
+  
 
     <!-- Used by the JPA plugin -->
     <repository>
@@ -254,328 +215,5 @@
       </pluginRepository>
       
   </pluginRepositories>  
-	
-  <distributionManagement>
 
-	  <repository>
-		  <id>ebi-repo-old</id>
-		  <name>EBI Repository</name>
-		  <url>scp://ebi-001.ebi.ac.uk/homes/maven/public_html/m2repo</url>
-	  </repository>
-		
-	  <snapshotRepository>
-		  <id>ebi-repo-old-snapshots</id>
-		  <uniqueVersion>false</uniqueVersion>
-		  <name>EBI Snapshots Repository</name>
-		  <url>scp://ebi-001.ebi.ac.uk/homes/maven/public_html/m2repo_snapshots</url>
-	  </snapshotRepository>
-	
-  </distributionManagement>	
-  
-  <!--
-    Examples of profile-configurable parameters. Probably you'll want to put these in your project, or in settings.xml
-    Note that the test.* profiles set up properties like test.*, these are used in test configuration files, (e.g.,
-    src/test/resources/hibernate.properties). These is done to allow you to define similar files in your Maven project, 
-    but without the test.* prefix. In other word, you can play with profiles and keep separated certain properties 
-    depending on a real environment (e.g., production, staging) from test properties like the ones defined here. 
-  -->
-  <profiles>
-
-		<profile>
-			<id>test.h2</id>
-			<activation><activeByDefault>true</activeByDefault></activation>
-			<properties>
-				<test.jdbc.username>sa</test.jdbc.username>
-				<test.jdbc.password />
-				<test.jdbc.url>jdbc:h2:mem:testdb</test.jdbc.url>
-				<test.jdbc.driverClassName>org.h2.Driver</test.jdbc.driverClassName>
-				<test.hibernate.dialect>org.hibernate.dialect.H2Dialect</test.hibernate.dialect>
-				<test.hibernate.hbm2ddl.auto>update</test.hibernate.hbm2ddl.auto>
-			</properties>
-			<dependencies>
-				<dependency>
-					<groupId>com.h2database</groupId>
-					<artifactId>h2</artifactId>
-					<version>${h2.version}</version>
-				</dependency>
-			</dependencies>
-		</profile>
-
-		<profile>
-			<id>test.h2_file</id>
-			<properties>
-				<test.jdbc.username>sa</test.jdbc.username>
-				<test.jdbc.password />
-				<test.jdbc.url>jdbc:h2:target/database/testdb</test.jdbc.url>
-				<test.jdbc.driverClassName>org.h2.Driver</test.jdbc.driverClassName>
-				<test.hibernate.dialect>org.hibernate.dialect.H2Dialect</test.hibernate.dialect>
-				<test.hibernate.hbm2ddl.auto>create</test.hibernate.hbm2ddl.auto>
-			</properties>
-			<dependencies>
-				<dependency>
-					<groupId>com.h2database</groupId>
-					<artifactId>h2</artifactId>
-					<version>${h2.version}</version>
-				</dependency>
-			</dependencies>
-		</profile>
-		
-		
-		
-		<profile>
-			<id>h2_file</id>
-			<properties>
-				<jdbc.username>sa</jdbc.username>
-				<jdbc.password />
-				<jdbc.url>jdbc:h2:target/database/testdb</jdbc.url>
-				<!-- You need java -cp h2*.jar org.h2.tools.Server for this (-? for options) 
-				<jdbc.url>jdbc:h2:tcp://localhost/~/testdb</jdbc.url -->
-				<jdbc.driverClassName>org.h2.Driver</jdbc.driverClassName>
-				<hibernate.dialect>org.hibernate.dialect.H2Dialect</hibernate.dialect>
-				<hibernate.hbm2ddl.auto>update</hibernate.hbm2ddl.auto>
-			</properties>
-			<dependencies>
-				<dependency>
-					<groupId>com.h2database</groupId>
-					<artifactId>h2</artifactId>
-					<version>${h2.version}</version>
-				</dependency>
-			</dependencies>
-		</profile>
-		
-		
-		
-				
-		<!-- 
-		  This wraps the same settings in h2_file with P6SPY, a filter driver that will log all the SQL statements to
-		  target/spy.log
-		  
-		  WARNING: we've a few tests not working with this configuration. It seems the old HSQL driver, mentioned in 
-		  spy.properties, is used, instead of the one specified here.
-		-->
-		<profile>
-			<id>test.p6spy.h2_file</id>
-			<properties>
-				<test.jdbc.username>sa</test.jdbc.username>
-				<test.jdbc.password />
-				<test.jdbc.url>jdbc:h2:target/database/testdb</test.jdbc.url>
-				<test.jdbc.driverClassName>com.p6spy.engine.spy.P6SpyDriver</test.jdbc.driverClassName>
-				<test.jdbc.spy.driverClassName>org.h2.Driver</test.jdbc.spy.driverClassName>
-				<test.hibernate.dialect>org.hibernate.dialect.H2Dialect</test.hibernate.dialect>
-				<test.hibernate.hbm2ddl.auto>create</test.hibernate.hbm2ddl.auto>
-			</properties>
-			<dependencies>
-				<dependency>
-					<groupId>p6spy</groupId>
-					<artifactId>p6spy</artifactId>
-					<version>${p6spy.version}</version>
-				</dependency>			
-				<dependency>
-					<groupId>com.h2database</groupId>
-					<artifactId>h2</artifactId>
-					<version>${h2.version}</version>
-				</dependency>
-			</dependencies>
-		</profile>
-
-
-
-
-		<!-- WARNING! DO NOT EXPECT THE DEV DB TO BE STABLE, data and/or schema will be deleted often as part of the testing
-				 process. PLEASE NOTIFY ALL WHO MAY BE CONCERNED BEFORE WIPING THE DEV DB OUT -->
-		<profile>
-			<id>test.oracle_dev</id>
-			<activation>
-				<activeByDefault>false</activeByDefault>
-			</activation>
-			<properties>
-				<test.jdbc.username>biosddev</test.jdbc.username>
-				<test.jdbc.password>b10sdd3v</test.jdbc.password>
-				<test.jdbc.url>jdbc:oracle:thin:@ora-vm-031.ebi.ac.uk:1531:biosddev</test.jdbc.url>
-				<test.jdbc.driverClassName>oracle.jdbc.driver.OracleDriver</test.jdbc.driverClassName>
-				<test.hibernate.dialect>org.hibernate.dialect.Oracle10gDialect</test.hibernate.dialect>
-				<test.hibernate.hbm2ddl.auto />
-			</properties>
-			<dependencies>
-				<dependency>
-					<groupId>com.oracle</groupId>
-					<artifactId>ojdbc6</artifactId>
-					<version>${oracle.version}</version>
-				</dependency>
-			</dependencies>
-		</profile>
-		
-		
-		<profile>
-			<id>test.oracle_test</id>
-			<activation>
-				<activeByDefault>false</activeByDefault>
-			</activation>
-			<properties>
-				<test.jdbc.username>biosdtst</test.jdbc.username>
-				<test.jdbc.password>b10sdt5t</test.jdbc.password>
-				<test.jdbc.url>jdbc:oracle:thin:@ora-vm-031.ebi.ac.uk:1531:biosdtst</test.jdbc.url>
-				<test.jdbc.driverClassName>oracle.jdbc.driver.OracleDriver</test.jdbc.driverClassName>
-				<test.hibernate.dialect>org.hibernate.dialect.Oracle10gDialect</test.hibernate.dialect>
-				<test.hibernate.hbm2ddl.auto>update</test.hibernate.hbm2ddl.auto>
-			</properties>
-			<dependencies>
-				<dependency>
-					<groupId>com.oracle</groupId>
-					<artifactId>ojdbc6</artifactId>
-					<version>${oracle.version}</version>
-				</dependency>
-			</dependencies>
-		</profile>		
-
-		
-		<profile>
-			<id>test.oracle_prod</id>
-			<activation>
-				<activeByDefault>false</activeByDefault>
-			</activation>
-			<properties>
-				<test.jdbc.username>biosd</test.jdbc.username>
-				<test.jdbc.password>b10sdp40</test.jdbc.password>
-				<test.jdbc.url>jdbc:oracle:thin:@ora-vm-023.ebi.ac.uk:1531:BIOSDPRO</test.jdbc.url>
-				<test.jdbc.driverClassName>oracle.jdbc.driver.OracleDriver</test.jdbc.driverClassName>
-				<test.hibernate.dialect>org.hibernate.dialect.Oracle10gDialect</test.hibernate.dialect>
-				<test.hibernate.hbm2ddl.auto />
-			</properties>
-			<dependencies>
-				<dependency>
-					<groupId>com.oracle</groupId>
-					<artifactId>ojdbc6</artifactId>
-					<version>${oracle.version}</version>
-				</dependency>
-			</dependencies>
-		</profile>	
-
-		
-		<profile>
-			<id>oracle_test</id>
-			<activation>
-				<activeByDefault>false</activeByDefault>
-			</activation>
-			<properties>
-				<jdbc.username>biosdtst</jdbc.username>
-				<jdbc.password>b10sdt5t</jdbc.password>
-				<jdbc.url>jdbc:oracle:thin:@ora-vm-031.ebi.ac.uk:1531:biosdtst</jdbc.url>
-				<jdbc.driverClassName>oracle.jdbc.driver.OracleDriver</jdbc.driverClassName>
-				<hibernate.dialect>org.hibernate.dialect.Oracle10gDialect</hibernate.dialect>
-				<hibernate.hbm2ddl.auto />
-			</properties>
-			<dependencies>
-				<dependency>
-					<groupId>com.oracle</groupId>
-					<artifactId>ojdbc6</artifactId>
-					<version>${oracle.version}</version>
-				</dependency>
-			</dependencies>
-		</profile>
-
-
-
-		<profile>
-			<id>oracle_prod</id>
-			<activation>
-				<activeByDefault>false</activeByDefault>
-			</activation>
-			<properties>
-				<jdbc.username>biosd</jdbc.username>
-				<jdbc.password>b10sdp40</jdbc.password>
-				<jdbc.url>jdbc:oracle:thin:@ora-vm-023.ebi.ac.uk:1531:BIOSDPRO</jdbc.url>
-				<jdbc.driverClassName>oracle.jdbc.driver.OracleDriver</jdbc.driverClassName>
-				<hibernate.dialect>org.hibernate.dialect.Oracle10gDialect</hibernate.dialect>
-				<hibernate.hbm2ddl.auto />
-			</properties>
-			<dependencies>
-				<dependency>
-					<groupId>com.oracle</groupId>
-					<artifactId>ojdbc6</artifactId>
-					<version>${oracle.version}</version>
-				</dependency>
-			</dependencies>
-		</profile>
-
-
-		<!-- WARNING! DO NOT EXPECT THE DEV DB TO BE STABLE, data and/or schema will be deleted often as part of the testing
-				 process. PLEASE NOTIFY ALL WHO MAY BE CONCERNED BEFORE WIPING THE DEV DB OUT -->
-		<profile>
-			<id>oracle_dev</id>
-			<activation>
-				<activeByDefault>false</activeByDefault>
-			</activation>
-			<properties>
-				<jdbc.username>biosddev</jdbc.username>
-				<jdbc.password>b10sdd3v</jdbc.password>
-				<jdbc.url>jdbc:oracle:thin:@ora-vm-031.ebi.ac.uk:1531:biosddev</jdbc.url>
-				<jdbc.driverClassName>oracle.jdbc.driver.OracleDriver</jdbc.driverClassName>
-				<hibernate.dialect>org.hibernate.dialect.Oracle10gDialect</hibernate.dialect>
-				<hibernate.hbm2ddl.auto />
-			</properties>
-			<dependencies>
-				<dependency>
-					<groupId>com.oracle</groupId>
-					<artifactId>ojdbc6</artifactId>
-					<version>${oracle.version}</version>
-				</dependency>
-			</dependencies>
-		</profile>
-
-
-		<!-- Makes a binary with the P6SPY wrapper backed by Oracle Dev -->
-		<profile>
-			<id>p6spy.oracle_dev</id>
-			<properties>
-				<jdbc.username>biosddev</jdbc.username>
-				<jdbc.password>b10sdd3v</jdbc.password>
-				<jdbc.url>jdbc:oracle:thin:@ora-vm-031.ebi.ac.uk:1531:biosddev</jdbc.url>
-				<jdbc.driverClassName>com.p6spy.engine.spy.P6SpyDriver</jdbc.driverClassName>
-				<jdbc.spy.driverClassName>oracle.jdbc.driver.OracleDriver</jdbc.spy.driverClassName>
-				<hibernate.dialect>org.hibernate.dialect.Oracle10gDialect</hibernate.dialect>
-				<hibernate.hbm2ddl.auto />
-			</properties>
-			<dependencies>
-				<dependency>
-					<groupId>p6spy</groupId>
-					<artifactId>p6spy</artifactId>
-					<version>${p6spy.version}</version>
-				</dependency>			
-				<dependency>
-					<groupId>org.hsqldb</groupId>
-					<artifactId>hsqldb</artifactId>
-					<version>${hsql.version}</version>
-				</dependency>
-				<dependency>
-					<groupId>com.oracle</groupId>
-					<artifactId>ojdbc6</artifactId>
-					<version>${oracle.version}</version>
-				</dependency>				
-			</dependencies>
-		</profile>
-
-
-
-		<profile>
-			<id>test.mysql</id>
-			<properties>
-				<test.jdbc.username>biosd</test.jdbc.username>
-				<test.jdbc.password>biosd</test.jdbc.password>
-				<test.jdbc.url>jdbc:mysql://localhost/biosd_test</test.jdbc.url>
-				<test.jdbc.driverClassName>com.mysql.jdbc.Driver</test.jdbc.driverClassName>
-				<test.hibernate.dialect>org.hibernate.dialect.MySQLDialect</test.hibernate.dialect>
-				<test.hibernate.hbm2ddl.auto>update</test.hibernate.hbm2ddl.auto>
-			</properties>
-			<dependencies>
-				<dependency>
-					<groupId>mysql</groupId>
-					<artifactId>mysql-connector-java</artifactId>
-					<version>5.1.20</version>
-				</dependency>
-			</dependencies>
-		</profile>
-		
-		  		
-  </profiles>  
 </project>
