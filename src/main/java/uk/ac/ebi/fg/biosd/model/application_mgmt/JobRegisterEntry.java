@@ -126,7 +126,7 @@ public class JobRegisterEntry extends Identifiable
 	}
 
 	/**
-	 * When the entity was deleted.
+	 * When this operation occurred.
 	 */
 	@NotNull
 	@Index ( name = "jr_ts" )
