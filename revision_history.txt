@@ -1,4 +1,4 @@
-2.0.1
+2.1
   - Modelling of of Database records simplified  
   - Making the Hibernate persistence unit name specific of FG/BioSD models 
   - Addition of a common parent POM for all BioSD-related projects 
