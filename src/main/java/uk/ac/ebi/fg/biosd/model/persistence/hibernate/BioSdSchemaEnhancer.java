@@ -9,7 +9,7 @@ import uk.ac.ebi.fg.persistence.hibernate.schema_enhancer.AbstractDbSchemaEnhanc
 import uk.ac.ebi.fg.persistence.hibernate.schema_enhancer.DefaultDbSchemaEnhancer;
 
 /**
- * Adds some indices specifc to biosd model, in addition to what {@link DefaultDbSchemaEnhancer} already does 
+ * Adds some indices specific to biosd model, in addition to what {@link DefaultDbSchemaEnhancer} already does 
  * automatically.
  *
  * <dl><dt>date</dt><dd>24 Sep 2013</dd></dl>
