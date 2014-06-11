@@ -74,7 +74,7 @@
 			<plugin>
 			  <groupId>com.edugility</groupId>
 			  <artifactId>jpa-maven-plugin</artifactId>
-			  <version>3-SNAPSHOT</version>
+			  <version>2</version>
 			  <configuration>
 			  	<outputFile>${project.build.directory}/generated-sources/jpa-maven-plugin/entityClassnames.properties</outputFile>
 			  </configuration>
@@ -202,7 +202,7 @@
           </snapshots>
       </pluginRepository>
       
-  		<!-- JPA-Plug-in -->
+  		<!-- JPA-Plug-in 
       <pluginRepository>
           <id>eclipselink</id>
           <url>http://download.eclipse.org/rt/eclipselink/maven.repo</url>
@@ -212,7 +212,7 @@
           <snapshots>
               <enabled>true</enabled>
           </snapshots>
-      </pluginRepository>
+      </pluginRepository> -->
       
   </pluginRepositories>  
 
