@@ -202,7 +202,7 @@
           </snapshots>
       </pluginRepository>
       
-  		<!-- JPA-Plug-in 
+  		<!-- JPA-Plug-in --> 
       <pluginRepository>
           <id>eclipselink</id>
           <url>http://download.eclipse.org/rt/eclipselink/maven.repo</url>
@@ -212,7 +212,7 @@
           <snapshots>
               <enabled>true</enabled>
           </snapshots>
-      </pluginRepository> -->
+      </pluginRepository>
       
   </pluginRepositories>  
 
