@@ -8,7 +8,7 @@ import javax.persistence.UniqueConstraint;
 import org.hibernate.annotations.Index;
 
 import uk.ac.ebi.fg.core_model.resources.Const;
-import uk.ac.ebi.fg.core_model.toplevel.Identifiable;
+import uk.ac.ebi.fg.core_model.toplevel.Annotatable;
 import uk.ac.ebi.fg.core_model.xref.ReferenceSource;
 import uk.ac.ebi.fg.core_model.xref.XRef;
 
@@ -25,7 +25,7 @@ import uk.ac.ebi.fg.core_model.xref.XRef;
  */
 @Table ( name = "db_rec_ref", uniqueConstraints = @UniqueConstraint ( columnNames = { "db_name", "acc", "version" } ) )
 @Entity
-public class DatabaseRecordRef extends Identifiable
+public class DatabaseRecordRef extends Annotatable
 {
   private String dbName;
   private String acc;
