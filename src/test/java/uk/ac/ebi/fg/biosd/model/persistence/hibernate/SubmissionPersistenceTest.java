@@ -253,7 +253,10 @@ public class SubmissionPersistenceTest
         tns.commit ();
         
         ExpPropValDAO expPropValDAO = new ExpPropValDAO(em);
-        List<ExperimentalPropertyValue<ExperimentalPropertyType>> results = expPropValDAO.getUnmapped();
+        List<ExperimentalPropertyValue<ExperimentalPropertyType>> results = expPropValDAO.getUnmapped(Long.MIN_VALUE, 5000);
+        for (ExperimentalPropertyValue<ExperimentalPropertyType> value : results) {
+            System.out.println(value);
+        }
         assertEquals("Did not find the expected number of unmaped property values", 6, results.size());
     }
 }
