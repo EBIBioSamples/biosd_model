@@ -18,12 +18,16 @@ import org.junit.Test;
 
 import uk.ac.ebi.fg.biosd.model.expgraph.BioSample;
 import uk.ac.ebi.fg.biosd.model.organizational.MSI;
+import uk.ac.ebi.fg.biosd.model.persistence.hibernate.application_mgmt.ExpPropValDAO;
 import uk.ac.ebi.fg.biosd.model.utils.test.TestModel;
 import uk.ac.ebi.fg.core_model.expgraph.BioMaterial;
 import uk.ac.ebi.fg.core_model.expgraph.Node;
 import uk.ac.ebi.fg.core_model.expgraph.properties.BioCharacteristicType;
 import uk.ac.ebi.fg.core_model.expgraph.properties.BioCharacteristicValue;
+import uk.ac.ebi.fg.core_model.expgraph.properties.ExperimentalPropertyType;
+import uk.ac.ebi.fg.core_model.expgraph.properties.ExperimentalPropertyValue;
 import uk.ac.ebi.fg.core_model.persistence.dao.hibernate.toplevel.AccessibleDAO;
+import uk.ac.ebi.fg.core_model.persistence.dao.hibernate.toplevel.IdentifiableDAO;
 import uk.ac.ebi.fg.core_model.resources.Resources;
 import uk.ac.ebi.fg.core_model.toplevel.Accessible;
 import uk.ac.ebi.fg.core_model.utils.expgraph.DirectDerivationGraphDumper;
@@ -199,4 +203,57 @@ public class SubmissionPersistenceTest
 		biomaterialDao.delete ( smpNew1 );
 		tns.commit ();
 	}
+
+    @Test 
+    public void testBioCharacteristic () throws Exception
+    {
+        IdentifiableDAO<BioCharacteristicValue> valueDao = new IdentifiableDAO<BioCharacteristicValue> ( BioCharacteristicValue.class, em );
+
+        AccessibleDAO<BioMaterial> biomaterialDao = new AccessibleDAO<BioMaterial> ( BioMaterial.class, em );
+        AccessibleDAO<MSI> msiDao = new AccessibleDAO<MSI> ( MSI.class, em );
+
+        // Save the model
+        // 
+        EntityTransaction tns = em.getTransaction ();
+        tns.begin ();
+        biomaterialDao.create ( model.smp1 );
+        biomaterialDao.getOrCreate ( model.smp2 );
+        msiDao.getOrCreate ( model.msi );
+        tns.commit ();
+        
+        //change the value
+        BioCharacteristicValue value = valueDao.find(model.cv1.getId());
+        value.setTermText("foo value");
+        
+        //save the updated value
+        tns = em.getTransaction ();
+        tns.begin ();
+        valueDao.create(value);
+        tns.commit ();
+        
+        //test if the updated value was preserved
+        IdentifiableDAO<BioCharacteristicValue> valueUpdatedDao = new IdentifiableDAO<BioCharacteristicValue> ( BioCharacteristicValue.class, em );
+        BioCharacteristicValue valueUpdated = valueUpdatedDao.find(model.cv1.getId());
+        assertEquals("Updated value not saved", "foo value", valueUpdated.getTermText());
+        
+    }
+    @Test
+    public void testExpPropValDAO() throws Exception {
+
+        AccessibleDAO<BioMaterial> biomaterialDao = new AccessibleDAO<BioMaterial> ( BioMaterial.class, em );
+        AccessibleDAO<MSI> msiDao = new AccessibleDAO<MSI> ( MSI.class, em );
+
+        // Save the model
+        // 
+        EntityTransaction tns = em.getTransaction ();
+        tns.begin ();
+        biomaterialDao.create ( model.smp1 );
+        biomaterialDao.getOrCreate ( model.smp2 );
+        msiDao.getOrCreate ( model.msi );
+        tns.commit ();
+        
+        ExpPropValDAO expPropValDAO = new ExpPropValDAO(em);
+        List<ExperimentalPropertyValue<ExperimentalPropertyType>> results = expPropValDAO.getUnmapped();
+        assertEquals("Did not find the expected number of unmaped property values", 6, results.size());
+    }
 }
