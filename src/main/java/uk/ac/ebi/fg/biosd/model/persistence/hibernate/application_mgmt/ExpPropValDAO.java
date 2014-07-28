@@ -32,10 +32,11 @@ public class ExpPropValDAO extends IdentifiableDAO<ExperimentalPropertyValue> {
      */
     public List<ExperimentalPropertyValue<ExperimentalPropertyType>> getUnmapped(long startId, int chunkSize) {
         //TODO write this properly
-        String hql = "FROM " + ExperimentalPropertyValue.class.getCanonicalName () + " As pv" +
-        	" WHERE 1=1 AND pv.id NOT IN (" +
-          	  " SELECT oe.id FROM " + OntologyEntry.class.getCanonicalName () + " AS oe )" +
-          	" AND pv.id >= :startId" +
+        String hql = "SELECT pv" +
+        	" FROM "+ExperimentalPropertyValue.class.getCanonicalName()+" As pv" +
+        	" WHERE 1=1 " +
+          	    " AND pv.id >= :startId" +
+                " AND size(pv.ontologyTerms) = 0 " +
 			" ORDER BY pv.id";
         Query q = this.getEntityManager().createQuery(hql);
         q.setParameter("startId", startId);

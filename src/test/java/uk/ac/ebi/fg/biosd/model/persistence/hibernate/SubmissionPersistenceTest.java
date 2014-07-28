@@ -257,6 +257,7 @@ public class SubmissionPersistenceTest
         for (ExperimentalPropertyValue<ExperimentalPropertyType> value : results) {
             System.out.println(value);
         }
-        assertEquals("Did not find the expected number of unmaped property values", 6, results.size());
+        //there are 5 property values that do not have an ontology entry
+        assertEquals("Did not find the expected number of unmaped property values", 5, results.size());
     }
 }
