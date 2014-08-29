@@ -19,7 +19,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.xml.bind.DatatypeConverter;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Index;
 
 import uk.ac.ebi.fg.biosd.model.expgraph.BioSample;

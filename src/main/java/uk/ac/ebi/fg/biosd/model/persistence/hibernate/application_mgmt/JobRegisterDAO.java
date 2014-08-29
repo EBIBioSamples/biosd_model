@@ -7,7 +7,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import uk.ac.ebi.fg.biosd.model.application_mgmt.JobRegisterEntry;
 import uk.ac.ebi.fg.biosd.model.application_mgmt.JobRegisterEntry.Operation;

@@ -1,13 +1,13 @@
 package uk.ac.ebi.fg.biosd.model.persistence.hibernate.xref;
 
-import static uk.ac.ebi.utils.sql.SqlUtils.parameterizedWithNullSql;
+import static uk.ac.ebi.utils.sql.HqlUtils.parameterizedWithNullHql;
 
 import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 
 import uk.ac.ebi.fg.biosd.model.xref.DatabaseRecordRef;
 import uk.ac.ebi.fg.core_model.persistence.dao.hibernate.toplevel.IdentifiableDAO;
@@ -30,7 +30,7 @@ public class DatabaseRecRefDAO extends IdentifiableDAO<DatabaseRecordRef>
 		Validate.notEmpty ( accession, "accession must not be empty" );
 		
 		String hql = "SELECT d.id FROM " + DatabaseRecordRef.class.getCanonicalName() + 
-			" d WHERE d.dbName = :dbName AND d.acc = :acc AND " + parameterizedWithNullSql ( "d.version", "ver" );
+			" d WHERE d.dbName = :dbName AND d.acc = :acc AND " + parameterizedWithNullHql ( "d.version", "ver" );
 				
 		Query query = getEntityManager ().createQuery( hql )
 			.setParameter ( "dbName", dbName )
@@ -93,7 +93,7 @@ public class DatabaseRecRefDAO extends IdentifiableDAO<DatabaseRecordRef>
 	  Validate.notEmpty ( accession, "Database access error: cannot fetch a database record reference with empty accession" );
 	  
 	  String hql = "SELECT d FROM " + DatabaseRecordRef.class.getCanonicalName() + 
-	  	" d WHERE d.dbName = :dbName AND d.acc = :acc AND " + parameterizedWithNullSql ( "d.version", "ver" );
+	  	" d WHERE d.dbName = :dbName AND d.acc = :acc AND " + parameterizedWithNullHql ( "d.version", "ver" );
 	
 	  Query query = getEntityManager ().createQuery ( hql )
 		  .setParameter ( "dbName", dbName )

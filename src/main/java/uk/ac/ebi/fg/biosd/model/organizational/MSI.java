@@ -13,7 +13,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Transient;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import uk.ac.ebi.fg.biosd.model.access_control.SecureEntityDelegate;
 import uk.ac.ebi.fg.biosd.model.access_control.User;
