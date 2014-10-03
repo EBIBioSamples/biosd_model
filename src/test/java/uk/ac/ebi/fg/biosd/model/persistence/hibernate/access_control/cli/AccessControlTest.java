@@ -1,7 +1,7 @@
 package uk.ac.ebi.fg.biosd.model.persistence.hibernate.access_control.cli;
 
 import static java.lang.System.out;
-import static org.apache.commons.lang.time.DateFormatUtils.format;
+import static org.apache.commons.lang3.time.DateFormatUtils.format;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
