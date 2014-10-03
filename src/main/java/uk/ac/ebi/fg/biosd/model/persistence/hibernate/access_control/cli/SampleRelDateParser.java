@@ -53,7 +53,7 @@ class SampleRelDateParser extends CLIParser
 				if ( accMgr.setBioSampleReleaseDate ( sampleAcc, relDate ) ) result++;
 			}
 			catch ( ParseException ex ) {
-				throw new IllegalArgumentException ( "Syntax error in '" + cmd + "'" );
+				throw new IllegalArgumentException ( "Syntax error in '" + cmd + "': " + ex.getMessage (), ex );
 			}
 		}
 		ts.commit ();

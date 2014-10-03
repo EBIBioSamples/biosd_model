@@ -62,7 +62,7 @@ class SampleGroupRelDateParser extends CLIParser
 					relDate = DateUtils.parseDate ( dateBits [ 1 ], RelDateParser.DATE_FMTS );
 			}
 			catch ( ParseException ex ) {
-				throw new IllegalArgumentException ( "Syntax error in '" + cmd + "'" );
+				throw new IllegalArgumentException ( "Syntax error in '" + cmd + "': " + ex.getMessage (), ex );
 			}
 			
 			result += accMgr.setBioSampleGroupReleaseDate ( sgAcc, relDate, "++".equals ( dateBits [ 2 ] ) );
