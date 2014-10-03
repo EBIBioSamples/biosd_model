@@ -186,8 +186,9 @@ public class JobRegisterDAO extends IdentifiableDAO<JobRegisterEntry>
 
 	public JobRegisterEntry findLast ( Accessible entity, Operation operation )
 	{
-		String acc = entity == null ? null : entity.getAcc ();
-		return findLast ( entity.getClass (), acc, operation );
+		return entity == null 
+			? findLast ( (Class<Accessible>) null, null, operation )
+			: findLast ( entity.getClass (), entity.getAcc (), operation );
 	}
 		
 	

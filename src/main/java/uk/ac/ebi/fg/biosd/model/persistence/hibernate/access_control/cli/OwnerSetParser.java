@@ -41,7 +41,7 @@ public class OwnerSetParser extends CLIParser
 	public int  run ( String cmd )
 	{
 		cmd = StringUtils.trimToNull ( cmd );
-		if ( cmd == null ) throw new IllegalArgumentException ( "Syntax error in '" + cmd + "'" );
+		if ( cmd == null ) throw new IllegalArgumentException ( "Syntax error in set-owner command" );
 		
 		String cmdBits[] = OWNER_SPEC_RE.groups ( cmd );
 		if ( cmdBits == null || cmdBits.length < 4 ) throw new IllegalArgumentException ( "Syntax error in '" + cmd + "'" );
