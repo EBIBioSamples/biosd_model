@@ -43,6 +43,7 @@ public class BioSampleGroup extends DefaultAccessibleAnnotatable
 	private Collection<ExperimentalPropertyValue> propertyValues = new ArrayList<ExperimentalPropertyValue> ();
 	private Set<DatabaseRecordRef> databaseRecordRefs = new HashSet<DatabaseRecordRef> ();
 	private Set<MSI> msis = new HashSet<MSI> ();
+	private Set<MSI> msiRefs = new HashSet<MSI> ();
 	private Date updateDate;
 
 	private final SecureEntityDelegate securityDelegate = new SecureEntityDelegate ();
@@ -98,7 +99,9 @@ public class BioSampleGroup extends DefaultAccessibleAnnotatable
 		return this.getDatabaseRecordRefs ().add ( dbRecRef );
 	}
 
-	
+	/**
+	 * @see {@link MSI#getSampleGroups()}.
+	 */
 	@ManyToMany ( mappedBy = "sampleGroups" )
 	public Set<MSI> getMSIs ()
 	{
@@ -110,6 +113,9 @@ public class BioSampleGroup extends DefaultAccessibleAnnotatable
 		this.msis = msis;
 	}
 
+	/**
+	 * @see {@link MSI#addSampleGroup(BioSampleGroup)}.
+	 */
 	public boolean addMSI ( MSI msi ) 
 	{
 		if ( !this.getMSIs ().add ( msi ) ) return false;
@@ -117,6 +123,9 @@ public class BioSampleGroup extends DefaultAccessibleAnnotatable
 		return true;
 	}
 	
+	/**
+	 * @see {@link MSI#deleteSampleGroup(BioSampleGroup)}.
+	 */
 	public boolean deleteMSI ( MSI msi ) 
 	{
 		if ( !this.getMSIs ().remove ( msi ) ) return false;
@@ -124,6 +133,42 @@ public class BioSampleGroup extends DefaultAccessibleAnnotatable
 		return true;
 	}
 
+	
+	/**
+	 * @see {@link MSI#getSampleGroupRefs()}.
+	 */
+	@ManyToMany ( mappedBy = "sampleGroupRefs" )
+	public Set<MSI> getMSIRefs ()
+	{
+		return msiRefs;
+	}
+
+	protected void setMSIRefs ( Set<MSI> msis )
+	{
+		this.msiRefs = msis;
+	}
+
+	/**
+	 * @see {@link MSI#addSampleGroupRef(BioSampleGroup)}.
+	 */
+	public boolean addMSIRef ( MSI msi ) 
+	{
+		if ( !this.getMSIRefs ().add ( msi ) ) return false;
+		msi.addSampleGroupRef ( this );
+		return true;
+	}
+	
+	/**
+	 * @see {@link MSI#deleteSampleGroupRef(BioSampleGroup)}.
+	 */
+	public boolean deleteMSIRef ( MSI msi ) 
+	{
+		if ( !this.getMSIRefs ().remove ( msi ) ) return false;
+		msi.deleteSampleGroupRef ( this );
+		return true;
+	}
+	
+	
 	
 	
 	/**

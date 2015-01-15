@@ -26,7 +26,7 @@ public class MSIDumper
 		out.println ( msi.getSampleGroups () );
 		
 		out.println ( "\n  --------------- Samples:" );
-		new DirectDerivationGraphDumper ()
+		DirectDerivationGraphDumper gdumper = new DirectDerivationGraphDumper ()
 		{
 			@Override
 			public void dumpProduct ( PrintStream out, Product<?> node )
@@ -51,7 +51,15 @@ public class MSIDumper
 				
 			}
 			
-		}.dump ( out, msi.getSamples () );
+		};
+		gdumper.dump ( out, msi.getSamples () );
+		
+		out.println ( "\n  --------------- Sample Group Refs:" );
+		out.println ( msi.getSampleGroupRefs () );
+
+		out.println ( "\n  --------------- Sample Refs:" );
+		gdumper.dump ( out, msi.getSampleRefs () );
+		
 		out.println ( "====================================================================\n\n" );
 	}
 }
