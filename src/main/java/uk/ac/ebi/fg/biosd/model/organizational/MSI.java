@@ -35,6 +35,8 @@ public class MSI extends Submission
 	private Set<DatabaseRecordRef> databaseRecordRefs = new HashSet<DatabaseRecordRef> ();
 	private Set<BioSampleGroup> sampleGroups = new HashSet<BioSampleGroup> ();
 	private Set<BioSample> samples = new HashSet<BioSample> ();
+	private Set<BioSampleGroup> sampleGroupRefs = new HashSet<BioSampleGroup> ();
+	private Set<BioSample> sampleRefs = new HashSet<BioSample> ();
 	private final SecureEntityDelegate securityDelegate = new SecureEntityDelegate ();
 	
 	protected MSI () {
@@ -60,7 +62,13 @@ public class MSI extends Submission
 		return this.getDatabaseRecordRefs ().add ( dbRecRef );
 	}
 
-	
+	/**
+	 * This are the sample groups that were defined with the submission and belongs to the submission.
+	 * Usually there is only one submission per each sample group having this role 
+	 * (we're not making this relation 1-n for legacy reasons). 
+	 * 
+	 * @see {@link #getSampleGroupRefs()}
+	 */
 	@ManyToMany ( cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH } )
 	@JoinTable ( name = "msi_sample_group", 
     joinColumns = @JoinColumn ( name = "msi_id" ), inverseJoinColumns = @JoinColumn ( name = "group_id" ) )
@@ -72,6 +80,10 @@ public class MSI extends Submission
 		this.sampleGroups = sampleGroups;
 	}
 
+	/**
+	 * Use these methods to manipulate owned sample groups, it coordinates the symmetric side, by means
+	 * of {@link BioSampleGroup#addMSI(MSI)}
+	 */
 	public boolean addSampleGroup ( BioSampleGroup sg )
 	{
 		if ( !this.getSampleGroups ().add ( sg ) ) return false;
@@ -79,6 +91,10 @@ public class MSI extends Submission
 		return true;
 	}
 
+	/**
+	 * Use these methods to manipulate owned sample groups, it coordinates the symmetric side, by means
+	 * of {@link BioSampleGroup#deleteMSI(MSI)}
+	 */
 	public boolean deleteSampleGroup ( BioSampleGroup sg )
 	{
 		if ( !this.getSampleGroups ().remove ( sg ) ) return false;
@@ -86,9 +102,55 @@ public class MSI extends Submission
 		return true;
 	}
 	
+
+	/**
+	 * These are sample groups that are referred by the submission, for any reason. This is different than 
+	 * {@link #getSampleGroups()} and it can be a n-m relation.
+	 * 
+	 */
+	@ManyToMany ( cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH } )
+	@JoinTable ( name = "msi_sample_group_ref", 
+    joinColumns = @JoinColumn ( name = "msi_id" ), inverseJoinColumns = @JoinColumn ( name = "group_id" ) )
+	public Set<BioSampleGroup> getSampleGroupRefs () {
+		return sampleGroupRefs;
+	}
+
+	protected void setSampleGroupRefs ( Set<BioSampleGroup> sampleGroups ) {
+		this.sampleGroupRefs = sampleGroups;
+	}
+
+	/**
+	 * Use these methods to manipulate refs, it coordinates the symmetric side, by means
+	 * of {@link BioSampleGroup#addMSIRef(MSI)}
+	 */
+	public boolean addSampleGroupRef ( BioSampleGroup sg )
+	{
+		if ( !this.getSampleGroupRefs ().add ( sg ) ) return false;
+		sg.addMSIRef ( this );
+		return true;
+	}
+
+	/**
+	 * Use these methods to manipulate refs, it coordinates the symmetric side, by means
+	 * of {@link BioSampleGroup#deleteMSIRef(MSI)}
+	 */
+	public boolean deleteSampleGroupRef ( BioSampleGroup sg )
+	{
+		if ( !this.getSampleGroupRefs ().remove ( sg ) ) return false;
+		sg.deleteMSIRef ( this );
+		return true;
+	}
 	
 	
+
 	
+	/**
+	 * This are the samples that were defined with the submission and belongs to the submission.
+	 * Usually there is only one submission per each sample having this role (we're not making this relation 1-n for
+	 * legacy reasons). 
+	 * 
+	 * @see {@link #getSampleRefs()}
+	 */	
 	@ManyToMany ( cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH }, fetch = FetchType.LAZY )
 	@JoinTable ( name = "msi_sample", 
     joinColumns = @JoinColumn ( name = "msi_id" ), inverseJoinColumns = @JoinColumn ( name = "sample_id" ) )
@@ -100,13 +162,21 @@ public class MSI extends Submission
 		this.samples = samples;
 	}
 
+	/**
+	 * Use these methods to manipulate owned samples , it coordinates the symmetric side, by means
+	 * of {@link BioSample#addMSI(MSI)}
+	 */
 	public boolean addSample ( BioSample smp ) 
 	{
 		if ( !this.getSamples ().add ( smp ) ) return false;
 		smp.addMSI ( this );
 		return true;
 	}
-	
+
+	/**
+	 * Use these methods to manipulate owned samples , it coordinates the symmetric side, by means
+	 * of {@link BioSample#deleteMSI(MSI)}
+	 */
 	public boolean deleteSample ( BioSample smp )
 	{
 		if ( !this.getSamples ().remove ( smp ) ) return false;
@@ -114,6 +184,45 @@ public class MSI extends Submission
 		return true;
 	}
 	
+
+	/**
+	 * These are sample that are referred by the submission, for any reason. This is different than 
+	 * {@link #getSamples()} and it can be a n-m relation.
+	 * 
+	 */
+	@ManyToMany ( cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH }, fetch = FetchType.LAZY )
+	@JoinTable ( name = "msi_sample_ref", 
+    joinColumns = @JoinColumn ( name = "msi_id" ), inverseJoinColumns = @JoinColumn ( name = "sample_id" ) )
+	public Set<BioSample> getSampleRefs () {
+		return sampleRefs;
+	}
+
+	protected void setSampleRefs ( Set<BioSample> samples ) {
+		this.sampleRefs = samples;
+	}
+
+	/**
+	 * Use these methods to manipulate sample refs, it coordinates the symmetric side, by means
+	 * of {@link BioSample#addMSIRef(MSI)}
+	 */
+	public boolean addSampleRef ( BioSample smp ) 
+	{
+		if ( !this.getSampleRefs ().add ( smp ) ) return false;
+		smp.addMSIRef ( this );
+		return true;
+	}
+
+	/**
+	 * Use these methods to manipulate sample refs, it coordinates the symmetric side, by means
+	 * of {@link BioSample#deleteMSIRef(MSI)}
+	 */
+	public boolean deleteSampleRef ( BioSample smp )
+	{
+		if ( !this.getSampleRefs ().remove ( smp ) ) return false;
+		smp.deleteMSIRef ( this );
+		return true;
+	}
+
 	
 	
 	/** @see SecureEntityDelegate */

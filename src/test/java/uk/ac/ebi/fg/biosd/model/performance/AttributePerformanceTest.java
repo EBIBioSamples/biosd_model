@@ -9,6 +9,7 @@ import javax.persistence.Query;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -109,7 +110,7 @@ public class AttributePerformanceTest
 	}
 	
 	
-	@Test // @Ignore ( "Not a real JUnit test and too time-consuming" )
+	@Test @Ignore ( "Not a real JUnit test and too time-consuming" )
 	public void testSimpleLoop ()
 	{
 		Map<String, Counter> counts = new HashMap<String, Counter> ();
@@ -141,7 +142,7 @@ public class AttributePerformanceTest
 		}
 	}
 
-	@Test //@Ignore ( "Not a real Junit test and too time-consuming" )
+	@Test @Ignore ( "Not a real Junit test and too time-consuming" )
 	public void testSimpleLoopWithSQL ()
 	{
 		EntityManager em = emProvider.getEntityManager ();

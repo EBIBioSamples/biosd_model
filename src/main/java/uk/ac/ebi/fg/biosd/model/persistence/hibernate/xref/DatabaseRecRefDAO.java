@@ -2,6 +2,7 @@ package uk.ac.ebi.fg.biosd.model.persistence.hibernate.xref;
 
 import static uk.ac.ebi.utils.sql.HqlUtils.parameterizedWithNullHql;
 
+import java.util.Collections;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -112,7 +113,8 @@ public class DatabaseRecRefDAO extends IdentifiableDAO<DatabaseRecordRef>
 	 * Wrapper with version = null
 	 */
   public List<DatabaseRecordRef> find ( String dbName, String accession ) {
-	  return find ( dbName, accession );
+  	DatabaseRecordRef result = find ( dbName, accession, (String) null );
+  	if ( result == null ) return Collections.emptyList (); else return Collections.singletonList ( result );
   }
 	
 }
