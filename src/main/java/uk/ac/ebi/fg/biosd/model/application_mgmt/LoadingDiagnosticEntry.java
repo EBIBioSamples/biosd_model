@@ -31,6 +31,8 @@ public class LoadingDiagnosticEntry extends Identifiable
 	private Long persistenceTimeMs;
 	private Integer itemsCount;
 
+	protected LoadingDiagnosticEntry () {}
+
 	/**
 	 * We're using primitive classes to be able to accept nulls.
 	 */

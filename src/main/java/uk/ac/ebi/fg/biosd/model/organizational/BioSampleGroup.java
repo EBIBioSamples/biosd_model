@@ -24,7 +24,7 @@ import uk.ac.ebi.fg.biosd.model.expgraph.BioSample;
 import uk.ac.ebi.fg.biosd.model.xref.DatabaseRecordRef;
 import uk.ac.ebi.fg.core_model.expgraph.properties.BioCharacteristicValue;
 import uk.ac.ebi.fg.core_model.expgraph.properties.ExperimentalPropertyValue;
-import uk.ac.ebi.fg.core_model.toplevel.DefaultAccessibleAnnotatable;
+import uk.ac.ebi.fg.core_model.toplevel.Accessible;
 
 /**
  * A collection of samples, put together for whatever criteria (e.g., coming from the same experiment, prepared for the 
@@ -37,7 +37,7 @@ import uk.ac.ebi.fg.core_model.toplevel.DefaultAccessibleAnnotatable;
 @Entity
 @Table( name = "bio_smp_grp" )
 @SuppressWarnings ( "rawtypes" )
-public class BioSampleGroup extends DefaultAccessibleAnnotatable
+public class BioSampleGroup extends Accessible
 {
 	private Set<BioSample> samples = new HashSet<BioSample> ();
 	private Collection<ExperimentalPropertyValue> propertyValues = new ArrayList<ExperimentalPropertyValue> ();
@@ -133,7 +133,7 @@ public class BioSampleGroup extends DefaultAccessibleAnnotatable
 		return true;
 	}
 
-	
+
 	/**
 	 * @see {@link MSI#getSampleGroupRefs()}.
 	 */
@@ -168,8 +168,7 @@ public class BioSampleGroup extends DefaultAccessibleAnnotatable
 		return true;
 	}
 	
-	
-	
+		
 	
 	/**
 	 * A sample group can have {@link BioCharacteristicValue characteristic values} attached in certain case, e.g., when

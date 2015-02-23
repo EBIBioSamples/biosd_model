@@ -204,60 +204,61 @@ public class SubmissionPersistenceTest
 		tns.commit ();
 	}
 
-    @Test 
-    public void testBioCharacteristic () throws Exception
-    {
-        IdentifiableDAO<BioCharacteristicValue> valueDao = new IdentifiableDAO<BioCharacteristicValue> ( BioCharacteristicValue.class, em );
 
-        AccessibleDAO<BioMaterial> biomaterialDao = new AccessibleDAO<BioMaterial> ( BioMaterial.class, em );
-        AccessibleDAO<MSI> msiDao = new AccessibleDAO<MSI> ( MSI.class, em );
+  @Test 
+  public void testBioCharacteristic () throws Exception
+  {
+      IdentifiableDAO<BioCharacteristicValue> valueDao = new IdentifiableDAO<BioCharacteristicValue> ( BioCharacteristicValue.class, em );
 
-        // Save the model
-        // 
-        EntityTransaction tns = em.getTransaction ();
-        tns.begin ();
-        biomaterialDao.create ( model.smp1 );
-        biomaterialDao.getOrCreate ( model.smp2 );
-        msiDao.getOrCreate ( model.msi );
-        tns.commit ();
-        
-        //change the value
-        BioCharacteristicValue value = valueDao.find(model.cv1.getId());
-        value.setTermText("foo value");
-        
-        //save the updated value
-        tns = em.getTransaction ();
-        tns.begin ();
-        valueDao.create(value);
-        tns.commit ();
-        
-        //test if the updated value was preserved
-        IdentifiableDAO<BioCharacteristicValue> valueUpdatedDao = new IdentifiableDAO<BioCharacteristicValue> ( BioCharacteristicValue.class, em );
-        BioCharacteristicValue valueUpdated = valueUpdatedDao.find(model.cv1.getId());
-        assertEquals("Updated value not saved", "foo value", valueUpdated.getTermText());
-        
-    }
-    @Test
-    public void testExpPropValDAO() throws Exception {
+      AccessibleDAO<BioMaterial> biomaterialDao = new AccessibleDAO<BioMaterial> ( BioMaterial.class, em );
+      AccessibleDAO<MSI> msiDao = new AccessibleDAO<MSI> ( MSI.class, em );
 
-        AccessibleDAO<BioMaterial> biomaterialDao = new AccessibleDAO<BioMaterial> ( BioMaterial.class, em );
-        AccessibleDAO<MSI> msiDao = new AccessibleDAO<MSI> ( MSI.class, em );
+      // Save the model
+      // 
+      EntityTransaction tns = em.getTransaction ();
+      tns.begin ();
+      biomaterialDao.create ( model.smp1 );
+      biomaterialDao.getOrCreate ( model.smp2 );
+      msiDao.getOrCreate ( model.msi );
+      tns.commit ();
+      
+      //change the value
+      BioCharacteristicValue value = valueDao.find(model.cv1.getId());
+      value.setTermText("foo value");
+      
+      //save the updated value
+      tns = em.getTransaction ();
+      tns.begin ();
+      valueDao.create(value);
+      tns.commit ();
+      
+      //test if the updated value was preserved
+      IdentifiableDAO<BioCharacteristicValue> valueUpdatedDao = new IdentifiableDAO<BioCharacteristicValue> ( BioCharacteristicValue.class, em );
+      BioCharacteristicValue valueUpdated = valueUpdatedDao.find(model.cv1.getId());
+      assertEquals("Updated value not saved", "foo value", valueUpdated.getTermText());
+      
+  }
+  @Test
+  public void testExpPropValDAO() throws Exception {
 
-        // Save the model
-        // 
-        EntityTransaction tns = em.getTransaction ();
-        tns.begin ();
-        biomaterialDao.create ( model.smp1 );
-        biomaterialDao.getOrCreate ( model.smp2 );
-        msiDao.getOrCreate ( model.msi );
-        tns.commit ();
-        
-        ExpPropValDAO expPropValDAO = new ExpPropValDAO(em);
-        List<ExperimentalPropertyValue<ExperimentalPropertyType>> results = expPropValDAO.getUnmapped(Long.MIN_VALUE, 5000);
-        for (ExperimentalPropertyValue<ExperimentalPropertyType> value : results) {
-            System.out.println(value);
-        }
-        //there are 5 property values that do not have an ontology entry
-        assertEquals("Did not find the expected number of unmaped property values", 5, results.size());
-    }
+      AccessibleDAO<BioMaterial> biomaterialDao = new AccessibleDAO<BioMaterial> ( BioMaterial.class, em );
+      AccessibleDAO<MSI> msiDao = new AccessibleDAO<MSI> ( MSI.class, em );
+
+      // Save the model
+      // 
+      EntityTransaction tns = em.getTransaction ();
+      tns.begin ();
+      biomaterialDao.create ( model.smp1 );
+      biomaterialDao.getOrCreate ( model.smp2 );
+      msiDao.getOrCreate ( model.msi );
+      tns.commit ();
+      
+      ExpPropValDAO expPropValDAO = new ExpPropValDAO(em);
+      List<ExperimentalPropertyValue<ExperimentalPropertyType>> results = expPropValDAO.getUnmapped(Long.MIN_VALUE, 5000);
+      for (ExperimentalPropertyValue<ExperimentalPropertyType> value : results) {
+          System.out.println(value);
+      }
+      //there are 5 property values that do not have an ontology entry
+      assertEquals("Did not find the expected number of unmaped property values", 5, results.size());
+  }	
 }

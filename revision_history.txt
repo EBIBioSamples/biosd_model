@@ -1,5 +1,5 @@
-2.2.2-SNAPSHOT
-  - Just started
+3.0-SNAPSHOT
+  - New model, with unified annotations and data items
 
 2.2
   - Changes in management of ontologies and property values

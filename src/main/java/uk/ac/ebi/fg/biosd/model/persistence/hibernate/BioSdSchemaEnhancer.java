@@ -24,7 +24,7 @@ public class BioSdSchemaEnhancer extends AbstractDbSchemaEnhancer
 				
 		// More join tables, that cannot easily be achieved from annotations
 		Set<String> alreadyDone = new HashSet<String> ();
-
+		
 		indexJoinTable ( "msi_contact", "msi_id", "contacts_id", alreadyDone );
 		indexJoinTable ( "msi_organization", "msi_id", "organizations_id", alreadyDone );
 		indexJoinTable ( "msi_publication", "msi_id", "publications_id", alreadyDone );

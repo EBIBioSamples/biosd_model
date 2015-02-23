@@ -102,7 +102,7 @@ public class MSI extends Submission
 		return true;
 	}
 	
-	
+
 	/**
 	 * These are sample groups that are referred by the submission, for any reason. This is different than 
 	 * {@link #getSampleGroups()} and it can be a n-m relation.
@@ -150,7 +150,7 @@ public class MSI extends Submission
 	 * legacy reasons). 
 	 * 
 	 * @see {@link #getSampleRefs()}
-	 */
+	 */	
 	@ManyToMany ( cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH }, fetch = FetchType.LAZY )
 	@JoinTable ( name = "msi_sample", 
     joinColumns = @JoinColumn ( name = "msi_id" ), inverseJoinColumns = @JoinColumn ( name = "sample_id" ) )
@@ -172,7 +172,7 @@ public class MSI extends Submission
 		smp.addMSI ( this );
 		return true;
 	}
-	
+
 	/**
 	 * Use these methods to manipulate owned samples , it coordinates the symmetric side, by means
 	 * of {@link BioSample#deleteMSI(MSI)}
@@ -184,8 +184,7 @@ public class MSI extends Submission
 		return true;
 	}
 	
-	
-	
+
 	/**
 	 * These are sample that are referred by the submission, for any reason. This is different than 
 	 * {@link #getSamples()} and it can be a n-m relation.
@@ -223,9 +222,7 @@ public class MSI extends Submission
 		smp.deleteMSIRef ( this );
 		return true;
 	}
-	
-	
-	
+
 	
 	
 	/** @see SecureEntityDelegate */
