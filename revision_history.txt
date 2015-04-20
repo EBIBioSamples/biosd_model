@@ -1,4 +1,7 @@
-3.0-SNAPSHOT
+3.0.1-SNAPSHOT
+  - Just started
+  
+3.0
   - New model, with unified annotations and data items
 
 2.2
