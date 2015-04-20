@@ -7,17 +7,15 @@ import javax.persistence.Query;
 
 import uk.ac.ebi.fg.core_model.expgraph.properties.ExperimentalPropertyType;
 import uk.ac.ebi.fg.core_model.expgraph.properties.ExperimentalPropertyValue;
-import uk.ac.ebi.fg.core_model.persistence.dao.hibernate.toplevel.IdentifiableDAO;
-import uk.ac.ebi.fg.core_model.terms.OntologyEntry;
+import uk.ac.ebi.fg.core_model.persistence.dao.hibernate.toplevel.AnnotatableDAO;
 /**
 * DAO to manage {@link ExperimentalPropertyValue}.
-* 
 *
 * <dl><dt>date</dt><dd>Jul 25, 2014</dd></dl>
 * @author Adam Faulconbridge
 *
 */
-public class ExpPropValDAO extends IdentifiableDAO<ExperimentalPropertyValue> {
+public class ExpPropValDAO extends AnnotatableDAO<ExperimentalPropertyValue> {
   //TODO: parameterize this type correctly without invalidating constructor
 
     public ExpPropValDAO(EntityManager entityManager) {

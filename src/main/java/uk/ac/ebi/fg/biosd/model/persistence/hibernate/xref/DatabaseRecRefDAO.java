@@ -11,16 +11,16 @@ import javax.persistence.Query;
 import org.apache.commons.lang3.Validate;
 
 import uk.ac.ebi.fg.biosd.model.xref.DatabaseRecordRef;
-import uk.ac.ebi.fg.core_model.persistence.dao.hibernate.toplevel.IdentifiableDAO;
+import uk.ac.ebi.fg.core_model.persistence.dao.hibernate.toplevel.AnnotatableDAO;
 
 /**
  * The DAO to manage {@link DatabaseRecordRef} entities.
- * 
+ *  
  * <dl><dt>date</dt><dd>24 Jan 2014</dd></dl>
  * @author Marco Brandizi
  *
  */
-public class DatabaseRecRefDAO extends IdentifiableDAO<DatabaseRecordRef>
+public class DatabaseRecRefDAO extends AnnotatableDAO<DatabaseRecordRef>
 {
 	public DatabaseRecRefDAO ( EntityManager entityManager ) {
 		super ( DatabaseRecordRef.class, entityManager );
