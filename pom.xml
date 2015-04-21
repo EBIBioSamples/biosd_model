@@ -3,7 +3,7 @@
   
   <groupId>uk.ac.ebi.fg</groupId>
   <artifactId>biosd_model</artifactId>
-  <version>3.0</version>
+  <version>3.0.1-SNAPSHOT</version>
   <name>The Biosample Database Object Model</name>
 
   <parent>
