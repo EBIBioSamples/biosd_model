@@ -19,6 +19,7 @@ import org.junit.Test;
 import uk.ac.ebi.fg.biosd.model.expgraph.BioSample;
 import uk.ac.ebi.fg.biosd.model.organizational.MSI;
 import uk.ac.ebi.fg.biosd.model.persistence.hibernate.application_mgmt.ExpPropValDAO;
+import uk.ac.ebi.fg.biosd.model.persistence.hibernate.organizational.MSIDAO;
 import uk.ac.ebi.fg.biosd.model.utils.test.TestModel;
 import uk.ac.ebi.fg.core_model.expgraph.BioMaterial;
 import uk.ac.ebi.fg.core_model.expgraph.Node;
@@ -117,7 +118,7 @@ public class SubmissionPersistenceTest
 	public void testBasics () throws Exception
 	{
 		AccessibleDAO<BioMaterial> biomaterialDao = new AccessibleDAO<BioMaterial> ( BioMaterial.class, em );
-		AccessibleDAO<MSI> msiDao = new AccessibleDAO<MSI> ( MSI.class, em );
+		MSIDAO msiDao = new MSIDAO ( em );
 
 		// Save
 		// 
@@ -146,7 +147,7 @@ public class SubmissionPersistenceTest
 	public void testReuse () throws Exception
 	{
 		AccessibleDAO<BioMaterial> biomaterialDao = new AccessibleDAO<BioMaterial> ( BioMaterial.class, em );
-		AccessibleDAO<MSI> msiDao = new AccessibleDAO<MSI> ( MSI.class, em );
+		MSIDAO msiDao = new MSIDAO ( em );
 
 		// Save
 		// 
@@ -211,7 +212,7 @@ public class SubmissionPersistenceTest
       IdentifiableDAO<BioCharacteristicValue> valueDao = new IdentifiableDAO<BioCharacteristicValue> ( BioCharacteristicValue.class, em );
 
       AccessibleDAO<BioMaterial> biomaterialDao = new AccessibleDAO<BioMaterial> ( BioMaterial.class, em );
-      AccessibleDAO<MSI> msiDao = new AccessibleDAO<MSI> ( MSI.class, em );
+  		MSIDAO msiDao = new MSIDAO ( em );
 
       // Save the model
       // 
@@ -242,7 +243,7 @@ public class SubmissionPersistenceTest
   public void testExpPropValDAO() throws Exception {
 
       AccessibleDAO<BioMaterial> biomaterialDao = new AccessibleDAO<BioMaterial> ( BioMaterial.class, em );
-      AccessibleDAO<MSI> msiDao = new AccessibleDAO<MSI> ( MSI.class, em );
+  		MSIDAO msiDao = new MSIDAO ( em );
 
       // Save the model
       // 

@@ -44,7 +44,6 @@ public class BioSample extends BioMaterial<ExperimentalPropertyValue>
 	private Set<BioSampleGroup> groups = new HashSet<BioSampleGroup> (); 
 	private Set<DatabaseRecordRef> databaseRecordRefs = new HashSet<DatabaseRecordRef> ();
 	private Set<MSI> msis = new HashSet<MSI> ();
-	private Set<MSI> msiRefs = new HashSet<MSI> ();
 
 	private Date updateDate;
 
@@ -137,41 +136,6 @@ public class BioSample extends BioMaterial<ExperimentalPropertyValue>
 		msi.deleteSample ( this );
 		return true;
 	}
-	
-	
-	/**
-	 * @see {@link MSI#getSampleRefs()}
-	 */
-	@ManyToMany ( mappedBy = "sampleRefs" )
-	public Set<MSI> getMSIRefs ()
-	{
-		return msiRefs;
-	}
-
-	protected void setMSIRefs ( Set<MSI> msis )
-	{
-		this.msiRefs = msis;
-	}
-
-	/**
-	 * @see {@link MSI#addSampleRef(BioSample)}
-	 */
-	public boolean addMSIRef ( MSI msi ) 
-	{
-		if ( !this.getMSIRefs ().add ( msi ) ) return false;
-		msi.addSampleRef ( this );
-		return true;
-	}
-	
-	/**
-	 * @see {@link MSI#deleteSampleRef(BioSample)}
-	 */
-	public boolean deleteMSIRef ( MSI msi ) 
-	{
-		if ( !this.getMSIRefs ().remove ( msi ) ) return false;
-		msi.deleteSampleRef ( this );
-		return true;
-	}	
 	
 	
 	

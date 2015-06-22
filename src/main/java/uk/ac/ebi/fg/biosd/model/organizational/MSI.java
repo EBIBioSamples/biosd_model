@@ -5,12 +5,17 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Transient;
 
 import org.apache.commons.lang3.StringUtils;
@@ -30,13 +35,31 @@ import uk.ac.ebi.fg.core_model.organizational.Submission;
  *
  */
 @Entity
+@NamedQueries ({
+	@NamedQuery ( name = "getSampleRefs", query = 
+			"SELECT smp FROM BioSample smp\n"
+		+ "WHERE smp.acc IN ( SELECT smpRef FROM MSI msi JOIN msi.sampleRefs smpRef WHERE msi.id = :msiId )" 
+	),
+	@NamedQuery ( name = "getSampleRefsFromList", query = 
+		"SELECT smp FROM BioSample smp\n"
+		+ "WHERE smp.acc IN ( :smpAccs )"
+	),
+	@NamedQuery ( name = "getSampleGroupRefs", query = 
+			"SELECT sg FROM BioSampleGroup sg\n"
+		+ "WHERE sg.acc IN ( SELECT sgRef FROM MSI msi JOIN msi.sampleGroupRefs sgRef WHERE msi.id = :msiId )" 
+	),
+	@NamedQuery ( name = "getSampleGroupRefsFromList", query = 
+			"SELECT sg FROM BioSampleGroup sg\n"
+		+ "WHERE sg.acc IN ( :sgAccs )" 
+	)
+})
 public class MSI extends Submission
 {
 	private Set<DatabaseRecordRef> databaseRecordRefs = new HashSet<DatabaseRecordRef> ();
 	private Set<BioSampleGroup> sampleGroups = new HashSet<BioSampleGroup> ();
 	private Set<BioSample> samples = new HashSet<BioSample> ();
-	private Set<BioSampleGroup> sampleGroupRefs = new HashSet<BioSampleGroup> ();
-	private Set<BioSample> sampleRefs = new HashSet<BioSample> ();
+	private Set<String> sampleGroupRefs = new HashSet<String> ();
+	private Set<String> sampleRefs = new HashSet<String> ();
 	private final SecureEntityDelegate securityDelegate = new SecureEntityDelegate ();
 	
 	protected MSI () {
@@ -105,39 +128,32 @@ public class MSI extends Submission
 
 	/**
 	 * These are sample groups that are referred by the submission, for any reason. This is different than 
-	 * {@link #getSampleGroups()} and it can be a n-m relation.
+	 * {@link #getSampleGroups()} and, conceptually, it can be a n-m relation.
 	 * 
 	 */
-	@ManyToMany ( cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH } )
-	@JoinTable ( name = "msi_sample_group_ref", 
-    joinColumns = @JoinColumn ( name = "msi_id" ), inverseJoinColumns = @JoinColumn ( name = "group_id" ) )
-	public Set<BioSampleGroup> getSampleGroupRefs () {
+	@ElementCollection
+	@CollectionTable ( 
+		name = "msi_sample_group_ref", joinColumns = @JoinColumn ( name = "msi_id" ), 
+		indexes = @Index ( name = "sg_ref", columnList = "sg_acc" )
+	)
+	@Column ( name = "sg_acc" )
+	public Set<String> getSampleGroupRefs () {
 		return sampleGroupRefs;
 	}
 
-	protected void setSampleGroupRefs ( Set<BioSampleGroup> sampleGroups ) {
-		this.sampleGroupRefs = sampleGroups;
+	protected void setSampleGroupRefs ( Set<String> sampleGroupAccs ) {
+		this.sampleGroupRefs = sampleGroupAccs;
 	}
 
-	/**
-	 * Use these methods to manipulate refs, it coordinates the symmetric side, by means
-	 * of {@link BioSampleGroup#addMSIRef(MSI)}
-	 */
-	public boolean addSampleGroupRef ( BioSampleGroup sg )
+	public boolean addSampleGroupRef ( String sgAcc )
 	{
-		if ( !this.getSampleGroupRefs ().add ( sg ) ) return false;
-		sg.addMSIRef ( this );
+		if ( !this.getSampleGroupRefs ().add ( sgAcc ) ) return false;
 		return true;
 	}
 
-	/**
-	 * Use these methods to manipulate refs, it coordinates the symmetric side, by means
-	 * of {@link BioSampleGroup#deleteMSIRef(MSI)}
-	 */
-	public boolean deleteSampleGroupRef ( BioSampleGroup sg )
+	public boolean deleteSampleGroupRef ( String sgAcc )
 	{
-		if ( !this.getSampleGroupRefs ().remove ( sg ) ) return false;
-		sg.deleteMSIRef ( this );
+		if ( !this.getSampleGroupRefs ().remove ( sgAcc ) ) return false;
 		return true;
 	}
 	
@@ -186,40 +202,31 @@ public class MSI extends Submission
 	
 
 	/**
-	 * These are sample that are referred by the submission, for any reason. This is different than 
-	 * {@link #getSamples()} and it can be a n-m relation.
-	 * 
+	 * These are sample that are referred by the submission, for any reason. 
 	 */
-	@ManyToMany ( cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH }, fetch = FetchType.LAZY )
-	@JoinTable ( name = "msi_sample_ref", 
-    joinColumns = @JoinColumn ( name = "msi_id" ), inverseJoinColumns = @JoinColumn ( name = "sample_id" ) )
-	public Set<BioSample> getSampleRefs () {
+	@ElementCollection
+	@CollectionTable ( name = "msi_sample_ref", 
+		joinColumns = @JoinColumn ( name = "msi_id" ),
+		indexes = @Index ( name = "smp_ref", columnList = "smp_acc" )
+	)
+	@Column ( name = "smp_acc" )
+	public Set<String> getSampleRefs () {
 		return sampleRefs;
 	}
 
-	protected void setSampleRefs ( Set<BioSample> samples ) {
-		this.sampleRefs = samples;
+	protected void setSampleRefs ( Set<String> sampleAccs ) {
+		this.sampleRefs = sampleAccs;
 	}
 
-	/**
-	 * Use these methods to manipulate sample refs, it coordinates the symmetric side, by means
-	 * of {@link BioSample#addMSIRef(MSI)}
-	 */
-	public boolean addSampleRef ( BioSample smp ) 
+	public boolean addSampleRef ( String sampleAcc ) 
 	{
-		if ( !this.getSampleRefs ().add ( smp ) ) return false;
-		smp.addMSIRef ( this );
+		if ( !this.getSampleRefs ().add ( sampleAcc ) ) return false;
 		return true;
 	}
 
-	/**
-	 * Use these methods to manipulate sample refs, it coordinates the symmetric side, by means
-	 * of {@link BioSample#deleteMSIRef(MSI)}
-	 */
-	public boolean deleteSampleRef ( BioSample smp )
+	public boolean deleteSampleRef ( String sampleAcc )
 	{
-		if ( !this.getSampleRefs ().remove ( smp ) ) return false;
-		smp.deleteMSIRef ( this );
+		if ( !this.getSampleRefs ().remove ( sampleAcc ) ) return false;
 		return true;
 	}
 

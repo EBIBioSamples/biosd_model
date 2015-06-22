@@ -58,7 +58,7 @@ public class MSIDumper
 		out.println ( msi.getSampleGroupRefs () );
 
 		out.println ( "\n  --------------- Sample Refs:" );
-		gdumper.dump ( out, msi.getSampleRefs () );
+		out.println ( msi.getSampleRefs () );
 		
 		out.println ( "====================================================================\n\n" );
 	}
