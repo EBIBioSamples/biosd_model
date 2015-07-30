@@ -134,7 +134,10 @@ public class MSI extends Submission
 	@ElementCollection
 	@CollectionTable ( 
 		name = "msi_sample_group_ref", joinColumns = @JoinColumn ( name = "msi_id" ), 
-		indexes = @Index ( name = "sg_ref", columnList = "sg_acc" )
+		indexes = {
+			@Index ( name = "msi_sg_ref_acc", columnList = "sg_acc" ),
+			@Index ( name = "msi_sg_ref_id", columnList = "msi_id" ),
+		}
 	)
 	@Column ( name = "sg_acc" )
 	public Set<String> getSampleGroupRefs () {
@@ -207,7 +210,10 @@ public class MSI extends Submission
 	@ElementCollection
 	@CollectionTable ( name = "msi_sample_ref", 
 		joinColumns = @JoinColumn ( name = "msi_id" ),
-		indexes = @Index ( name = "smp_ref", columnList = "smp_acc" )
+		indexes = {
+			@Index ( name = "msi_smp_ref_acc", columnList = "smp_acc" ),
+			@Index ( name = "msi_smp_ref_id", columnList = "msi_id" ),
+		}
 	)
 	@Column ( name = "smp_acc" )
 	public Set<String> getSampleRefs () {
