@@ -5,7 +5,7 @@ import java.util.Set;
 
 import javax.persistence.EntityManagerFactory;
 
-import uk.ac.ebi.fg.persistence.hibernate.schema_enhancer.AbstractDbSchemaEnhancer;
+import uk.ac.ebi.fg.persistence.hibernate.schema_enhancer.DbSchemaEnhancer;
 import uk.ac.ebi.fg.persistence.hibernate.schema_enhancer.DefaultDbSchemaEnhancer;
 
 /**
@@ -16,7 +16,7 @@ import uk.ac.ebi.fg.persistence.hibernate.schema_enhancer.DefaultDbSchemaEnhance
  * @author Marco Brandizi
  *
  */
-public class BioSdSchemaEnhancer extends AbstractDbSchemaEnhancer
+public class BioSdSchemaEnhancer extends DbSchemaEnhancer
 {
 	public void enhance ( EntityManagerFactory emf )
 	{
