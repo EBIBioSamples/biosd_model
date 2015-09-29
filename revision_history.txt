@@ -1,5 +1,6 @@
-3.0.1-SNAPSHOT
-  - Just started
+4.0-SNAPSHOT
+  - Entities moved to feature annotator
+  - New mechanism to define model extensions at Hibernate level (see the Resources class).
   
 3.0
   - New model, with unified annotations and data items
