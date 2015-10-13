@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<configuration>
+<configuration
+  xmlns="logback"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xsi:schemaLocation="logback http://raw.githubusercontent.com/enricopulatzo/logback-XSD/master/src/main/xsd/logback.xsd" >
 
   <appender name="ConsoleApp" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>

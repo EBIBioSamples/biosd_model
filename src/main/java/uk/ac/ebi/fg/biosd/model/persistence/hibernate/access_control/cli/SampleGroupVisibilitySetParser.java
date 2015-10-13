@@ -39,8 +39,8 @@ class SampleGroupVisibilitySetParser extends CLIParser
 			String specBits[] = VisibilityParser.SAMPLE_GROUP_VISIBILITY_SET_SPEC_RE.groups ( singleSpec );
 			if ( specBits == null || specBits.length < 4 ) throw new IllegalArgumentException ( "Syntax error in '" + singleSpec +"'" );
 			Boolean publicFlag = 
-				"+".equals ( specBits [ 1 ] ) ? new Boolean ( true )
-				: "-".equals ( specBits [ 1 ] ) ? new Boolean ( false ) 
+				"+".equals ( specBits [ 1 ] ) ? Boolean.valueOf ( true )
+				: "-".equals ( specBits [ 1 ] ) ? Boolean.valueOf ( false ) 
 				: null; // last case is --   
 			result += accMgr.setBioSampleGroupVisibility ( specBits [ 2 ], publicFlag, "++".equals ( specBits [ 3 ] ) );
 		}

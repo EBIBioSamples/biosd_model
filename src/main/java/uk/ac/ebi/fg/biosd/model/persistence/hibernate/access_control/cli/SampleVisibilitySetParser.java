@@ -46,10 +46,12 @@ class SampleVisibilitySetParser extends CLIParser
 		for ( String singleSpec: cmd.split ( "\\s+" ) )
 		{
 			String specBits[] = SAMPLE_VISIBILITY_SET_SPEC_RE.groups ( singleSpec );
-			if ( specBits == null || specBits.length < 3 ) throw new IllegalArgumentException ( "Syntax error in '" + singleSpec +"'" );
+			if ( specBits == null || specBits.length < 3 ) throw new IllegalArgumentException ( 
+				"Syntax error in '" + singleSpec +"'" 
+			);
 			Boolean publicFlag = 
-				"+".equals ( specBits [ 1 ] ) ? true 
-				: "-".equals ( specBits [ 1 ] ) ? false 
+				"+".equals ( specBits [ 1 ] ) ? Boolean.valueOf ( true ) 
+				: "-".equals ( specBits [ 1 ] ) ? Boolean.valueOf ( false )
 				: null; // last case is --   
 			if ( accMgr.setBioSampleVisibility ( specBits [ 2 ], publicFlag ) ) result++;
 		}

@@ -111,11 +111,11 @@ public class AttributePerformanceTest
 	
 	
 	@Test @Ignore ( "Not a real JUnit test and too time-consuming" )
+	@SuppressWarnings ( "unchecked" )
 	public void testSimpleLoop ()
 	{
 		Map<String, Counter> counts = new HashMap<String, Counter> ();
 		EntityManager em = emProvider.getEntityManager ();
-		Query pvq = em.createQuery ( "SELECT pt FROM BioSample smp JOIN smp.propertyValues pv JOIN pv.type pt WHERE smp.id = :smpId" );
 		long nitems = 0;
 		for ( BioSampleGroup sg: (List<BioSampleGroup>) em.createQuery ( "FROM BioSampleGroup sg" ).getResultList () )
 		{

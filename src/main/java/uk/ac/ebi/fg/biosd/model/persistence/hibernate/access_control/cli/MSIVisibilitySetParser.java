@@ -45,8 +45,8 @@ class MSIVisibilitySetParser extends CLIParser
 			
 			String acc = specBits [ 2 ]; 
 			Boolean publicFlag = 
-				"+".equals ( specBits [ 1 ] ) ? new Boolean ( true ) 
-				: "-".equals ( specBits [ 1 ] ) ? new Boolean ( false ) 
+				"+".equals ( specBits [ 1 ] ) ? Boolean.valueOf ( true ) 
+				: "-".equals ( specBits [ 1 ] ) ? Boolean.valueOf ( false ) 
 				: null; // last case is --
 			boolean isCascaded = "++".equals ( specBits [ 3 ] );
 				
