@@ -5,9 +5,4 @@ extension of the [core-model project](https://github.com/EBIBioSamples/core_mode
 
 You find documentation about the BioSD/Core models [here](/doc).
 
-  __ TODO __ 
-
-* (More) JUnit tests to be written and run
-* Use JAXB to map the model to XML (needed for things like web services, both here and in the core model)
-
   
