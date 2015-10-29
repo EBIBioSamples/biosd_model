@@ -2,23 +2,23 @@
   - Next dev version
   
 4.0
-  - Entities moved to feature annotator
+  - Entities moved to feature annotator.
   - New mechanism to define model extensions at Hibernate level (see the Resources class).
   
 3.0
-  - New model, with unified annotations and data items
+  - New model, with unified annotations and data items.
 
 2.2
-  - Changes in management of ontologies and property values
-  - biosd_common and jUtils and dependency upgraded, with changes made to fix incompatibilities 
+  - Changes in management of ontologies and property values.
+  - biosd_common and jUtils and dependency upgraded, with changes made to fix incompatibilities. 
     
 2.1.1
-  - JPA plug-in version down-graded, due to bugs with the most recent 3-SNAPSHOT
+  - JPA plug-in version down-graded, due to bugs with the most recent 3-SNAPSHOT.
     
 2.1
-  - Modelling of of Database records simplified  
-  - Making the Hibernate persistence unit name specific of FG/BioSD models 
-  - Addition of a common parent POM for all BioSD-related projects 
+  - Modelling of of Database records simplified.
+  - Making the Hibernate persistence unit name specific of FG/BioSD models. 
+  - Addition of a common parent POM for all BioSD-related projects.
 
 2.0 
   - Access-control features added.
