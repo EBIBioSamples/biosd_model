@@ -1,4 +1,7 @@
-4.0-SNAPSHOT
+4.0.1-SNAPSHOT
+  - Next dev version
+  
+4.0
   - Entities moved to feature annotator
   - New mechanism to define model extensions at Hibernate level (see the Resources class).
   
