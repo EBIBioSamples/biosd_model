@@ -53,7 +53,7 @@ public class TestModel
 	public Unit percent;
 	
 	public OntologyEntry oe1, oe2;
-	private ReferenceSource src1, src2;
+	public ReferenceSource src1, src2;
 	
 	public ContactRole cntRole1;
 
@@ -134,7 +134,7 @@ public class TestModel
 		ch3.setTermText ( "concentration" );
 		cv5 = new BioCharacteristicValue ( "2%", ch3 );
 		concentrationUnit = new UnitDimension ( "Concentration" );
-		percent = new Unit ( "Percentage", concentrationUnit );
+		percent = new Unit ( "percent", concentrationUnit );
 		cv5.setUnit ( percent );
 		
 		smp4.addPropertyValue ( cv5 );
