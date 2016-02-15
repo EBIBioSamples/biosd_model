@@ -453,4 +453,71 @@ public class AccessControlTest
 		assertNotNull ( "'get visibility sample-groups' returned null!", sgs );
 		assertEquals ( "'get visibility sample-groups' returned a wrong-size result!", 2, sgs.size () );
 	}
+
+	@Test
+	public void testIsPublicForPublicFlag ()
+	{
+		AccessibleDAO<BioSample> sampleDao = new AccessibleDAO<BioSample> ( BioSample.class, em );
+		AccessibleDAO<MSI> msiDao = new AccessibleDAO<MSI> ( MSI.class, em );
+
+		EntityTransaction tns = em.getTransaction ();
+		tns.begin ();
+		sampleDao.create ( model.smp1 );
+		sampleDao.getOrCreate ( model.smp2 );
+		tns.commit ();
+
+		BioSample smp1DB = sampleDao.find ( model.smp1.getAcc () );
+		assertTrue("test returned invalid result for sample with public flag true", smp1DB.isPublic());
+
+	}
+
+	@Test
+	public void testIsPublicForReleaseDate()
+	{
+		AccessibleDAO<BioSample> sampleDao = new AccessibleDAO<BioSample> ( BioSample.class, em );
+		AccessibleDAO<MSI> msiDao = new AccessibleDAO<MSI> ( MSI.class, em );
+
+		EntityTransaction tns = em.getTransaction ();
+		tns.begin ();
+		sampleDao.create ( model.smp1 );
+		sampleDao.getOrCreate ( model.smp2 );
+		tns.commit ();
+
+		BioSample smp2DB = sampleDao.find ( model.smp2.getAcc () );
+		assertTrue("test returned invalid result for sample with release date prior than now", smp2DB.isPublic());
+	}
+
+	@Test
+	public void testIsPublicForMSI()
+	{
+		AccessibleDAO<BioSample> sampleDao = new AccessibleDAO<BioSample> ( BioSample.class, em );
+		AccessibleDAO<MSI> msiDao = new AccessibleDAO<MSI> ( MSI.class, em );
+
+		EntityTransaction tns = em.getTransaction ();
+		tns.begin ();
+		sampleDao.getOrCreate ( model.smp3 );
+		tns.commit ();
+
+		BioSample smp3DB = sampleDao.find( model.smp3.getAcc () );
+		assertTrue("test returned invalid result for sample with no release information except MSI release date", smp3DB.isPublic());
+	}
+
+	@Test(expected=IllegalStateException.class)
+	public void testIsPublicUnkownReleaseDate()
+	{
+		AccessibleDAO<BioSample> sampleDao = new AccessibleDAO<BioSample> ( BioSample.class, em );
+		AccessibleDAO<MSI> msiDao = new AccessibleDAO<MSI> ( MSI.class, em );
+
+		MSI tmpMSI = model.msi;
+		tmpMSI.setReleaseDate(null);
+
+		EntityTransaction tns = em.getTransaction ();
+		tns.begin ();
+		sampleDao.getOrCreate ( model.smp4 );
+		msiDao.getOrCreate ( tmpMSI );
+		tns.commit ();
+
+		BioSample smp4DB = sampleDao.find( model.smp4.getAcc () );
+		smp4DB.isPublic();
+	}
 }

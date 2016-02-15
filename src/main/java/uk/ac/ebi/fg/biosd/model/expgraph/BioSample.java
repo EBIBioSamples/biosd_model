@@ -221,7 +221,22 @@ public class BioSample extends BioMaterial<ExperimentalPropertyValue>
 	@Transient
 	public boolean isPublic ()
 	{
-		return securityDelegate.isPublic ();
+		SecureEntityDelegate.PublicStatus publicStatus = securityDelegate.isPublic();
+
+		if (publicStatus.equals(SecureEntityDelegate.PublicStatus.UNKNOWN)) {
+
+			Date now = new Date(0);
+
+			Set<MSI> msis = this.getMSIs();
+			if (msis.size() != 1) {
+				throw new IllegalStateException("BioSample has more than one MSI");
+			} else {
+				return msis.iterator().next().isPublic();
+			}
+
+		}
+
+		return publicStatus.getValue();
 	}
 	
 }

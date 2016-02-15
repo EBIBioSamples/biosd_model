@@ -289,7 +289,15 @@ public class MSI extends Submission
 	@Transient
 	public boolean isPublic ()
 	{
-		return securityDelegate.isPublic ();
+		SecureEntityDelegate.PublicStatus publicStatus = securityDelegate.isPublic();
+
+		if (publicStatus.equals(SecureEntityDelegate.PublicStatus.UNKNOWN)) {
+
+			throw new IllegalStateException("Release date is unknown");
+
+		}
+
+		return publicStatus.getValue();
 	}
 	
 	

@@ -20,7 +20,22 @@ import uk.ac.ebi.utils.orm.Many2ManyUtils;
  */
 public class SecureEntityDelegate
 {
-	private Set<User> users = new HashSet<User> (); 
+	public enum PublicStatus {
+		PRIVATE(false), PUBLIC(true), UNKNOWN(false);
+
+		private boolean isPublic;
+
+		PublicStatus(boolean value) {
+			this.isPublic = value;
+		}
+
+		public boolean getValue() {
+			return this.isPublic;
+		}
+
+	};
+
+	private Set<User> users = new HashSet<User> ();
 
 	private Boolean publicFlag = null;
 	private Date releaseDate = null;
@@ -30,9 +45,9 @@ public class SecureEntityDelegate
 	}
 
 	/**
-	 * You've to re-map this in the delegator, typically with 
+	 * You've to re-map this in the delegator, typically with
 	 * @ManyToMany ( mappedBy = "..." cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH } )
-	 * 
+	 *
 	 */
 	public Set<User> getUsers ()
 	{
@@ -40,8 +55,8 @@ public class SecureEntityDelegate
 	}
 
 	/**
-	 * You need to tell me the delegator and the method it uses to add itself to the other end of the relation, 
-	 * eg, for BioSample: addUser ( this, user, "addBioSample" )    
+	 * You need to tell me the delegator and the method it uses to add itself to the other end of the relation,
+	 * eg, for BioSample: addUser ( this, user, "addBioSample" )
 	 */
 	public <D> boolean addUser ( D delegator, User user, String inverseRelationAddMethod ) {
 		return Many2ManyUtils.addMany2Many ( delegator, user, inverseRelationAddMethod, this.getUsers () );
@@ -56,7 +71,7 @@ public class SecureEntityDelegate
 
 	/**
 	 * @see #isPublic().
-	 * 
+	 *
 	 * Add this to the delegating's method: @Column ( name = "public_flag", nullable = true ) */
 	public Boolean getPublicFlag () {
 		return this.publicFlag;
@@ -65,32 +80,53 @@ public class SecureEntityDelegate
 	public void setPublicFlag ( Boolean publicFlag ) {
 		this.publicFlag = publicFlag;
 	}
-	
-  /** 
+
+  /**
    * @see #isPublic().
-   * 
-   * Add this to the delegating's method: @Column ( name = "release_date", nullable = true ) */ 
+   *
+   * Add this to the delegating's method: @Column ( name = "release_date", nullable = true ) */
 	public Date getReleaseDate ()
 	{
 		return releaseDate;
 	}
 
-  
+
 	public void setReleaseDate ( Date releaseDate )
 	{
 		this.releaseDate = releaseDate;
 	}
 
-	/** 
+	/**
 	 * An entity is public if {@link #getPublicFlag()} is non-null and true or {@link #getReleaseDate()} <= now().
-	 * 
+	 *
 	 * Add this to the delegating's method: @Transient */
-	public boolean isPublic ()
+	public PublicStatus isPublic ()
 	{
 		Date now = new Date ();
-		return this.getPublicFlag () == null 
-			? this.getReleaseDate () != null && ( this.releaseDate.before ( now ) || this.releaseDate.equals ( now ) ) 
-			: this.publicFlag;
+
+
+		if ( this.getPublicFlag() == null ) {
+
+			if (this.getReleaseDate() == null ) {
+				// In case both the public flag or the release dates are null
+				// should rely on the MSI release date, not available here
+				return PublicStatus.UNKNOWN;
+			}
+
+			if ( this.releaseDate.before (now) || this.releaseDate.equals(now) ) {
+				return PublicStatus.PUBLIC;
+			}
+
+			return PublicStatus.PRIVATE;
+
+		} else {
+
+			if (this.publicFlag) {
+				return PublicStatus.PUBLIC;
+			}
+
+			return PublicStatus.PRIVATE;
+		}
 	}
 	
 }

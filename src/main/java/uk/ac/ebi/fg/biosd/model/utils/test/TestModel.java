@@ -1,6 +1,7 @@
 package uk.ac.ebi.fg.biosd.model.utils.test;
 
 import java.util.Collections;
+import java.util.GregorianCalendar;
 
 import javax.persistence.EntityManager;
 
@@ -159,13 +160,17 @@ public class TestModel
 		smp3.addGroup ( sg2 ); // same sample in two groups
 		
 		msi = new MSI ( prefix + "msi1" );
+		msi.setReleaseDate ( new GregorianCalendar( 2010, 3, 21 ).getTime () );
+
 		
 		cnt = new Contact ();
 		cnt.setFirstName ( prefix + "Mister" );
 		cnt.setLastName ( prefix + "Test" );
 		Collections.addAll ( cnt.getContactRoles (), cntRole1 = new ContactRole ( prefix + "test-submitter" ) );
 		msi.addContact ( cnt );
-		
+
+
+
 		msi.addSample ( smp1 );
 		msi.addSample ( smp2 );
 		msi.addSample ( smp3 );
@@ -175,6 +180,7 @@ public class TestModel
 
 		msi.addSampleGroup ( sg1 );
 		msi.addSampleGroup ( sg2 );
+
 	}
 	
 	public void delete ( EntityManager em )
