@@ -289,7 +289,7 @@ public class MSI extends Submission
 	@Transient
 	public boolean isPublic ()
 	{
-		SecureEntityDelegate.PublicStatus publicStatus = securityDelegate.isPublic();
+		SecureEntityDelegate.PublicStatus publicStatus = securityDelegate.getPublicStatus();
 
 		if (publicStatus.equals(SecureEntityDelegate.PublicStatus.UNKNOWN)) {
 

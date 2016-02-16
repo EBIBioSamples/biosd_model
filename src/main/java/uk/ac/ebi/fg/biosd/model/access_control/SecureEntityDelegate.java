@@ -70,7 +70,7 @@ public class SecureEntityDelegate
 	}
 
 	/**
-	 * @see #isPublic().
+	 * @see #getPublicStatus().
 	 *
 	 * Add this to the delegating's method: @Column ( name = "public_flag", nullable = true ) */
 	public Boolean getPublicFlag () {
@@ -82,7 +82,7 @@ public class SecureEntityDelegate
 	}
 
   /**
-   * @see #isPublic().
+   * @see #getPublicStatus().
    *
    * Add this to the delegating's method: @Column ( name = "release_date", nullable = true ) */
 	public Date getReleaseDate ()
@@ -100,7 +100,7 @@ public class SecureEntityDelegate
 	 * An entity is public if {@link #getPublicFlag()} is non-null and true or {@link #getReleaseDate()} <= now().
 	 *
 	 * Add this to the delegating's method: @Transient */
-	public PublicStatus isPublic ()
+	public PublicStatus getPublicStatus()
 	{
 		Date now = new Date ();
 

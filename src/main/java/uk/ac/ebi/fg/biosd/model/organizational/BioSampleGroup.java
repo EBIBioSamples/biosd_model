@@ -225,7 +225,7 @@ public class BioSampleGroup extends Accessible
 	@Transient
 	public boolean isPublic ()
 	{
-		SecureEntityDelegate.PublicStatus publicStatus = securityDelegate.isPublic();
+		SecureEntityDelegate.PublicStatus publicStatus = securityDelegate.getPublicStatus();
 
 		if (publicStatus.equals(SecureEntityDelegate.PublicStatus.UNKNOWN)) {
 
