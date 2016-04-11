@@ -226,20 +226,14 @@ public class BioSampleGroup extends Accessible
 	public boolean isPublic ()
 	{
 		SecureEntityDelegate.PublicStatus publicStatus = securityDelegate.getPublicStatus();
-
 		if (publicStatus.equals(SecureEntityDelegate.PublicStatus.UNKNOWN)) {
-
-			Date now = new Date(0);
-
 			Set<MSI> msis = this.getMSIs();
 			if (msis.size() != 1) {
 				throw new IllegalStateException("BioSample has more than one MSI");
 			} else {
 				msis.iterator().next().isPublic();
 			}
-
 		}
-
 		return publicStatus.getValue();
 	}
 	
