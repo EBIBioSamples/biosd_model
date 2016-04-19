@@ -228,13 +228,16 @@ public class BioSampleGroup extends Accessible
 		SecureEntityDelegate.PublicStatus publicStatus = securityDelegate.getPublicStatus();
 		if (publicStatus.equals(SecureEntityDelegate.PublicStatus.UNKNOWN)) {
 			Set<MSI> msis = this.getMSIs();
-			if (msis.size() != 1) {
-				throw new IllegalStateException("BioSample has more than one MSI");
+			if (msis.size() > 1) {
+				throw new IllegalStateException("BioSampleGroup "+getAcc()+" more than one MSI");
+			} else if (msis.size() < 1) {
+				throw new IllegalStateException("BioSampleGroup "+getAcc()+" less than one MSI");
 			} else {
-				msis.iterator().next().isPublic();
+				return msis.iterator().next().isPublic();
 			}
+		} else {
+			return publicStatus.getValue();
 		}
-		return publicStatus.getValue();
 	}
 	
 	/**
